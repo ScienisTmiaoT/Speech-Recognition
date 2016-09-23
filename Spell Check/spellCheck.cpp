@@ -136,8 +136,13 @@ unsigned int beamLevenshteinDistance(const std::string& s1, const std::string& s
 		}
 	}
 
+	vector<unsigned int> colTemp(len_tem + 1);
+	for (unsigned int i = 0; i < len_tem + 1; i++)
+		colTemp[i] = UINT_MAX / 2;
+
 	for (unsigned int i = 0; i < len_input; i++)
 	{
+		col = colTemp;
 		if (temp_down == 0) {
 			col[0] = i + 1;
 			if (col[0] > ABSOLUTE_BEAM) {
