@@ -233,22 +233,22 @@ void printPath(const string& s1, const string& s2, string filePath, string fileN
 		for (int j = 0; j < len1 + 1; j++) {
 			if (j == 0) {
 				if (i < len2) {
-					cout << setw(3) << c2[len2 - 1 - i];
-					out << setw(3) << c2[len2 - 1 - i];
+					cout << setw(TABLE_GAP) << c2[len2 - 1 - i];
+					out << setw(TABLE_GAP) << c2[len2 - 1 - i];
 				}
 				else {
-					cout << setw(3) << " ";
-					out << setw(3) << " ";
+					cout << setw(TABLE_GAP) << " ";
+					out << setw(TABLE_GAP) << " ";
 				}
 			}
 			else {
 				if (i != len2) {
-					cout << setw(3) << printArray[len2 - i][j - 1];
-					out << setw(3) << printArray[len2 - i][j - 1];
+					cout << setw(TABLE_GAP) << printArray[len2 - i][j - 1];
+					out << setw(TABLE_GAP) << printArray[len2 - i][j - 1];
 				}
 				else {
-					cout << setw(3) << c1[j - 1];
-					out << setw(3) << c1[j - 1];
+					cout << setw(TABLE_GAP) << c1[j - 1];
+					out << setw(TABLE_GAP) << c1[j - 1];
 				}
 			}
 		}
