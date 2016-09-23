@@ -127,7 +127,7 @@ unsigned int beamLevenshteinDistance(const std::string& s1, const std::string& s
 	unsigned int temp_down = 0;
 
 	// initialize the first column
-	for (unsigned int i = 0; i < len_tem; i++)
+	for (unsigned int i = 0; i < len_tem + 1; i++)
 	{
 		prevCol[i] = i;
 		if (prevCol[i] > ABSOLUTE_BEAM) {
@@ -195,6 +195,35 @@ int recursionLevenshteinDistance(char *s, int len_s, char *t, int len_t) {
 		recursionLevenshteinDistance(s, len_s - 1, t, len_t - 1) + cost });
 }
 
+//print the table of levenshtein distance
+void printPath(const string& s1, const string& s2) {
+	const std::size_t len1 = s1.size(), len2 = s2.size();
+	int** printArray;
+	printArray = new int*[len2 + 1];
+	for (int i = 0; i < len2 + 1; i++) {
+		printArray[i] = new int[len1 + 1];
+		memset(printArray[i], 0, (len1 + 1) * sizeof(int));
+	}
+
+	std::vector<unsigned int> col(len2 + 1), prevCol(len2 + 1);
+	for (unsigned int i = 0; i < prevCol.size(); i++) {
+		prevCol[i] = i;
+		printArray[i][0] = i;
+	}
+	for (unsigned int i = 0; i < len1; i++) {
+		col[0] = i + 1;
+		printArray[0][i] = i + 1;
+		for (unsigned int j = 0; j < len2; j++) {
+			col[j + 1] = std::min({ prevCol[1 + j] + 1, col[j] + 1, prevCol[j] + (s1[i] == s2[j] ? 0 : 1) });
+			printArray[j + 1][i] = col[j + 1];
+		}
+		col.swap(prevCol);
+	}
+
+	delete[] printArray;
+	//return prevCol[len2];
+}
+
 void spellCheck() {
 	//convertFile(FILE_PATH, IN_STORY_NAME, OUT_STORY_NAME);
 	//convertFile(FILE_PATH, IN_STORY_CORRECT_NAME, OUT_STORY_CORRECT_NAME);
@@ -209,7 +238,7 @@ void spellCheck() {
 			string s = story.at(i);
 			string d = dict.at(j);
 			//if (abs((int)(s.length() - d.length())) <= 3) {
-			unsigned int dis = pureLevenshteinDistance(s, d);
+			unsigned int dis = beamLevenshteinDistance(s, d);
 			if (distances[i] > dis) {
 				distances[i] = dis;
 				distanceId[i] = j;
@@ -236,7 +265,7 @@ void spellCheck() {
 		//edit distance of alignment word and correct word
 		storyResultWithCorrect << dict.at(distanceId[i]) << " "
 			<< storyCorrect.at(i) << " "
-			<< pureLevenshteinDistance(dict.at(distanceId[i]), storyCorrect.at(i)) << "\n";
+			<< beamLevenshteinDistance(dict.at(distanceId[i]), storyCorrect.at(i)) << "\n";
 		//calculate number of correct word after edit distance
 		if (dict.at(distanceId[i]) == storyCorrect.at(i))
 			correctCount++;

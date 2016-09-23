@@ -30,6 +30,7 @@ unsigned int pureLevenshteinDistance(const std::string& s1, const std::string& s
 unsigned int flagLevenshteinDistance(const std::string& s1, const std::string& s2);
 unsigned int beamLevenshteinDistance(const std::string& s1, const std::string& s2);
 int recursionLevenshteinDistance(char *s, int len_s, char *t, int len_t);
+void printPath(const string& inp, const string& tem);
 void spellCheck();
 
 
