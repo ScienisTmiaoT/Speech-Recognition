@@ -196,7 +196,7 @@ int recursionLevenshteinDistance(char *s, int len_s, char *t, int len_t) {
 }
 
 //print the table of levenshtein distance
-void printPath(const string& s1, const string& s2) {
+void printPath(const string& s1, const string& s2, string filePath, string fileName) {
 	const std::size_t len1 = s1.size(), len2 = s2.size();
 	int** printArray;
 	printArray = new int*[len2 + 1];
@@ -212,7 +212,7 @@ void printPath(const string& s1, const string& s2) {
 	}
 	for (unsigned int i = 0; i < len1; i++) {
 		col[0] = i + 1;
-		printArray[0][i] = i + 1;
+		printArray[1][i + 1] = i + 1;
 		for (unsigned int j = 0; j < len2; j++) {
 			col[j + 1] = std::min({ prevCol[1 + j] + 1, col[j] + 1, prevCol[j] + (s1[i] == s2[j] ? 0 : 1) });
 			printArray[j + 1][i] = col[j + 1];
@@ -220,6 +220,44 @@ void printPath(const string& s1, const string& s2) {
 		col.swap(prevCol);
 	}
 
+	ofstream out(filePath + fileName);
+	if (!out.is_open())
+		cout << "fail to open file in printPath" << endl;
+
+	char *c1 = new char[len1 + 1];
+	strcpy(c1, s1.c_str());
+	char *c2 = new char[len2 + 1];
+	strcpy(c2, s2.c_str());
+
+	for (int i = 0; i < len2 + 1; i++) {
+		for (int j = 0; j < len1 + 1; j++) {
+			if (j == 0) {
+				if (i < len2) {
+					cout << setw(3) << c2[len2 - 1 - i];
+					out << setw(3) << c2[len2 - 1 - i];
+				}
+				else {
+					cout << setw(3) << " ";
+					out << setw(3) << " ";
+				}
+			}
+			else {
+				if (i != len2) {
+					cout << setw(3) << printArray[len2 - i][j - 1];
+					out << setw(3) << printArray[len2 - i][j - 1];
+				}
+				else {
+					cout << setw(3) << c1[j - 1];
+					out << setw(3) << c1[j - 1];
+				}
+			}
+		}
+		cout << endl;
+		out << endl;
+	}
+
+	delete[] c1;
+	delete[] c2;
 	delete[] printArray;
 	//return prevCol[len2];
 }

@@ -4,6 +4,7 @@
 #include <string>
 #include <vector>
 #include <algorithm>
+#include <iomanip>
 using namespace std;
 
 //convert file 
@@ -16,6 +17,7 @@ using namespace std;
 #define OUT_STORY_CORRECT_NAME ("pureStoryCorrect.txt")
 #define OUT_STORY_RESULT_NAME ("storyResult.txt")
 #define OUT_STORY_RESULT_WITH_CORRECT_NAME ("storyResultWithCorrect.txt")
+#define PRINT_TABLE_NAME ("printTable.txt")
 
 //story and storycorrect word number
 #define STORY_SIZE (613)
@@ -30,7 +32,7 @@ unsigned int pureLevenshteinDistance(const std::string& s1, const std::string& s
 unsigned int flagLevenshteinDistance(const std::string& s1, const std::string& s2);
 unsigned int beamLevenshteinDistance(const std::string& s1, const std::string& s2);
 int recursionLevenshteinDistance(char *s, int len_s, char *t, int len_t);
-void printPath(const string& inp, const string& tem);
+void printPath(const string& inp, const string& tem, string filePath, string fileName);
 void spellCheck();
 
 
