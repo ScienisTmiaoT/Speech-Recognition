@@ -252,6 +252,9 @@ void printPath(const string& s1, const string& s2, string filePath, string fileN
 				if (i < len2) {
 					cout << setw(3) << c2[len2 - 1 - i];
 					out << setw(3) << c2[len2 - 1 - i];
+<<<<<<< HEAD
+>>>>>>> parent of a063ffd... table gap
+=======
 >>>>>>> parent of a063ffd... table gap
 				}
 				else {
@@ -296,6 +299,9 @@ void printPath(const string& s1, const string& s2, string filePath, string fileN
 				else {
 					cout << setw(3) << c1[j - 1];
 					out << setw(3) << c1[j - 1];
+<<<<<<< HEAD
+>>>>>>> parent of a063ffd... table gap
+=======
 >>>>>>> parent of a063ffd... table gap
 				}
 			}
