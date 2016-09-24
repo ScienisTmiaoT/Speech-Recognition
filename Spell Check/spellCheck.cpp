@@ -149,10 +149,18 @@ unsigned int beamLevenshteinDistance(const std::string& s1, const std::string& s
 				temp_down = 1;
 			}
 		}
-		else
+		else {
 			temp_down += 1;
+			if (temp_down > len_tem)
+				temp_down = len_tem;
+		}
 
 		temp_up += 1;
+
+		if (temp_down >= 1)
+		{
+			col[temp_down] = min({ prevCol[temp_down] + 1, prevCol[temp_down - 1] + (s1[i] == s2[temp_down  -1] ? 0 : 1) });
+		}
 
 		unsigned int temp_value = temp_up >= len_tem ? len_tem : temp_up;
 
@@ -230,12 +238,16 @@ void printPath(const string& s1, const string& s2, string filePath, string fileN
 	char *c2 = new char[len2 + 1];
 	strcpy(c2, s2.c_str());
 
-	for (int i = 0; i < len2 + 1; i++) {
-		for (int j = 0; j < len1 + 1; j++) {
+	for (int i = 0; i < len2 + 2; i++) {
+		for (int j = 0; j < len1 + 2; j++) {
 			if (j == 0) {
 				if (i < len2) {
 					cout << setw(TABLE_GAP) << c2[len2 - 1 - i];
 					out << setw(TABLE_GAP) << c2[len2 - 1 - i];
+				}
+				else if (i == len2){
+					cout << setw(TABLE_GAP) << "$";
+					out << setw(TABLE_GAP) << "$";
 				}
 				else {
 					cout << setw(TABLE_GAP) << " ";
@@ -243,13 +255,29 @@ void printPath(const string& s1, const string& s2, string filePath, string fileN
 				}
 			}
 			else {
-				if (i != len2) {
-					cout << setw(TABLE_GAP) << printArray[len2 - i][j - 1];
-					out << setw(TABLE_GAP) << printArray[len2 - i][j - 1];
+				if (i < len2) {
+					if (j != 1) {
+						cout << setw(TABLE_GAP) << printArray[len2 - i][j - 2];
+						out << setw(TABLE_GAP) << printArray[len2 - i][j - 2];
+					}
+					else {
+						cout << setw(TABLE_GAP) << len2 - i;
+						out << setw(TABLE_GAP) << len2 - i;
+					}
+				}
+				else if(i == len2){
+					cout << setw(TABLE_GAP) << j - 1;
+					out << setw(TABLE_GAP) << j - 1;
 				}
 				else {
-					cout << setw(TABLE_GAP) << c1[j - 1];
-					out << setw(TABLE_GAP) << c1[j - 1];
+					if (j != 1) {
+						cout << setw(TABLE_GAP) << c1[j - 2];
+						out << setw(TABLE_GAP) << c1[j - 2];
+					}
+					else {
+						cout << setw(TABLE_GAP) << "$";
+						out << setw(TABLE_GAP) << "$";
+					}
 				}
 			}
 		}
