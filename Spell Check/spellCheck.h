@@ -18,6 +18,7 @@ using namespace std;
 #define OUT_STORY_RESULT_NAME ("storyResult.txt")
 #define OUT_STORY_RESULT_WITH_CORRECT_NAME ("storyResultWithCorrect.txt")
 #define PRINT_TABLE_NAME ("printTable.txt")
+#define TABLE_GAP (3)
 
 //story and storycorrect word number
 #define STORY_SIZE (613)

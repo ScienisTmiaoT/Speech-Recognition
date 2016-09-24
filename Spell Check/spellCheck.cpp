@@ -195,6 +195,7 @@ int recursionLevenshteinDistance(char *s, int len_s, char *t, int len_t) {
 		recursionLevenshteinDistance(s, len_s - 1, t, len_t - 1) + cost });
 }
 
+
 //print the table of levenshtein distance
 void printPath(const string& s1, const string& s2, string filePath, string fileName) {
 	const std::size_t len1 = s1.size(), len2 = s2.size();
@@ -228,87 +229,27 @@ void printPath(const string& s1, const string& s2, string filePath, string fileN
 	strcpy(c1, s1.c_str());
 	char *c2 = new char[len2 + 1];
 	strcpy(c2, s2.c_str());
-<<<<<<< HEAD
-	char *c3 = new char[len1 + 1];
-	memset(c3, '-', (len1 + 1) * sizeof(char));
-
-	for (int i = 0; i < 2* (len2 + 1); i++) {
-		for (int j = 0; j < 2 * (len1 + 1); j++) {
-			if (j == 1) {
-				if (i != 2 * len2) {
-					if (i % 2 != 0) {
-						cout << setw(TABLE_GAP) << c2[len2 - 1 - i/2];
-						out << setw(TABLE_GAP) << c2[len2 - 1 - i/2];
-					}
-					else {
-						cout << setw(TABLE_GAP) << "----";
-						out << setw(TABLE_GAP) << "----";
-					}
-=======
 
 	for (int i = 0; i < len2 + 1; i++) {
 		for (int j = 0; j < len1 + 1; j++) {
 			if (j == 0) {
 				if (i < len2) {
-					cout << setw(3) << c2[len2 - 1 - i];
-					out << setw(3) << c2[len2 - 1 - i];
-<<<<<<< HEAD
-<<<<<<< HEAD
->>>>>>> parent of a063ffd... table gap
-=======
->>>>>>> parent of a063ffd... table gap
-=======
->>>>>>> parent of a063ffd... table gap
+					cout << setw(TABLE_GAP) << c2[len2 - 1 - i];
+					out << setw(TABLE_GAP) << c2[len2 - 1 - i];
 				}
 				else {
-					cout << setw(3) << " ";
-					out << setw(3) << " ";
+					cout << setw(TABLE_GAP) << " ";
+					out << setw(TABLE_GAP) << " ";
 				}
 			}
 			else {
-<<<<<<< HEAD
-				if (i != 2 * len2) {
-					if (i % 2 != 0) {
-						if (j % 2 != 0) {
-							cout << setw(TABLE_GAP) << printArray[len2 - i / 2][j / 2 - 1];
-							out << setw(TABLE_GAP) << printArray[len2 - i / 2][j / 2 - 1];
-						}
-						else {
-							cout << setw(TABLE_GAP) << "|";
-							out << setw(TABLE_GAP) << "|";
-						}
-					}
-					else {
-						if (j % 2 != 0) {
-							cout << setw(TABLE_GAP) << "----";
-							out << setw(TABLE_GAP) << "----";
-						}
-					}
-				}
-				else {
-					if (j % 2 != 0) {
-						cout << setw(TABLE_GAP) << c1[j / 2 - 1];
-						out << setw(TABLE_GAP) << c1[j / 2 - 1];
-					}
-					else {
-						cout << setw(TABLE_GAP) << "|";
-						out << setw(TABLE_GAP) << "|";
-					}
-=======
 				if (i != len2) {
-					cout << setw(3) << printArray[len2 - i][j - 1];
-					out << setw(3) << printArray[len2 - i][j - 1];
+					cout << setw(TABLE_GAP) << printArray[len2 - i][j - 1];
+					out << setw(TABLE_GAP) << printArray[len2 - i][j - 1];
 				}
 				else {
-					cout << setw(3) << c1[j - 1];
-					out << setw(3) << c1[j - 1];
-<<<<<<< HEAD
-<<<<<<< HEAD
->>>>>>> parent of a063ffd... table gap
-=======
->>>>>>> parent of a063ffd... table gap
-=======
->>>>>>> parent of a063ffd... table gap
+					cout << setw(TABLE_GAP) << c1[j - 1];
+					out << setw(TABLE_GAP) << c1[j - 1];
 				}
 			}
 		}
