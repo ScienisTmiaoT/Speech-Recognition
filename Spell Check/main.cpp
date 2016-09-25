@@ -106,7 +106,7 @@ void print(string s1, string s2, ofstream& out) {
 int main() {
 	//spellCheck();
 	ofstream out(PRINT_TABLE_NAME);
-	print("ad", "abandance", out);
+	print("noced", "notice", out);
 	//cout << pureLevenshteinDistance("noce", "notice") << endl;
 	return 0;
 }
