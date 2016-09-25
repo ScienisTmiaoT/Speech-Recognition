@@ -355,3 +355,93 @@ void spellCheck() {
 	cout << "correct rate : " << (double)correctCount / STORY_SIZE << endl;
 	storyResult.close();
 }
+
+
+// do levenshtein distance for multiple words at the same time
+// bool -> if true then do beam search, else do edit dis
+void multiLevenshtein(string& input, vector<string>& tem, map<string, int>& resultMap, bool& disType) {
+	unsigned int temNum = tem.size();
+	unsigned int inputLength = input.size();
+
+	unsigned int maxLength = 0;
+	unsigned int wordLength;
+	unsigned int bestCost;
+
+	vector<vector<unsigned int>> prevCol, col, colMax;
+	vector<unsigned int> temp_up;
+
+
+	// count the longest length of the word in the vector and initialize the first column
+	for (unsigned int i = 0; i < temNum; i++) {
+		wordLength = tem.at(i).size();
+		for (unsigned int j = 0; j < wordLength + 1; j++) {
+			colMax[i][j] = UINT_MAX / 2;
+
+			if (disType) {
+				if (j > RELATIVE_BEAM) {
+					prevCol[i][j] = colMax[i][j];
+					temp_up[i] = j;
+					break;
+				}
+				else
+					prevCol[i][j] = j;
+			}
+			else {
+				if (j > ABSOLUTE_BEAM) {
+					prevCol[i][j] = colMax[i][j];
+					temp_up[i] = j;
+					break;
+				}
+				else
+					prevCol[i][j] = j;
+			}
+		}
+		if (wordLength > maxLength) {
+			maxLength = wordLength;
+		}
+	}
+
+	// do the beam search
+	if (disType) {
+		for (unsigned int i = 0; i < inputLength; i++) {
+
+			for (unsigned int j = 0; j < temNum; j++) {
+				wordLength = tem.at(j).size();
+				col[j] = colMax[j];
+				col[j][0] = prevCol[j][0] + 1;
+				bestCost = col[j][0];
+				for (unsigned int k = 0; k < wordLength; k++) {
+					if (k < temp_up[j] + 1) {
+						col[j][k + 1] = min({ prevCol[j][1 + k] + 1, col[j][k] + 1, prevCol[j][k] + (input[i] == tem[j][k] ? 0 : 1) });
+					}
+					else {
+						col[j][k + 1] = col[j][k] + 1;
+					}
+
+					if (col[j][k + 1] < bestCost) {
+						bestCost = col[j][k + 1];
+					}
+					else if (col[j][k + 1] - bestCost > RELATIVE_BEAM) {
+						temp_up[j] = k + 1;
+						break;
+					}
+
+				}
+				col[j].swap(prevCol[j]);
+			}
+		}
+	}
+
+	size_t tempId = 0;
+	unsigned int minDis = UINT_MAX;
+
+	for (unsigned int i = 0; i < temNum; i++) {
+		wordLength = tem.at(i).size();
+		if (col[i][wordLength] < minDis) {
+			tempId = i;
+			minDis = col[i][wordLength];
+		}
+	}
+
+	resultMap.insert(pair<string, int>(tem.at(tempId), minDis));
+}
