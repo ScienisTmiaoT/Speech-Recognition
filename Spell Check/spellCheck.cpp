@@ -205,7 +205,7 @@ int recursionLevenshteinDistance(char *s, int len_s, char *t, int len_t) {
 
 
 //print the table of levenshtein distance
-void printPath(const string& s1, const string& s2, string filePath, string fileName) {
+void printPath(const string& s1, const string& s2, int** pathArray, int** flagArray) {
 	const std::size_t len1 = s1.size(), len2 = s2.size();
 	int** printArray;
 	printArray = new int*[len2 + 1];
@@ -229,66 +229,81 @@ void printPath(const string& s1, const string& s2, string filePath, string fileN
 		col.swap(prevCol);
 	}
 
-	ofstream out(filePath + fileName);
-	if (!out.is_open())
-		cout << "fail to open file in printPath" << endl;
+	for (int i = 0; i < len2 + 2; i++) {
+		for (int j = 0; j < len1 + 2; j++) {
+			if(j != 0) {
+				if (i < len2) {
+					if (j != 1) {
+						pathArray[i][j - 1] = printArray[len2 - i][j - 2];
+					}
+					else {
+						pathArray[i][0] = len2 - i;
+					}
+				}
+				else if(i == len2){
+					pathArray[i][j - 1] = j - 1;
+				}
+			}
+		}
+	}
 
 	char *c1 = new char[len1 + 1];
 	strcpy(c1, s1.c_str());
 	char *c2 = new char[len2 + 1];
 	strcpy(c2, s2.c_str());
-
-	for (int i = 0; i < len2 + 2; i++) {
-		for (int j = 0; j < len1 + 2; j++) {
-			if (j == 0) {
-				if (i < len2) {
-					cout << setw(TABLE_GAP) << c2[len2 - 1 - i];
-					out << setw(TABLE_GAP) << c2[len2 - 1 - i];
-				}
-				else if (i == len2){
-					cout << setw(TABLE_GAP) << "$";
-					out << setw(TABLE_GAP) << "$";
+	//print the optimal path
+	vector<vector<int[2]>> point;
+	//count the point in path
+	int count1 = 0;
+	int count2 = 0;
+	for (int j = len1; j >= 0; j--) {
+		for (int i = 0; i <= len2; i++) {
+			if (i != len2 && j != 0) {
+				if (i == 0 && j == len1) {
+					flagArray[i][j] = 1;
+					int m = min({ pathArray[i][j - 1], pathArray[i + 1][j], pathArray[i + 1][j - 1] });
+					if (m == pathArray[i][j - 1] && m < pathArray[i][j])
+						flagArray[i][j - 1] = 1;
+					if (m == pathArray[i + 1][j] && m < pathArray[i][j])
+						flagArray[i + 1][j] = 1;
+					if (m == pathArray[i + 1][j - 1]) {
+						if(m == pathArray[i][j] && c1[j - 1] == c2[len2 - 1 - i])
+							flagArray[i + 1][j - 1] = 1;
+						if (m < pathArray[i][j] && c1[j - 1] != c2[len2 - 1 - i])
+							flagArray[i + 1][j - 1] = 1;
+					}
 				}
 				else {
-					cout << setw(TABLE_GAP) << " ";
-					out << setw(TABLE_GAP) << " ";
+					if (flagArray[i][j] == 1) {
+						int m = min({ pathArray[i][j - 1], pathArray[i + 1][j], pathArray[i + 1][j - 1] });
+						if (m == pathArray[i][j - 1] && m < pathArray[i][j])
+							flagArray[i][j - 1] = 1;
+						if (m == pathArray[i + 1][j] && m < pathArray[i][j])
+							flagArray[i + 1][j] = 1;
+						if (m == pathArray[i + 1][j - 1]) {
+							if (m == pathArray[i][j] && c1[j - 1] == c2[len2 - 1 - i])
+								flagArray[i + 1][j - 1] = 1;
+							if (m < pathArray[i][j] && c1[j - 1] != c2[len2 - 1 - i])
+								flagArray[i + 1][j - 1] = 1;
+						}
+					}
 				}
 			}
-			else {
-				if (i < len2) {
-					if (j != 1) {
-						cout << setw(TABLE_GAP) << printArray[len2 - i][j - 2];
-						out << setw(TABLE_GAP) << printArray[len2 - i][j - 2];
-					}
-					else {
-						cout << setw(TABLE_GAP) << len2 - i;
-						out << setw(TABLE_GAP) << len2 - i;
-					}
+			else if(i == len2 && j != 0){
+				if (flagArray[i][j] == 1 && pathArray[i][j - 1] < pathArray[i][j]) {
+					flagArray[i][j - 1] = 1;
 				}
-				else if(i == len2){
-					cout << setw(TABLE_GAP) << j - 1;
-					out << setw(TABLE_GAP) << j - 1;
-				}
-				else {
-					if (j != 1) {
-						cout << setw(TABLE_GAP) << c1[j - 2];
-						out << setw(TABLE_GAP) << c1[j - 2];
-					}
-					else {
-						cout << setw(TABLE_GAP) << "$";
-						out << setw(TABLE_GAP) << "$";
-					}
+			}
+			else if (j == 0 && i != len2) {
+				if (flagArray[i][j] == 1 && pathArray[i + 1][j] < pathArray[i][j]) {
+					flagArray[i + 1][j] = 1;
 				}
 			}
 		}
-		cout << endl;
-		out << endl;
 	}
-
 	delete[] c1;
 	delete[] c2;
 	delete[] printArray;
-	//return prevCol[len2];
 }
 
 void spellCheck() {
