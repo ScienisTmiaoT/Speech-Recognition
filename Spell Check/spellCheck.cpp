@@ -252,7 +252,7 @@ void printPath(const string& s1, const string& s2, int** pathArray, int** flagAr
 	char *c2 = new char[len2 + 1];
 	strcpy(c2, s2.c_str());
 	//print the optimal path
-	vector<vector<int[2]>> point;
+	//vector<vector<int[2]>> point;
 	//count the point in path
 	int count1 = 0;
 	int count2 = 0;
@@ -303,6 +303,102 @@ void printPath(const string& s1, const string& s2, int** pathArray, int** flagAr
 	}
 	delete[] c1;
 	delete[] c2;
+	delete[] printArray;
+}
+
+//print the table of levenshtein distance of word string
+void printStringPath(const vector<string>& s1, const vector<string>& s2, int** pathArray, int** flagArray) {
+	const std::size_t len1 = s1.size(), len2 = s2.size();
+	int** printArray;
+	printArray = new int*[len2 + 1];
+	for (int i = 0; i < len2 + 1; i++) {
+		printArray[i] = new int[len1 + 1];
+		memset(printArray[i], 0, (len1 + 1) * sizeof(int));
+	}
+
+	std::vector<unsigned int> col(len2 + 1), prevCol(len2 + 1);
+	for (unsigned int i = 0; i < prevCol.size(); i++) {
+		prevCol[i] = i;
+		printArray[i][0] = i;
+	}
+	for (unsigned int i = 0; i < len1; i++) {
+		col[0] = i + 1;
+		printArray[1][i + 1] = i + 1;
+		for (unsigned int j = 0; j < len2; j++) {
+			col[j + 1] = std::min({ prevCol[1 + j] + 1, col[j] + 1, prevCol[j] + (s1[i].compare(s2[j]) == 0 ? 0 : 1) });
+			printArray[j + 1][i] = col[j + 1];
+		}
+		col.swap(prevCol);
+	}
+
+	for (int i = 0; i < len2 + 2; i++) {
+		for (int j = 0; j < len1 + 2; j++) {
+			if (j != 0) {
+				if (i < len2) {
+					if (j != 1) {
+						pathArray[i][j - 1] = printArray[len2 - i][j - 2];
+					}
+					else {
+						pathArray[i][0] = len2 - i;
+					}
+				}
+				else if (i == len2) {
+					pathArray[i][j - 1] = j - 1;
+				}
+			}
+		}
+	}
+
+	//print the optimal path
+	//vector<vector<int[2]>> point;
+	//count the point in path
+	int count1 = 0;
+	int count2 = 0;
+	for (int j = len1; j >= 0; j--) {
+		for (int i = 0; i <= len2; i++) {
+			if (i != len2 && j != 0) {
+				if (i == 0 && j == len1) {
+					flagArray[i][j] = 1;
+					int m = min({ pathArray[i][j - 1], pathArray[i + 1][j], pathArray[i + 1][j - 1] });
+					if (m == pathArray[i][j - 1] && m < pathArray[i][j])
+						flagArray[i][j - 1] = 1;
+					if (m == pathArray[i + 1][j] && m < pathArray[i][j])
+						flagArray[i + 1][j] = 1;
+					if (m == pathArray[i + 1][j - 1]) {
+						if (m == pathArray[i][j] && s1[j - 1].compare(s2[len2 - 1 - i])==0)
+							flagArray[i + 1][j - 1] = 1;
+						if (m < pathArray[i][j] && s1[j - 1].compare(s2[len2 - 1 - i]) != 0)
+							flagArray[i + 1][j - 1] = 1;
+					}
+				}
+				else {
+					if (flagArray[i][j] == 1) {
+						int m = min({ pathArray[i][j - 1], pathArray[i + 1][j], pathArray[i + 1][j - 1] });
+						if (m == pathArray[i][j - 1] && m < pathArray[i][j])
+							flagArray[i][j - 1] = 1;
+						if (m == pathArray[i + 1][j] && m < pathArray[i][j])
+							flagArray[i + 1][j] = 1;
+						if (m == pathArray[i + 1][j - 1]) {
+							if (m == pathArray[i][j] && s1[j - 1].compare(s2[len2 - 1 - i]) == 0)
+								flagArray[i + 1][j - 1] = 1;
+							if (m < pathArray[i][j] && s1[j - 1].compare(s2[len2 - 1 - i]) != 0)
+								flagArray[i + 1][j - 1] = 1;
+						}
+					}
+				}
+			}
+			else if (i == len2 && j != 0) {
+				if (flagArray[i][j] == 1 && pathArray[i][j - 1] < pathArray[i][j]) {
+					flagArray[i][j - 1] = 1;
+				}
+			}
+			else if (j == 0 && i != len2) {
+				if (flagArray[i][j] == 1 && pathArray[i + 1][j] < pathArray[i][j]) {
+					flagArray[i + 1][j] = 1;
+				}
+			}
+		}
+	}
 	delete[] printArray;
 }
 
@@ -359,7 +455,7 @@ void spellCheck() {
 
 // do levenshtein distance for multiple words at the same time
 // bool -> if true then do beam search, else do edit dis
-void multiLevenshtein(string& input, vector<string>& tem, map<string, int>& resultMap, bool& disType) {
+void multiLevenshtein(string& input, vector<string>& tem, map<string, int>& resultMap, bool disType) {
 	unsigned int temNum = tem.size();
 	unsigned int inputLength = input.size();
 

@@ -35,8 +35,9 @@ unsigned int flagLevenshteinDistance(const std::string& s1, const std::string& s
 unsigned int beamLevenshteinDistance(const std::string& s1, const std::string& s2);
 int recursionLevenshteinDistance(char *s, int len_s, char *t, int len_t);
 void printPath(const string& inp, const string& tem, int** pathArray, int** flagArray);
+void printStringPath(const vector<string>& s1, const vector<string>& s2, int** pathArray, int** flagArray);
 void spellCheck();
-void multiLevenshtein(string input, vector<string> tem, map<string, int>& resultMap, bool disType); // multi pruning
+void multiLevenshtein(string& input, vector<string>& tem, map<string, int>& resultMap, bool disType); // multi pruning
 
 
 #endif SPELLCHECK_H
