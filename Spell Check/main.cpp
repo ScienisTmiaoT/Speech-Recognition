@@ -119,7 +119,6 @@ void printString(const vector<string>& s1, const vector<string>& s2, ofstream& o
 	}
 
 	printStringPath(s1, s2, pathArray, flagArray);
-
 	HANDLE hOut;
 	hOut = GetStdHandle(STD_OUTPUT_HANDLE);
 	if (!out.is_open())
