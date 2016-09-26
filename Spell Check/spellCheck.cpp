@@ -203,7 +203,6 @@ int recursionLevenshteinDistance(char *s, int len_s, char *t, int len_t) {
 		recursionLevenshteinDistance(s, len_s - 1, t, len_t - 1) + cost });
 }
 
-
 //print the table of levenshtein distance
 void printPath(const string& s1, const string& s2, int** pathArray, int** flagArray) {
 	const std::size_t len1 = s1.size(), len2 = s2.size();
@@ -307,7 +306,7 @@ void printPath(const string& s1, const string& s2, int** pathArray, int** flagAr
 }
 
 //print the table of levenshtein distance of word string
-void printStringPath(const vector<string>& s1, const vector<string>& s2, int** pathArray, int** flagArray) {
+void printStringPath(const vector<string>& s1, const vector<string>& s2, int** pathArray, int** flagArray, int *errorRecord) {
 	const std::size_t len1 = s1.size(), len2 = s2.size();
 	int** printArray;
 	printArray = new int*[len2 + 1];
@@ -352,37 +351,62 @@ void printStringPath(const vector<string>& s1, const vector<string>& s2, int** p
 	//print the optimal path
 	//vector<vector<int[2]>> point;
 	//count the point in path
-	int count1 = 0;
-	int count2 = 0;
+	//int count1 = 0;
+	//int count2 = 0;
 	for (int j = len1; j >= 0; j--) {
 		for (int i = 0; i <= len2; i++) {
 			if (i != len2 && j != 0) {
 				if (i == 0 && j == len1) {
 					flagArray[i][j] = 1;
 					int m = min({ pathArray[i][j - 1], pathArray[i + 1][j], pathArray[i + 1][j - 1] });
-					if (m == pathArray[i][j - 1] && m < pathArray[i][j])
-						flagArray[i][j - 1] = 1;
-					if (m == pathArray[i + 1][j] && m < pathArray[i][j])
-						flagArray[i + 1][j] = 1;
+					//first choose substitution, second choose insertion, then choose deletion
 					if (m == pathArray[i + 1][j - 1]) {
-						if (m == pathArray[i][j] && s1[j - 1].compare(s2[len2 - 1 - i])==0)
+						if (m == pathArray[i][j] && s1[j - 1].compare(s2[len2 - 1 - i]) == 0) {
 							flagArray[i + 1][j - 1] = 1;
-						if (m < pathArray[i][j] && s1[j - 1].compare(s2[len2 - 1 - i]) != 0)
+							errorRecord[0]++;
+							break;
+						}
+						if (m < pathArray[i][j] && s1[j - 1].compare(s2[len2 - 1 - i]) != 0) {
 							flagArray[i + 1][j - 1] = 1;
+							errorRecord[0]++;
+							break;
+						}
+					}
+					if (m == pathArray[i][j - 1] && m < pathArray[i][j]) {
+						flagArray[i][j - 1] = 1;
+						errorRecord[1]++;
+						break;
+					}
+					if (m == pathArray[i + 1][j] && m < pathArray[i][j]) {
+						flagArray[i + 1][j] = 1;
+						errorRecord[2]++;
+						break;
 					}
 				}
 				else {
 					if (flagArray[i][j] == 1) {
 						int m = min({ pathArray[i][j - 1], pathArray[i + 1][j], pathArray[i + 1][j - 1] });
-						if (m == pathArray[i][j - 1] && m < pathArray[i][j])
-							flagArray[i][j - 1] = 1;
-						if (m == pathArray[i + 1][j] && m < pathArray[i][j])
-							flagArray[i + 1][j] = 1;
 						if (m == pathArray[i + 1][j - 1]) {
-							if (m == pathArray[i][j] && s1[j - 1].compare(s2[len2 - 1 - i]) == 0)
+							if (m == pathArray[i][j] && s1[j - 1].compare(s2[len2 - 1 - i]) == 0) {
 								flagArray[i + 1][j - 1] = 1;
-							if (m < pathArray[i][j] && s1[j - 1].compare(s2[len2 - 1 - i]) != 0)
+								errorRecord[0]++;
+								break;
+							}
+							if (m < pathArray[i][j] && s1[j - 1].compare(s2[len2 - 1 - i]) != 0) {
 								flagArray[i + 1][j - 1] = 1;
+								errorRecord[0]++;
+								break;
+							}
+						}
+						if (m == pathArray[i][j - 1] && m < pathArray[i][j]) {
+							flagArray[i][j - 1] = 1;
+							errorRecord[1]++;
+							break;
+						}
+						if (m == pathArray[i + 1][j] && m < pathArray[i][j]) {
+							flagArray[i + 1][j] = 1;
+							errorRecord[2]++;
+							break;
 						}
 					}
 				}
@@ -390,11 +414,15 @@ void printStringPath(const vector<string>& s1, const vector<string>& s2, int** p
 			else if (i == len2 && j != 0) {
 				if (flagArray[i][j] == 1 && pathArray[i][j - 1] < pathArray[i][j]) {
 					flagArray[i][j - 1] = 1;
+					errorRecord[1]++;
+					break;
 				}
 			}
 			else if (j == 0 && i != len2) {
 				if (flagArray[i][j] == 1 && pathArray[i + 1][j] < pathArray[i][j]) {
 					flagArray[i + 1][j] = 1;
+					errorRecord[2]++;
+					break;
 				}
 			}
 		}

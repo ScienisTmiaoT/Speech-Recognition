@@ -103,7 +103,7 @@ void print(string s1, string s2, ofstream& out) {
 	delete[] flagArray;
 }
 
-void printString(const vector<string>& s1, const vector<string>& s2, ofstream& out) {
+void printString(const vector<string>& s1, const vector<string>& s2, ofstream& out, int* errorRecord) {
 	const std::size_t len1 = s1.size(), len2 = s2.size();
 	//store pathArray
 	int** pathArray;
@@ -118,11 +118,11 @@ void printString(const vector<string>& s1, const vector<string>& s2, ofstream& o
 		memset(flagArray[i], 0, (len1 + 1) * sizeof(int));
 	}
 
-	printStringPath(s1, s2, pathArray, flagArray);
+	printStringPath(s1, s2, pathArray, flagArray, errorRecord);
 	HANDLE hOut;
 	hOut = GetStdHandle(STD_OUTPUT_HANDLE);
 	if (!out.is_open())
-		cout << "fail to open file in printPath" << endl;
+		cout << "fail to open file in printStringPath" << endl;
 	for (int i = 0; i < len2 + 2; i++) {
 		for (int j = 0; j < len1 + 2; j++) {
 			if (j == 0) {
@@ -190,7 +190,6 @@ void printString(const vector<string>& s1, const vector<string>& s2, ofstream& o
 		cout << endl;
 		out << endl;
 	}
-
 	delete[] pathArray;
 	delete[] flagArray;
 }
@@ -202,7 +201,10 @@ int main() {
 	readFile(FILE_PATH, OUT_STORY_NAME, story);
 	readFile(FILE_PATH, OUT_STORY_CORRECT_NAME, storyCorrect);
 	ofstream out(PRINT_TABLE_NAME);
-	printString(story, storyCorrect, out);
+	//0: substitution 1: insertion 2: deletion
+	int errorRecord[3] = {0, 0, 0};
+	printString(story, storyCorrect, out, errorRecord);
+	cout << errorRecord[0] << " " << errorRecord[1] << " " << errorRecord[2] << endl;
 	//print("noced", "notice", out);
 	//cout << pureLevenshteinDistance("noce", "notice") << endl;
 	return 0;
