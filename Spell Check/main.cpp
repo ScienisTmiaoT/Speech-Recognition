@@ -1,6 +1,8 @@
 #include "spellCheck.h"
 #include <Windows.h>
 #include <iostream>
+#include <forward_list>
+#include <future>
 using namespace std;
 
 
