@@ -29,7 +29,7 @@ bool classifyFrame(SAMPLE *audioframe, long framesToCalc)
 {
 	bool isSpeech = false;
 	double current = EnergyPerSampleInDecibel(audioframe, framesToCalc);
-	double background = backgroundOf10 / 10;
+	double background = backgroundOf10 / FRAME_TO_BACKGROUND;
 
 	level = ((level * FORGET_FACTOR) + current) / (FORGET_FACTOR + 1);
 
