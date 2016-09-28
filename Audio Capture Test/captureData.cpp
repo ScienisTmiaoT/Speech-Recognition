@@ -186,10 +186,6 @@ static int recordCallback(const void *inputBuffer, void *outputBuffer,
 		cout << "\n Find Endpoint and top! \n";
 		totalFrames = data->frameIndex;
 	}
-
-
-
-
 	return finished;
 }
 

@@ -1,8 +1,126 @@
 #include "featureExtraction.h"
 
 int frameNum = 0;
+#define COMPARE_SCALE (10)
+double backgroundOf10 = 0;
+double level = 0;
+int continueSpeakTime = 0;
+int continueSilenceTime = 0;
+int frameCount = 0;
+
+double EnergyPerSampleInDecibel(SAMPLE *audioframe, long framesToCalc)
+{
+	double sum = 0;
+	double decibel = 0;
+	double pointValue = 0; // the value of each point of the frame
+
+	for (int i = 0; i < framesToCalc; i++) {
+		pointValue = *audioframe;
+		sum += pow(pointValue, 2);
+		audioframe++;
+	}
+
+	decibel = 10 * log10(sum);
+
+	return decibel;
+}
+
+bool classifyFrame(SAMPLE *audioframe, long framesToCalc)
+{
+	bool isSpeech = false;
+	double current = EnergyPerSampleInDecibel(audioframe, framesToCalc);
+	double background = backgroundOf10 / 10;
+
+	level = ((level * FORGET_FACTOR) + current) / (FORGET_FACTOR + 1);
+
+	if (current < background) {
+		background = current;
+	}
+	else {
+		background = (current - background) * ADJUSTMENT;
+	}
+
+	if (level < background) {
+		level = background;
+	}
+	if (level - background > THRESHOLD) {
+		isSpeech = true;
+	}
+
+	if (!isSpeech) {
+		continueSilenceTime += 1;
+		//        printf("The Continue Silence Frame is %d\n", continueSilenceTime);
+	}
+
+	if (isSpeech && continueSilenceTime != 0) {
+		printf("The Continue Silence Frame is %d\n", continueSilenceTime);
+		continueSilenceTime = 0;
+	}
+
+	cout << "current: " << current << endl;
+	cout << "level: " << level << endl;
+	cout << "background: " << background << endl;
+
+	return isSpeech;
+
+}
+
+/*delete the silent part of audio record at beginning and end,
+**then return the offset of the audio beginning address.
+**use two flag start and end search the audio data from
+**beginning and end respectively. If start detect the audio then
+**prepare to judge whether satisfy a long time.
+**if end detect audio from end to beginning, then prepare to 
+**discard a piece audio
+*/
+int pruneFrame(short* dataWave, int& numSamples) {
+	int start = 0;
+	int end = 0;
+	bool startFlag = true;
+	bool endFlag = true;
+	for (int i = FRAME_IGNORE * SAMPLE_PER_FRAME; i < numSamples; i++) {
+		if (i < (FRAME_IGNORE + FRAME_TO_BACKGROUND) * SAMPLE_PER_FRAME) {
+			if (i == FRAME_IGNORE * SAMPLE_PER_FRAME) {
+				level = EnergyPerSampleInDecibel(dataWave + i, SAMPLE_PER_FRAME);
+				printf("The first energy is %f \n", level);
+			}
+			else if(i % SAMPLE_PER_FRAME == 0){
+				double currentTemp = EnergyPerSampleInDecibel(dataWave + i, SAMPLE_PER_FRAME);
+				level = ((level * FORGET_FACTOR) + currentTemp) / (FORGET_FACTOR + 1);
+				backgroundOf10 += EnergyPerSampleInDecibel(dataWave + i, SAMPLE_PER_FRAME);
+			}
+		}
+		else if(i % SAMPLE_PER_FRAME == 0){
+			if (classifyFrame(dataWave + i, SAMPLE_PER_FRAME)) {
+				if(startFlag)
+					continueSpeakTime++;
+			}
+			else {
+				if(startFlag)
+					continueSpeakTime = 0;
+			}
+			if (classifyFrame(dataWave + numSamples - i, SAMPLE_PER_FRAME)) {
+				continueSilenceTime++;
+			}
+			else {
+				continueSilenceTime = 0;
+			}
+		}
+		if (continueSpeakTime > SPEAKTHRESHOLD && startFlag) {
+			start = i;
+			startFlag = false;
+		}
+		if (continueSilenceTime > SILENCETHRESHOLD && endFlag) {
+			end = numSamples - i;
+			endFlag = false;
+		}
+	}
+	numSamples = end - start;
+	return start;
+}
 
 /**
+
 *  do the pre-emphasize   s'[n] = s[n] - alpha * s[n-1]
 *
 *  @param waveData    input original wave data
@@ -272,6 +390,8 @@ void featureExtraction() {
 
 	// read in the wave data
 	dataWave = ReadWavFile(wavFile, &numSample, &sampleRate);
+	int ost = pruneFrame(dataWave, numSample);
+	dataWave += ost;
 	//    cout << dataWave;
 
 	// do the preemphasize

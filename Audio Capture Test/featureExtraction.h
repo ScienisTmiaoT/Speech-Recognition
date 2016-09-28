@@ -33,6 +33,15 @@ using namespace std;
 // ---------
 #define NUM_FILTER              (40)     // set the num of filters to be 40
 
+typedef short SAMPLE;
+#define FORGET_FACTOR   (1)
+#define ADJUSTMENT      (0.05)
+#define THRESHOLD       (15)
+#define SPEAKTHRESHOLD (0)
+#define SILENCETHRESHOLD    (0)
+#define FRAME_IGNORE (3)
+#define FRAME_TO_BACKGROUND (2)
+
 void featureExtraction();
 
 #endif
