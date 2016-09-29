@@ -36,11 +36,11 @@ using namespace std;
 typedef short SAMPLE;
 #define FORGET_FACTOR   (1)
 #define ADJUSTMENT      (0.05)
-#define THRESHOLD       (15)
-#define SPEAKTHRESHOLD (0)
-#define SILENCETHRESHOLD    (0)
-#define FRAME_IGNORE (3)
-#define FRAME_TO_BACKGROUND (2)
+#define THRESHOLD       (10)
+#define SPEAKTHRESHOLD (2)
+#define SILENCETHRESHOLD    (2)
+#define FRAME_IGNORE (4)
+#define FRAME_TO_BACKGROUND (5)
 
 void featureExtraction();
 

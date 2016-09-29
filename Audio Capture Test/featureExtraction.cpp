@@ -1,14 +1,13 @@
 #include "featureExtraction.h"
 
 int frameNum = 0;
-#define COMPARE_SCALE (10)
-double backgroundOf10 = 0;
-double level = 0;
-int continueSpeakTime = 0;
-int continueSilenceTime = 0;
-int frameCount = 0;
+double backgroundOf10f = 0;
+double levelf = 0;
+int continueSpeakTimef = 0;
+int continueSilenceTimef = 0;
+int frameCountf = 0;
 
-double EnergyPerSampleInDecibel(SAMPLE *audioframe, long framesToCalc)
+double EnergyPerSampleInDecibelf(SAMPLE *audioframe, long framesToCalc)
 {
 	double sum = 0;
 	double decibel = 0;
@@ -25,42 +24,30 @@ double EnergyPerSampleInDecibel(SAMPLE *audioframe, long framesToCalc)
 	return decibel;
 }
 
-bool classifyFrame(SAMPLE *audioframe, long framesToCalc)
+bool classifyFramef(SAMPLE *audioframe, long framesToCalc)
 {
 	bool isSpeech = false;
-	double current = EnergyPerSampleInDecibel(audioframe, framesToCalc);
-	double background = backgroundOf10 / FRAME_TO_BACKGROUND;
+	double current = EnergyPerSampleInDecibelf(audioframe, framesToCalc);
+	double background = backgroundOf10f / FRAME_TO_BACKGROUND;
 
-	level = ((level * FORGET_FACTOR) + current) / (FORGET_FACTOR + 1);
+	levelf = ((levelf * FORGET_FACTOR) + current) / (FORGET_FACTOR + 1);
 
 	if (current < background) {
 		background = current;
 	}
 	else {
-		background = (current - background) * ADJUSTMENT;
+		background += (current - background) * ADJUSTMENT;
 	}
 
-	if (level < background) {
-		level = background;
+	if (levelf < background) {
+		levelf = background;
 	}
-	if (level - background > THRESHOLD) {
+	if (levelf - background > THRESHOLD) {
 		isSpeech = true;
 	}
-
-	if (!isSpeech) {
-		continueSilenceTime += 1;
-		//        printf("The Continue Silence Frame is %d\n", continueSilenceTime);
-	}
-
-	if (isSpeech && continueSilenceTime != 0) {
-		printf("The Continue Silence Frame is %d\n", continueSilenceTime);
-		continueSilenceTime = 0;
-	}
-
 	cout << "current: " << current << endl;
-	cout << "level: " << level << endl;
+	cout << "level: " << levelf << endl;
 	cout << "background: " << background << endl;
-
 	return isSpeech;
 
 }
@@ -81,37 +68,39 @@ int pruneFrame(short* dataWave, int& numSamples) {
 	for (int i = FRAME_IGNORE * SAMPLE_PER_FRAME; i < numSamples; i++) {
 		if (i < (FRAME_IGNORE + FRAME_TO_BACKGROUND) * SAMPLE_PER_FRAME) {
 			if (i == FRAME_IGNORE * SAMPLE_PER_FRAME) {
-				level = EnergyPerSampleInDecibel(dataWave + i, SAMPLE_PER_FRAME);
-				printf("The first energy is %f \n", level);
+				levelf = EnergyPerSampleInDecibelf(dataWave + i, SAMPLE_PER_FRAME);
+				printf("The first energy is %f \n", levelf);
 			}
 			else if(i % SAMPLE_PER_FRAME == 0){
-				double currentTemp = EnergyPerSampleInDecibel(dataWave + i, SAMPLE_PER_FRAME);
-				level = ((level * FORGET_FACTOR) + currentTemp) / (FORGET_FACTOR + 1);
-				backgroundOf10 += EnergyPerSampleInDecibel(dataWave + i, SAMPLE_PER_FRAME);
+				double currentTemp = EnergyPerSampleInDecibelf(dataWave + i, SAMPLE_PER_FRAME);
+				levelf = ((levelf * FORGET_FACTOR) + currentTemp) / (FORGET_FACTOR + 1);
+				backgroundOf10f += EnergyPerSampleInDecibelf(dataWave + i, SAMPLE_PER_FRAME);
 			}
 		}
 		else if(i % SAMPLE_PER_FRAME == 0){
-			if (classifyFrame(dataWave + i, SAMPLE_PER_FRAME)) {
+			if (classifyFramef(dataWave + i, SAMPLE_PER_FRAME)) {
 				if(startFlag)
-					continueSpeakTime++;
+					continueSpeakTimef++;
 			}
 			else {
 				if(startFlag)
-					continueSpeakTime = 0;
+					continueSpeakTimef = 0;
 			}
-			if (classifyFrame(dataWave + numSamples - i, SAMPLE_PER_FRAME)) {
-				continueSilenceTime++;
+			if (classifyFramef(dataWave + numSamples - i, SAMPLE_PER_FRAME)) {
+				if(endFlag)
+					continueSilenceTimef++;
 			}
 			else {
-				continueSilenceTime = 0;
+				if(endFlag)
+					continueSilenceTimef = 0;
 			}
 		}
-		if (continueSpeakTime > SPEAKTHRESHOLD && startFlag) {
-			start = i;
+		if (continueSpeakTimef > SPEAKTHRESHOLD && startFlag) {
+			start = i - SPEAKTHRESHOLD * SAMPLE_PER_FRAME;
 			startFlag = false;
 		}
-		if (continueSilenceTime > SILENCETHRESHOLD && endFlag) {
-			end = numSamples - i;
+		if (continueSilenceTimef > SILENCETHRESHOLD && endFlag) {
+			end = numSamples - i;//+SILENCETHRESHOLD * SAMPLE_PER_FRAME;
 			endFlag = false;
 		}
 	}
@@ -385,8 +374,7 @@ void featureExtraction() {
 	//    long frameNum;
 
 
-
-	const char *wavFile = "record.wav";
+	const char *wavFile = "C:\\Users\\Administrator\\Desktop\\temp\\record.wav";
 
 	// read in the wave data
 	dataWave = ReadWavFile(wavFile, &numSample, &sampleRate);
@@ -416,14 +404,14 @@ void featureExtraction() {
 		frameDCT[i] = getDCT(melLogEnergy[i]);
 	}
 
-	ofstream fileSample("sample.txt");
-	ofstream filePreemphasized("sample_after_preemphasize.txt");
-	ofstream fileFrame("frameData.txt");
-	ofstream fileFrameEnergy("frameEnergy.txt");
-	ofstream fileMelEnergy("melEnergy.txt");
-	ofstream fileMelLogEnergy("melLogEnergy.txt");
-	ofstream fileDCT("DCT.txt");
-	ofstream fileNormDCT("NormDCT.txt");
+	ofstream fileSample("C:\\Users\\Administrator\\Desktop\\temp\\sample.txt");
+	ofstream filePreemphasized("C:\\Users\\Administrator\\Desktop\\temp\\sample_after_preemphasize.txt");
+	ofstream fileFrame("C:\\Users\\Administrator\\Desktop\\temp\\frameData.txt");
+	ofstream fileFrameEnergy("C:\\Users\\Administrator\\Desktop\\temp\\frameEnergy.txt");
+	ofstream fileMelEnergy("C:\\Users\\Administrator\\Desktop\\temp\\melEnergy.txt");
+	ofstream fileMelLogEnergy("C:\\Users\\Administrator\\Desktop\\temp\\melLogEnergy.txt");
+	ofstream fileDCT("C:\\Users\\Administrator\\Desktop\\temp\\DCT.txt");
+	ofstream fileNormDCT("C:\\Users\\Administrator\\Desktop\\temp\\NormDCT.txt");
 
 	for (int i = 0; i < numSample; i++) {
 		fileSample << dataWave[i];
@@ -431,8 +419,6 @@ void featureExtraction() {
 		filePreemphasized << waveDataAfter[i];
 		filePreemphasized << " ";
 	}
-	delete[] dataWave;
-	delete[] waveDataAfter;
 
 	for (int i = 0; i < frameNum; i++) {
 
