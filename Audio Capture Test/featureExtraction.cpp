@@ -24,13 +24,18 @@ double EnergyPerSampleInDecibelf(SAMPLE *audioframe, long framesToCalc)
 	return decibel;
 }
 
-bool classifyFramef(SAMPLE *audioframe, long framesToCalc)
+bool classifyFramef(SAMPLE *audioframe, long framesToCalc, bool flag, double& levelf)
 {
 	bool isSpeech = false;
 	double current = EnergyPerSampleInDecibelf(audioframe, framesToCalc);
 	double background = backgroundOf10f / FRAME_TO_BACKGROUND;
 
 	levelf = ((levelf * FORGET_FACTOR) + current) / (FORGET_FACTOR + 1);
+
+	if (flag) {
+		cout << "backgroundORIRIDIDID " << background << endl;
+	}
+
 
 	if (current < background) {
 		background = current;
@@ -45,9 +50,12 @@ bool classifyFramef(SAMPLE *audioframe, long framesToCalc)
 	if (levelf - background > THRESHOLD) {
 		isSpeech = true;
 	}
-	cout << "current: " << current << endl;
-	cout << "level: " << levelf << endl;
-	cout << "background: " << background << endl;
+	if (flag) {
+		cout << "current: " << current << endl;
+		cout << "level: " << levelf << endl;
+		cout << "background: " << background << endl;
+	}
+
 	return isSpeech;
 
 }
@@ -65,46 +73,46 @@ int pruneFrame(short* dataWave, int& numSamples) {
 	int end = 0;
 	bool startFlag = true;
 	bool endFlag = true;
-	for (int i = FRAME_IGNORE * SAMPLE_PER_FRAME; i < numSamples; i++) {
+	double levelsp = 0;
+	double levelsi = 0;
+
+	for (int i = FRAME_IGNORE * SAMPLE_PER_FRAME; i < numSamples; i += SAMPLE_PER_FRAME) {
 		if (i < (FRAME_IGNORE + FRAME_TO_BACKGROUND) * SAMPLE_PER_FRAME) {
-			if (i == FRAME_IGNORE * SAMPLE_PER_FRAME) {
-				levelf = EnergyPerSampleInDecibelf(dataWave + i, SAMPLE_PER_FRAME);
-				printf("The first energy is %f \n", levelf);
-			}
-			else if(i % SAMPLE_PER_FRAME == 0){
-				double currentTemp = EnergyPerSampleInDecibelf(dataWave + i, SAMPLE_PER_FRAME);
-				levelf = ((levelf * FORGET_FACTOR) + currentTemp) / (FORGET_FACTOR + 1);
-				backgroundOf10f += EnergyPerSampleInDecibelf(dataWave + i, SAMPLE_PER_FRAME);
-			}
+			double current = EnergyPerSampleInDecibelf(dataWave + i, SAMPLE_PER_FRAME);
+			backgroundOf10f += current;
 		}
-		else if(i % SAMPLE_PER_FRAME == 0){
-			if (classifyFramef(dataWave + i, SAMPLE_PER_FRAME)) {
-				if(startFlag)
+		else {
+			if (classifyFramef(dataWave + i, SAMPLE_PER_FRAME, startFlag, levelsp)) {
+				if (startFlag)
 					continueSpeakTimef++;
 			}
 			else {
-				if(startFlag)
+				if (startFlag)
 					continueSpeakTimef = 0;
 			}
-			if (classifyFramef(dataWave + numSamples - i, SAMPLE_PER_FRAME)) {
-				if(endFlag)
-					continueSilenceTimef++;
+			if (classifyFramef(dataWave + numSamples - i + (FRAME_IGNORE + FRAME_TO_BACKGROUND - 1) * SAMPLE_PER_FRAME, SAMPLE_PER_FRAME, endFlag, levelsi)) {
+				continueSilenceTimef++;
 			}
 			else {
-				if(endFlag)
-					continueSilenceTimef = 0;
+				continueSilenceTimef = 0;
 			}
+
 		}
+
 		if (continueSpeakTimef > SPEAKTHRESHOLD && startFlag) {
 			start = i - SPEAKTHRESHOLD * SAMPLE_PER_FRAME;
 			startFlag = false;
 		}
 		if (continueSilenceTimef > SILENCETHRESHOLD && endFlag) {
-			end = numSamples - i;//+SILENCETHRESHOLD * SAMPLE_PER_FRAME;
+			end = numSamples - i + (FRAME_IGNORE + FRAME_TO_BACKGROUND + SILENCETHRESHOLD) * SAMPLE_PER_FRAME;
 			endFlag = false;
 		}
 	}
+
 	numSamples = end - start;
+	//    dataWave += start;
+	cout << "END    " << end << endl;
+	cout << "START   " << start << endl;
 	return start;
 }
 
