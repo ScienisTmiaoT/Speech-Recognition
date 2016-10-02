@@ -15,6 +15,7 @@
 
 using namespace std;
 
+/*
 int main(int argc, const char * argv[]) {
 
     
@@ -88,5 +89,44 @@ int main(int argc, const char * argv[]) {
     cout << " " << endl;
     
 }
+*/
 
-
+int main()
+{
+	string inputpath = "C:\\Users\\Cloud\\Downloads\\Testing Data\\test2.0\\input";
+	string templatepath = "C:\\Users\\Cloud\\Downloads\\Testing Data\\test2.0\\template";
+	int cor = 0;
+	for (int i = 0; i < 10; i++)
+	{
+		for (int j = 0; j < 5; j++)
+		{
+			vector<vector<double>> inputvector;	
+			string inputtemp = inputpath + to_string(i) + "\\" + to_string(j);
+			featureExtraction(inputvector, inputtemp + "\\record.wav", inputtemp);
+			double tempCost = DBL_MAX / 2;
+			int posK;
+			int posP;
+			for (int k = 0; k < 10; k++)
+			{
+				for (int p = 0; p < 5; p++)
+				{
+					vector<vector<double>> templatevector;
+					string templatetemp = templatepath + to_string(k) + "\\" + to_string(p);
+					featureExtraction(templatevector, templatetemp + "\\record.wav", templatetemp);
+					double cost = beamDTW(inputvector, templatevector);
+					if(tempCost < cost)
+					{
+						tempCost = cost;
+						posK = k;
+						posP = p;
+					}
+				}
+			}
+			cout << "input " << i << "." << j << "pair with " << posK << "." << posP << endl;
+			if (i == posK)
+				cor++;
+		}
+	}
+	cout << "correct rate: " << (double)cor / 50 << endl;
+	return 0;
+}

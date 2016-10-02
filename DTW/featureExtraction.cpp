@@ -136,8 +136,8 @@ int pruneFrame(short* dataWave, int& numSamples) {
     
     numSamples = end - start;
     //    dataWave += start;
-    cout << "END    " << end<< endl;
-    cout << "START   " << start << endl;
+    //cout << "END    " << end<< endl;
+    //cout << "START   " << start << endl;
     return start;
 }
 
@@ -537,13 +537,13 @@ void featureExtraction(vector<vector<double>>& normDCT,  string& wav, string& fi
 
 	// read in the wave data
 	dataWave = ReadWavFile(wavFile, &numSample, &sampleRate);
-    cout << "numSample " << numSample << endl;
+    //cout << "numSample " << numSample << endl;
     
     
     short start = pruneFrame(dataWave, numSample);
     dataWave += start;
     
-    cout << "numSample " << numSample << endl;
+    //cout << "numSample " << numSample << endl;
     
     
 	//    cout << dataWave;
@@ -631,7 +631,7 @@ void featureExtraction(vector<vector<double>>& normDCT,  string& wav, string& fi
 		}
 		fileNormDCT << endl;
 	}
-	cout << "frameNum =  " << frameNum << endl;
+	//cout << "frameNum =  " << frameNum << endl;
     
     DCTNorm(frameDCT, normDCT);
     
