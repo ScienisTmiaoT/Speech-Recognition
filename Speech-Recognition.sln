@@ -1,13 +1,15 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio 14
-VisualStudioVersion = 14.0.25420.1
+VisualStudioVersion = 14.0.23107.0
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "Spell Check", "Spell Check\Spell Check.vcxproj", "{18DA0506-C00A-4CFC-84B1-610423972657}"
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "Audio Capture", "Audio Capture\Audio Capture.vcxproj", "{682731EB-AAA0-4187-ACEF-C18BDE80579D}"
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "Audio Capture Test", "Audio Capture Test\Audio Capture Test.vcxproj", "{61D682AB-EE7F-4451-956F-696B7D9EAF39}"
+EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "DTW", "DTW\DTW.vcxproj", "{69D24341-8C50-4B56-A272-2498282AF2FE}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -41,6 +43,14 @@ Global
 		{61D682AB-EE7F-4451-956F-696B7D9EAF39}.Release|x64.Build.0 = Release|x64
 		{61D682AB-EE7F-4451-956F-696B7D9EAF39}.Release|x86.ActiveCfg = Release|Win32
 		{61D682AB-EE7F-4451-956F-696B7D9EAF39}.Release|x86.Build.0 = Release|Win32
+		{69D24341-8C50-4B56-A272-2498282AF2FE}.Debug|x64.ActiveCfg = Debug|x64
+		{69D24341-8C50-4B56-A272-2498282AF2FE}.Debug|x64.Build.0 = Debug|x64
+		{69D24341-8C50-4B56-A272-2498282AF2FE}.Debug|x86.ActiveCfg = Debug|Win32
+		{69D24341-8C50-4B56-A272-2498282AF2FE}.Debug|x86.Build.0 = Debug|Win32
+		{69D24341-8C50-4B56-A272-2498282AF2FE}.Release|x64.ActiveCfg = Release|x64
+		{69D24341-8C50-4B56-A272-2498282AF2FE}.Release|x64.Build.0 = Release|x64
+		{69D24341-8C50-4B56-A272-2498282AF2FE}.Release|x86.ActiveCfg = Release|Win32
+		{69D24341-8C50-4B56-A272-2498282AF2FE}.Release|x86.Build.0 = Release|Win32
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
