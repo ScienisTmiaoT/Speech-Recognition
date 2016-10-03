@@ -364,24 +364,23 @@ void printStringPath(const vector<string>& s1, const vector<string>& s2, int** p
 					if (m == pathArray[i + 1][j - 1]) {
 						if (m == pathArray[i][j] && s1[j - 1].compare(s2[len2 - 1 - i]) == 0) {
 							flagArray[i + 1][j - 1] = 1;
-							errorRecord[0]++;
-							break;
+							continue;
 						}
 						if (m < pathArray[i][j] && s1[j - 1].compare(s2[len2 - 1 - i]) != 0) {
 							flagArray[i + 1][j - 1] = 1;
 							errorRecord[0]++;
-							break;
+							continue;
 						}
 					}
 					if (m == pathArray[i][j - 1] && m < pathArray[i][j]) {
 						flagArray[i][j - 1] = 1;
 						errorRecord[1]++;
-						break;
+						continue;
 					}
 					if (m == pathArray[i + 1][j] && m < pathArray[i][j]) {
 						flagArray[i + 1][j] = 1;
 						errorRecord[2]++;
-						break;
+						continue;
 					}
 				}
 				else {
@@ -390,24 +389,23 @@ void printStringPath(const vector<string>& s1, const vector<string>& s2, int** p
 						if (m == pathArray[i + 1][j - 1]) {
 							if (m == pathArray[i][j] && s1[j - 1].compare(s2[len2 - 1 - i]) == 0) {
 								flagArray[i + 1][j - 1] = 1;
-								errorRecord[0]++;
-								break;
+								continue;
 							}
 							if (m < pathArray[i][j] && s1[j - 1].compare(s2[len2 - 1 - i]) != 0) {
 								flagArray[i + 1][j - 1] = 1;
 								errorRecord[0]++;
-								break;
+								continue;
 							}
 						}
 						if (m == pathArray[i][j - 1] && m < pathArray[i][j]) {
 							flagArray[i][j - 1] = 1;
 							errorRecord[1]++;
-							break;
+							continue;
 						}
 						if (m == pathArray[i + 1][j] && m < pathArray[i][j]) {
 							flagArray[i + 1][j] = 1;
 							errorRecord[2]++;
-							break;
+							continue;
 						}
 					}
 				}
@@ -416,14 +414,14 @@ void printStringPath(const vector<string>& s1, const vector<string>& s2, int** p
 				if (flagArray[i][j] == 1 && pathArray[i][j - 1] < pathArray[i][j]) {
 					flagArray[i][j - 1] = 1;
 					errorRecord[1]++;
-					break;
+					continue;
 				}
 			}
 			else if (j == 0 && i != len2) {
 				if (flagArray[i][j] == 1 && pathArray[i + 1][j] < pathArray[i][j]) {
 					flagArray[i + 1][j] = 1;
 					errorRecord[2]++;
-					break;
+					continue;
 				}
 			}
 		}
