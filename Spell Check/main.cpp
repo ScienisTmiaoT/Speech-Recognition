@@ -207,7 +207,7 @@ int main() {
 	ofstream out(PRINT_TABLE_NAME);
 	//0: substitution 1: insertion 2: deletion
 	int errorRecord[3] = {0, 0, 0};
-	printString(storyMatch, storyCorrect, out, errorRecord);
+	printString(story, storyCorrect, out, errorRecord);
 	cout << errorRecord[0] << " " << errorRecord[1] << " " << errorRecord[2] << endl;
 	//cout << endl << endl << endl;
 	//print("noced", "notice", out);

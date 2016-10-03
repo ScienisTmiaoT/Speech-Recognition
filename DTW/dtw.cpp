@@ -100,28 +100,41 @@ double beamDTW(vector<vector<double>>& inputAudio, vector<vector<double>>& temAu
 		unsigned int tempLen = min(2 * i + 2, temLen);
 		for (unsigned int j = 0; j < tempLen; j++)
 		{
-			if (j == 0 && flagArray[j][i])
+			if (j == 0 && flagArray[j][i - 1])
 				col[j] = preCol[j] + dis(inputAudio[i], temAudio[j]);
-			else if(j == 1 && flagArray[j][i])
-				col[j] = min(preCol[j], preCol[j - 1]) + dis(inputAudio[i], temAudio[j]);
-			else if(j > 1 && flagArray[j][i])
-				col[j] = min({ preCol[j], preCol[j - 1], preCol[j - 2] }) + dis(inputAudio[i], temAudio[j]);
+			else if (j == 1)
+			{
+				if (flagArray[j][i - 1] && flagArray[j - 1][i - 1])
+					col[j] = min(preCol[j], preCol[j - 1]) + dis(inputAudio[i], temAudio[j]);
+				else if (flagArray[j][i - 1] && !flagArray[j - 1][i - 1])
+					col[j] = preCol[j] + dis(inputAudio[i], temAudio[j]);
+				else if (!flagArray[j][i - 1] && flagArray[j - 1][i - 1])
+					col[j] = preCol[j - 1] + dis(inputAudio[i], temAudio[j]);
+			}
+			else if (j > 1)
+			{
+				if (flagArray[j][i - 1] && flagArray[j - 1][i - 1] && flagArray[j - 2][i - 1])
+					col[j] = min({ preCol[j], preCol[j - 1], preCol[j - 2] }) + dis(inputAudio[i], temAudio[j]);
+				else if (!flagArray[j][i - 1] && flagArray[j - 1][i - 1] && flagArray[j - 2][i - 1])
+					col[j] = min({ preCol[j - 1], preCol[j - 2] }) + dis(inputAudio[i], temAudio[j]);
+				else if (flagArray[j][i - 1] && !flagArray[j - 1][i - 1] && flagArray[j - 2][i - 1])
+					col[j] = min({ preCol[j], preCol[j - 2] }) + dis(inputAudio[i], temAudio[j]);
+				else if (flagArray[j][i - 1] && flagArray[j - 1][i - 1] && !flagArray[j - 2][i - 1])
+					col[j] = min({ preCol[j], preCol[j - 1] }) + dis(inputAudio[i], temAudio[j]);
+				else if (!flagArray[j][i - 1] && !flagArray[j - 1][i - 1] && flagArray[j - 2][i - 1])
+					col[j] = preCol[j - 2] + dis(inputAudio[i], temAudio[j]);
+				else if (flagArray[j][i - 1] && !flagArray[j - 1][i - 1] && !flagArray[j - 2][i - 1])
+					col[j] = preCol[j] + dis(inputAudio[i], temAudio[j]);
+				else if (!flagArray[j][i - 1] && flagArray[j - 1][i - 1] && !flagArray[j - 2][i - 1])
+					col[j] = preCol[j - 1] + dis(inputAudio[i], temAudio[j]);
+			}
 			if (beamTemp > col[j])
 				beamTemp = col[j];
 		}
 		for (unsigned int j = 0; j < tempLen; j++)
 		{
-			if(col[j] - beamTemp > DTW_BEAM)
-			{
-				unsigned int k = i;
-				unsigned int p = j;
-				while(k < inputLen && p < temLen)
-				{
-					flagArray[p][k] = false;
-					k++;
-					p += 2;
-				}
-			}
+			if (col[j] - beamTemp > DTW_BEAM)
+				flagArray[j][i] = false;
 		}
 		col.swap(preCol);
 	}
@@ -180,12 +193,34 @@ vector<double> beamSynchronousDTW(vector<vector<double>>& inputAudio, vector<vec
 		{
 			for (unsigned int k = 0; k < tempNum; k++)
 			{
-				if (j == 0 && flagArray[k][j][i])
+				if (j == 0 && flagArray[k][j][i - 1])
 					col[k][j] = preCol[k][j] + dis(inputAudio[i], temAudio[k][j]);
-				else if (j == 1 && flagArray[k][j][i])
-					col[k][j] = min(preCol[k][j], preCol[k][j - 1]) + dis(inputAudio[i], temAudio[k][j]);
-				else if (j > 1 && j < tempSize[k] && flagArray[k][j][i])
-					col[k][j] = min({ preCol[k][j], preCol[k][j - 1], preCol[k][j - 2] }) + dis(inputAudio[i], temAudio[k][j]);
+				else if (j == 1)
+				{
+					if (flagArray[k][j][i - 1] && flagArray[k][j - 1][i - 1])
+						col[k][j] = min(preCol[k][j], preCol[k][j - 1]) + dis(inputAudio[i], temAudio[k][j]);
+					else if (flagArray[k][j][i - 1] && !flagArray[k][j - 1][i - 1])
+						col[k][j] = preCol[k][j] + dis(inputAudio[i], temAudio[k][j]);
+					else if (!flagArray[k][j][i - 1] && flagArray[k][j - 1][i - 1])
+						col[k][j] = preCol[k][j - 1] + dis(inputAudio[i], temAudio[k][j]);
+				}
+				else if (j > 1 && j < tempSize[k])
+				{
+					if (flagArray[k][j][i - 1] && flagArray[k][j - 1][i - 1] && flagArray[k][j - 2][i - 1])
+						col[k][j] = min({ preCol[k][j], preCol[k][j - 1], preCol[k][j - 2] }) + dis(inputAudio[i], temAudio[k][j]);
+					else if (!flagArray[k][j][i - 1] && flagArray[k][j - 1][i - 1] && flagArray[k][j - 2][i - 1])
+						col[k][j] = min({ preCol[k][j - 1], preCol[k][j - 2] }) + dis(inputAudio[i], temAudio[k][j]);
+					else if (flagArray[k][j][i - 1] && !flagArray[k][j - 1][i - 1] && flagArray[k][j - 2][i - 1])
+						col[k][j] = min({ preCol[k][j], preCol[k][j - 2] }) + dis(inputAudio[i], temAudio[k][j]);
+					else if (flagArray[k][j][i - 1] && flagArray[k][j - 1][i - 1] && !flagArray[k][j - 2][i - 1])
+						col[k][j] = min({ preCol[k][j], preCol[k][j - 1] }) + dis(inputAudio[i], temAudio[k][j]);
+					else if (!flagArray[k][j][i - 1] && !flagArray[k][j - 1][i - 1] && flagArray[k][j - 2][i - 1])
+						col[k][j] = preCol[k][j - 2] + dis(inputAudio[i], temAudio[k][j]);
+					else if (flagArray[k][j][i - 1] && !flagArray[k][j - 1][i - 1] && !flagArray[k][j - 2][i - 1])
+						col[k][j] = preCol[k][j] + dis(inputAudio[i], temAudio[k][j]);
+					else if (!flagArray[k][j][i - 1] && flagArray[k][j - 1][i - 1] && !flagArray[k][j - 2][i - 1])
+						col[k][j] = preCol[k][j - 1] + dis(inputAudio[i], temAudio[k][j]);
+				}
 				if (beamTemp[k] > col[k][j])
 					beamTemp[k] = col[k][j];
 			}
@@ -194,17 +229,8 @@ vector<double> beamSynchronousDTW(vector<vector<double>>& inputAudio, vector<vec
 		{
 			for (unsigned int k = 0; k < tempNum; k++)
 			{
-				if (col[k][j] - beamTemp[k] > DTW_BEAM)
-				{
-					unsigned int m = i;
-					unsigned int n = j;
-					while (m < inputSize && n < everyTempSize[k])
-					{
-						flagArray[k][n][m] = false;
-						m++;
-						n += 2;
-					}
-				}
+				if (col[k][j] - beamTemp[k] > DTW_BEAM && j < everyTempSize[k])
+					flagArray[k][j][i] = false;
 			}
 		}
 		for (unsigned int j = 0; j < tempNum; j++)
@@ -214,7 +240,6 @@ vector<double> beamSynchronousDTW(vector<vector<double>>& inputAudio, vector<vec
 	for (int i = 0; i < tempNum; i++)
 		result[i] = preCol[i][everyTempSize[i] - 1];
 	delete[] flagArray;
-	//return the array of cost of multiple templates
 	return result;
 }
 

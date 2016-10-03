@@ -330,6 +330,7 @@ void printStringPath(const vector<string>& s1, const vector<string>& s2, int** p
 		col.swap(prevCol);
 	}
 
+
 	for (int i = 0; i < len2 + 2; i++) {
 		for (int j = 0; j < len1 + 2; j++) {
 			if (j != 0) {
