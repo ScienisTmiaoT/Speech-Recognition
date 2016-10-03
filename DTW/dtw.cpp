@@ -129,6 +129,95 @@ double beamDTW(vector<vector<double>>& inputAudio, vector<vector<double>>& temAu
 	return preCol[temLen - 1];
 }
 
+//DTW with synchronous multiple templates
+vector<double> beamSynchronousDTW(vector<vector<double>>& inputAudio, vector<vector<vector<double>>>& temAudio)
+{
+	unsigned int tempNum = (unsigned int)temAudio.size();
+	vector<unsigned int> everyTempSize(tempNum);
+	unsigned int largeTempSize = 0;
+	for (unsigned int i = 0; i < tempNum; i++)
+	{
+		everyTempSize[i] = temAudio[i].size();
+		if (largeTempSize < everyTempSize[i])
+			largeTempSize = everyTempSize[i];
+	}
+
+	unsigned int inputSize = (unsigned int)inputAudio.size();
+	bool*** flagArray = new bool**[tempNum];
+	for (unsigned int i = 0; i < tempNum; i++)
+	{
+		flagArray[i] = new bool*[everyTempSize[i]];
+		for (unsigned int j = 0; j < everyTempSize[i]; j++)
+		{
+			flagArray[i][j] = new bool[inputSize];
+			memset(flagArray[i][j], true, inputSize * sizeof(bool));
+		}
+	}
+
+	vector<vector<double>> preCol(tempNum, vector<double>(largeTempSize, DBL_MAX / 2));
+	vector<vector<double>> col(tempNum, vector<double>(largeTempSize, DBL_MAX / 2));
+	vector<vector<double>> maxCol(tempNum, vector<double>(largeTempSize, DBL_MAX / 2));
+
+	for (unsigned int i = 0; i < tempNum; i++)
+	{
+		preCol[i][0] = dis(inputAudio[0], temAudio[i][0]);
+		preCol[i][1] = dis(inputAudio[0], temAudio[i][1]);
+	}
+
+	for (unsigned int i = 0; i < inputSize; i++)
+	{
+		vector<double> beamTemp(tempNum, DBL_MAX / 2);
+		vector<unsigned int> tempSize(tempNum);
+		col = maxCol;
+		largeTempSize = 0;
+		for (unsigned int p = 0; p < tempNum; p++)
+		{
+			tempSize[p] = min({ 2 * i + 2, everyTempSize[p] });
+			if (largeTempSize < tempSize[p])
+				largeTempSize = tempSize[p];
+		}
+		for (unsigned int j = 0; j < largeTempSize; j++)
+		{
+			for (unsigned int k = 0; k < tempNum; k++)
+			{
+				if (j == 0 && flagArray[k][j][i])
+					col[k][j] = preCol[k][j] + dis(inputAudio[i], temAudio[k][j]);
+				else if (j == 1 && flagArray[k][j][i])
+					col[k][j] = min(preCol[k][j], preCol[k][j - 1]) + dis(inputAudio[i], temAudio[k][j]);
+				else if (j > 1 && j < tempSize[k] && flagArray[k][j][i])
+					col[k][j] = min({ preCol[k][j], preCol[k][j - 1], preCol[k][j - 2] }) + dis(inputAudio[i], temAudio[k][j]);
+				if (beamTemp[k] > col[k][j])
+					beamTemp[k] = col[k][j];
+			}
+		}
+		for (unsigned int j = 0; j < largeTempSize; j++)
+		{
+			for (unsigned int k = 0; k < tempNum; k++)
+			{
+				if (col[k][j] - beamTemp[k] > DTW_BEAM)
+				{
+					unsigned int m = i;
+					unsigned int n = j;
+					while (m < inputSize && n < everyTempSize[k])
+					{
+						flagArray[k][n][m] = false;
+						m++;
+						n += 2;
+					}
+				}
+			}
+		}
+		for (unsigned int j = 0; j < tempNum; j++)
+			col[j].swap(preCol[j]);
+	}
+	vector<double> result(tempNum);
+	for (int i = 0; i < tempNum; i++)
+		result[i] = preCol[i][everyTempSize[i] - 1];
+	delete[] flagArray;
+	//return the array of cost of multiple templates
+	return result;
+}
+
 //print the path of dtw
 double printDTWPath(vector<vector<double>>& s1, vector<vector<double>>& s2, ofstream& out) {
 	const std::size_t len1 = s1.size(), len2 = s2.size();

@@ -16,6 +16,7 @@ using namespace std;
 double dtw(vector<vector<double>>& inputAduio, vector<vector<double>>& temAduio);
 vector<double> dtwSynchronous(vector<vector<double>>& inputAduio, vector<vector<vector<double>>>& temsAudio);
 double beamDTW(vector<vector<double>>& inputAudio, vector<vector<double>>& temAudio);
+vector<double> beamSynchronousDTW(vector<vector<double>>& inputAudio, vector<vector<vector<double>>>& temAudio);
 double printDTWPath(vector<vector<double>>& s1, vector<vector<double>>& s2, ofstream& out);
 
 #endif
