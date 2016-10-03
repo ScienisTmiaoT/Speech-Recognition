@@ -197,8 +197,7 @@ void printString(const vector<string>& s1, const vector<string>& s2, ofstream& o
 }
 
 int main() {
-	spellCheck();
-	/*
+	//spellCheck();
 	vector<string> story;
 	vector<string> storyCorrect;
 	vector<string> storyMatch;
@@ -208,13 +207,11 @@ int main() {
 	ofstream out(PRINT_TABLE_NAME);
 	//0: substitution 1: insertion 2: deletion
 	int errorRecord[3] = {0, 0, 0};
-	printString(story, storyCorrect, out, errorRecord);
+	printString(storyMatch, storyCorrect, out, errorRecord);
 	cout << errorRecord[0] << " " << errorRecord[1] << " " << errorRecord[2] << endl;
 	//cout << endl << endl << endl;
-	print("noced", "notice", out);
+	//print("noced", "notice", out);
 	//cout << pureLevenshteinDistance("noce", "notice") << endl;
-	cout << endl << endl << endl;
-	*/
-	cout << "end" << endl;
+	//cout << endl << endl << endl;
 	return 0;
 }

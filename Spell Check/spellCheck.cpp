@@ -436,7 +436,6 @@ void spellCheck() {
 	readFile(FILE_PATH, OUT_STORY_NAME, story);
 	readFile(FILE_PATH, OUT_STORY_CORRECT_NAME, storyCorrect);
 	readFile(FILE_PATH, IN_DICT_NAME, dict);
-	cout << "in" << endl;
 	for (int i = 0; i < STORY_SIZE; i++) {
 		//initialized to the biggest value of unsigned int 
 		distances[i] = UINT_MAX;
