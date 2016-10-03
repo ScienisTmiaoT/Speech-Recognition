@@ -164,7 +164,7 @@ vector<double> beamSynchronousDTW(vector<vector<double>>& inputAudio, vector<vec
 		preCol[i][1] = dis(inputAudio[0], temAudio[i][1]);
 	}
 
-	for (unsigned int i = 0; i < inputSize; i++)
+	for (unsigned int i = 1; i < inputSize; i++)
 	{
 		vector<double> beamTemp(tempNum, DBL_MAX / 2);
 		vector<unsigned int> tempSize(tempNum);
@@ -281,7 +281,7 @@ double printDTWPath(vector<vector<double>>& s1, vector<vector<double>>& s2, ofst
 				else if(j == 1)
 				{
 					if (flagArray[i][j]) {
-						double temp = min({ printArray[i - 1][j - 2], printArray[i - 1][j - 1], printArray[i - 1][j] });
+						double temp = min({printArray[i - 1][j - 1], printArray[i - 1][j] });
 						if (printArray[i - 1][j] == temp)
 						{
 							flagArray[i - 1][j] = true;

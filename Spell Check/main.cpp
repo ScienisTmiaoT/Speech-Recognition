@@ -53,22 +53,22 @@ void print(string s1, string s2, ofstream& out) {
 						if (flagArray[i][j - 1] == 1)
 							SetConsoleTextAttribute(hOut, FOREGROUND_RED);
 						else
-							SetConsoleTextAttribute(hOut, FOREGROUND_RED |
+							SetConsoleTextAttribute(hOut, 
 								FOREGROUND_BLUE | FOREGROUND_GREEN);
 						cout << setw(TABLE_GAP) << pathArray[i][j - 1];
 						out << setw(TABLE_GAP) << pathArray[i][j - 1];
-						SetConsoleTextAttribute(hOut, FOREGROUND_RED |
+						SetConsoleTextAttribute(hOut, 
 							FOREGROUND_BLUE | FOREGROUND_GREEN);
 					}
 					else {
 						if (flagArray[i][0] == 1)
 							SetConsoleTextAttribute(hOut, FOREGROUND_RED);
 						else
-							SetConsoleTextAttribute(hOut, FOREGROUND_RED |
+							SetConsoleTextAttribute(hOut, 
 								FOREGROUND_BLUE | FOREGROUND_GREEN);
 						cout << setw(TABLE_GAP) << len2 - i;
 						out << setw(TABLE_GAP) << len2 - i;
-						SetConsoleTextAttribute(hOut, FOREGROUND_RED |
+						SetConsoleTextAttribute(hOut, 
 							FOREGROUND_BLUE | FOREGROUND_GREEN);
 					}
 				}
@@ -76,11 +76,11 @@ void print(string s1, string s2, ofstream& out) {
 					if (flagArray[i][j - 1] == 1)
 						SetConsoleTextAttribute(hOut, FOREGROUND_RED);
 					else
-						SetConsoleTextAttribute(hOut, FOREGROUND_RED |
+						SetConsoleTextAttribute(hOut, 
 							FOREGROUND_BLUE | FOREGROUND_GREEN);
 					cout << setw(TABLE_GAP) << j - 1;
 					out << setw(TABLE_GAP) << j - 1;
-					SetConsoleTextAttribute(hOut, FOREGROUND_RED |
+					SetConsoleTextAttribute(hOut, 
 						FOREGROUND_BLUE | FOREGROUND_GREEN);
 				}
 				else {
@@ -147,22 +147,22 @@ void printString(const vector<string>& s1, const vector<string>& s2, ofstream& o
 						if (flagArray[i][j - 1] == 1)
 							SetConsoleTextAttribute(hOut, FOREGROUND_RED);
 						else
-							SetConsoleTextAttribute(hOut, FOREGROUND_RED |
+							SetConsoleTextAttribute(hOut, 
 								FOREGROUND_BLUE | FOREGROUND_GREEN);
 						cout << setw(TABLE_GAP) << pathArray[i][j - 1];
 						out << setw(TABLE_GAP) << pathArray[i][j - 1];
-						SetConsoleTextAttribute(hOut, FOREGROUND_RED |
+						SetConsoleTextAttribute(hOut, 
 							FOREGROUND_BLUE | FOREGROUND_GREEN);
 					}
 					else {
 						if (flagArray[i][0] == 1)
 							SetConsoleTextAttribute(hOut, FOREGROUND_RED);
 						else
-							SetConsoleTextAttribute(hOut, FOREGROUND_RED |
+							SetConsoleTextAttribute(hOut, 
 								FOREGROUND_BLUE | FOREGROUND_GREEN);
 						cout << setw(TABLE_GAP) << len2 - i;
 						out << setw(TABLE_GAP) << len2 - i;
-						SetConsoleTextAttribute(hOut, FOREGROUND_RED |
+						SetConsoleTextAttribute(hOut, 
 							FOREGROUND_BLUE | FOREGROUND_GREEN);
 					}
 				}
@@ -170,11 +170,11 @@ void printString(const vector<string>& s1, const vector<string>& s2, ofstream& o
 					if (flagArray[i][j - 1] == 1)
 						SetConsoleTextAttribute(hOut, FOREGROUND_RED);
 					else
-						SetConsoleTextAttribute(hOut, FOREGROUND_RED |
+						SetConsoleTextAttribute(hOut, 
 							FOREGROUND_BLUE | FOREGROUND_GREEN);
 					cout << setw(TABLE_GAP) << j - 1;
 					out << setw(TABLE_GAP) << j - 1;
-					SetConsoleTextAttribute(hOut, FOREGROUND_RED |
+					SetConsoleTextAttribute(hOut, 
 						FOREGROUND_BLUE | FOREGROUND_GREEN);
 				}
 				else {
@@ -197,17 +197,24 @@ void printString(const vector<string>& s1, const vector<string>& s2, ofstream& o
 }
 
 int main() {
-	//spellCheck();
+	spellCheck();
+	/*
 	vector<string> story;
 	vector<string> storyCorrect;
+	vector<string> storyMatch;
 	readFile(FILE_PATH, OUT_STORY_NAME, story);
 	readFile(FILE_PATH, OUT_STORY_CORRECT_NAME, storyCorrect);
+	readFile(FILE_PATH, STORY_MATCH_NAME, storyMatch);
 	ofstream out(PRINT_TABLE_NAME);
 	//0: substitution 1: insertion 2: deletion
 	int errorRecord[3] = {0, 0, 0};
 	printString(story, storyCorrect, out, errorRecord);
 	cout << errorRecord[0] << " " << errorRecord[1] << " " << errorRecord[2] << endl;
-	//print("noced", "notice", out);
+	//cout << endl << endl << endl;
+	print("noced", "notice", out);
 	//cout << pureLevenshteinDistance("noce", "notice") << endl;
+	cout << endl << endl << endl;
+	*/
+	cout << "end" << endl;
 	return 0;
 }

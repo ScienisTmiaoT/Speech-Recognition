@@ -16,8 +16,12 @@ using namespace std;
 #define IN_DICT_NAME ("dict.txt")
 #define IN_STORY_CORRECT_NAME ("storycorrect.txt")
 #define OUT_STORY_CORRECT_NAME ("pureStoryCorrect.txt")
+//story story_match edit_distance
 #define OUT_STORY_RESULT_NAME ("storyResult.txt")
+//story_match correct_story edit_distance
 #define OUT_STORY_RESULT_WITH_CORRECT_NAME ("storyResultWithCorrect.txt")
+//after edit distance algorithm the word matched by story from dict
+#define STORY_MATCH_NAME ("storyMatch.txt")
 #define PRINT_TABLE_NAME ("printTable.txt")
 #define TABLE_GAP (5)
 

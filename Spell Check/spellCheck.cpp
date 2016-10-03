@@ -436,7 +436,7 @@ void spellCheck() {
 	readFile(FILE_PATH, OUT_STORY_NAME, story);
 	readFile(FILE_PATH, OUT_STORY_CORRECT_NAME, storyCorrect);
 	readFile(FILE_PATH, IN_DICT_NAME, dict);
-
+	cout << "in" << endl;
 	for (int i = 0; i < STORY_SIZE; i++) {
 		//initialized to the biggest value of unsigned int 
 		distances[i] = UINT_MAX;
@@ -454,6 +454,7 @@ void spellCheck() {
 	}
 	ofstream storyResult(OUT_STORY_RESULT_NAME);
 	ofstream storyResultWithCorrect(OUT_STORY_RESULT_WITH_CORRECT_NAME);
+	ofstream storyMatch(STORY_MATCH_NAME);
 	if (!storyResult.is_open()) {
 		cout << "fail to open storyResult" << endl;
 		exit(1);
@@ -462,9 +463,15 @@ void spellCheck() {
 		cout << "fail to open storyResultWithCorrect" << endl;
 		exit(1);
 	}
+	if (!storyMatch.is_open()) {
+		cout << "fail to open storyMatch" << endl;
+		exit(1);
+	}
 	//correct word after edit distance
 	int correctCount = 0;
 	for (int i = 0; i < STORY_SIZE; i++) {
+		//record the word match from dict
+		storyMatch << dict.at(distanceId[i]) << "\n";
 		storyResult << story.at(i) << " "
 			<< dict.at(distanceId[i]) << " "
 			<< distances[i] << "\n";
@@ -478,6 +485,9 @@ void spellCheck() {
 	}
 	cout << "correct rate : " << (double)correctCount / STORY_SIZE << endl;
 	storyResult.close();
+	storyResultWithCorrect.close();
+	storyMatch.close();
+	return;
 }
 
 
