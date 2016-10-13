@@ -51,7 +51,7 @@ void print(string s1, string s2, ofstream& out) {
 				if (i < len2) {
 					if (j != 1) {
 						if (flagArray[i][j - 1] == 1)
-							SetConsoleTextAttribute(hOut, FOREGROUND_RED);
+							SetConsoleTextAttribute(hOut, FOREGROUND_RED | FOREGROUND_INTENSITY);
 						else
 							SetConsoleTextAttribute(hOut, 
 								FOREGROUND_BLUE | FOREGROUND_GREEN);
@@ -62,7 +62,7 @@ void print(string s1, string s2, ofstream& out) {
 					}
 					else {
 						if (flagArray[i][0] == 1)
-							SetConsoleTextAttribute(hOut, FOREGROUND_RED);
+							SetConsoleTextAttribute(hOut, FOREGROUND_RED | FOREGROUND_INTENSITY);
 						else
 							SetConsoleTextAttribute(hOut, 
 								FOREGROUND_BLUE | FOREGROUND_GREEN);
@@ -74,7 +74,7 @@ void print(string s1, string s2, ofstream& out) {
 				}
 				else if (i == len2) {
 					if (flagArray[i][j - 1] == 1)
-						SetConsoleTextAttribute(hOut, FOREGROUND_RED);
+						SetConsoleTextAttribute(hOut, FOREGROUND_RED | FOREGROUND_INTENSITY);
 					else
 						SetConsoleTextAttribute(hOut, 
 							FOREGROUND_BLUE | FOREGROUND_GREEN);
@@ -145,7 +145,7 @@ void printString(const vector<string>& s1, const vector<string>& s2, ofstream& o
 				if (i < len2) {
 					if (j != 1) {
 						if (flagArray[i][j - 1] == 1)
-							SetConsoleTextAttribute(hOut, FOREGROUND_RED);
+							SetConsoleTextAttribute(hOut, FOREGROUND_RED | FOREGROUND_INTENSITY);
 						else
 							SetConsoleTextAttribute(hOut, 
 								FOREGROUND_BLUE | FOREGROUND_GREEN);
@@ -156,7 +156,7 @@ void printString(const vector<string>& s1, const vector<string>& s2, ofstream& o
 					}
 					else {
 						if (flagArray[i][0] == 1)
-							SetConsoleTextAttribute(hOut, FOREGROUND_RED);
+							SetConsoleTextAttribute(hOut, FOREGROUND_RED | FOREGROUND_INTENSITY);
 						else
 							SetConsoleTextAttribute(hOut, 
 								FOREGROUND_BLUE | FOREGROUND_GREEN);
@@ -168,7 +168,7 @@ void printString(const vector<string>& s1, const vector<string>& s2, ofstream& o
 				}
 				else if (i == len2) {
 					if (flagArray[i][j - 1] == 1)
-						SetConsoleTextAttribute(hOut, FOREGROUND_RED);
+						SetConsoleTextAttribute(hOut, FOREGROUND_RED | FOREGROUND_INTENSITY);
 					else
 						SetConsoleTextAttribute(hOut, 
 							FOREGROUND_BLUE | FOREGROUND_GREEN);
@@ -198,20 +198,37 @@ void printString(const vector<string>& s1, const vector<string>& s2, ofstream& o
 
 int main() {
 	//spellCheck();
-	vector<string> story;
-	vector<string> storyCorrect;
-	vector<string> storyMatch;
-	readFile(FILE_PATH, OUT_STORY_NAME, story);
-	readFile(FILE_PATH, OUT_STORY_CORRECT_NAME, storyCorrect);
-	readFile(FILE_PATH, STORY_MATCH_NAME, storyMatch);
-	ofstream out(PRINT_TABLE_NAME);
+	//vector<string> story;
+	//vector<string> storyCorrect;
+	//vector<string> storyMatch;
+	//readFile(FILE_PATH, OUT_STORY_NAME, story);
+	//readFile(FILE_PATH, OUT_STORY_CORRECT_NAME, storyCorrect);
+	//readFile(FILE_PATH, STORY_MATCH_NAME, storyMatch);
+	//ofstream out(PRINT_TABLE_NAME);
 	//0: substitution 1: insertion 2: deletion
+	/*
 	int errorRecord[3] = {0, 0, 0};
+	story.push_back("you");
+	story.push_back("are");
+	story.push_back("a");
+	story.push_back("great");
+	story.push_back("guy");
+	storyCorrect.push_back("their");
+	storyCorrect.push_back("are");
+	storyCorrect.push_back("some");
+	storyCorrect.push_back("really");
+	storyCorrect.push_back("great");
+	storyCorrect.push_back("people");
+	cout << endl << endl << endl;
 	printString(story, storyCorrect, out, errorRecord);
+	cout << endl << endl << endl;
 	cout << errorRecord[0] << " " << errorRecord[1] << " " << errorRecord[2] << endl;
-	//cout << endl << endl << endl;
+	*/
 	//print("noced", "notice", out);
 	//cout << pureLevenshteinDistance("noce", "notice") << endl;
-	//cout << endl << endl << endl;
+	double d1 = UINT_MAX / 2;
+	double d2 = 7;
+	if (d1 - d2 > 3)
+		cout << "Hi" << endl;
 	return 0;
 }

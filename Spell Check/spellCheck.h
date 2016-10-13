@@ -23,7 +23,7 @@ using namespace std;
 //after edit distance algorithm the word matched by story from dict
 #define STORY_MATCH_NAME ("storyMatch.txt")
 #define PRINT_TABLE_NAME ("printTable.txt")
-#define TABLE_GAP (5)
+#define TABLE_GAP (10)
 
 //story and storycorrect word number
 #define STORY_SIZE (613)
