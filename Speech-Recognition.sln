@@ -11,6 +11,8 @@ Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "Audio Capture Test", "Audio
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "DTW", "DTW\DTW.vcxproj", "{69D24341-8C50-4B56-A272-2498282AF2FE}"
 EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "Lextree", "Lextree\Lextree.vcxproj", "{2B7AA92A-C171-4E14-BBF3-DD3B7B0AD12E}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|x64 = Debug|x64
@@ -51,6 +53,14 @@ Global
 		{69D24341-8C50-4B56-A272-2498282AF2FE}.Release|x64.Build.0 = Release|x64
 		{69D24341-8C50-4B56-A272-2498282AF2FE}.Release|x86.ActiveCfg = Release|Win32
 		{69D24341-8C50-4B56-A272-2498282AF2FE}.Release|x86.Build.0 = Release|Win32
+		{2B7AA92A-C171-4E14-BBF3-DD3B7B0AD12E}.Debug|x64.ActiveCfg = Debug|x64
+		{2B7AA92A-C171-4E14-BBF3-DD3B7B0AD12E}.Debug|x64.Build.0 = Debug|x64
+		{2B7AA92A-C171-4E14-BBF3-DD3B7B0AD12E}.Debug|x86.ActiveCfg = Debug|Win32
+		{2B7AA92A-C171-4E14-BBF3-DD3B7B0AD12E}.Debug|x86.Build.0 = Debug|Win32
+		{2B7AA92A-C171-4E14-BBF3-DD3B7B0AD12E}.Release|x64.ActiveCfg = Release|x64
+		{2B7AA92A-C171-4E14-BBF3-DD3B7B0AD12E}.Release|x64.Build.0 = Release|x64
+		{2B7AA92A-C171-4E14-BBF3-DD3B7B0AD12E}.Release|x86.ActiveCfg = Release|Win32
+		{2B7AA92A-C171-4E14-BBF3-DD3B7B0AD12E}.Release|x86.Build.0 = Release|Win32
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
