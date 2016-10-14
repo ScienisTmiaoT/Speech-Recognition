@@ -12,7 +12,7 @@
 using namespace std;
 
 #define MAX_BRANCH_NUM  52   // we have 26 characters. double it so that can store the one that ends here
-
+#define BEAM (3)
 
 /* define the class for the node of the trie tree*/
 class TrieNode
@@ -28,7 +28,7 @@ public:
 	{
 		memset(nextBranch, NULL, sizeof(TrieNode*) * MAX_BRANCH_NUM);
 		parentBranch = NULL;
-		preNodeCost = curNodeCost = 0;
+		preNodeCost = curNodeCost = INT_MAX / 2;
 	}
 	bool setPreNodeCost(int val);
 	int getPreNodeCost();
@@ -50,8 +50,8 @@ public:
 	bool Search(string& str);
 	void PrintALL();            // print out all the node in the trie tree
 	TrieNode* getRoot();        //get root node   
-	void swapNodeCost();
-	void swapNodeCostUtil(TrieNode* node);
+	void swapNodeCost(int minCost);
+	void swapNodeCostUtil(TrieNode* node, int minCost);
 private:
 	TrieNode* pRoot;
 private:
