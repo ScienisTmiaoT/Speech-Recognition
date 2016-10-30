@@ -198,15 +198,15 @@ void printString(const vector<string>& s1, const vector<string>& s2, ofstream& o
 
 int main() {
 	//spellCheck();
-	//vector<string> story;
-	//vector<string> storyCorrect;
-	//vector<string> storyMatch;
-	//readFile(FILE_PATH, OUT_STORY_NAME, story);
-	//readFile(FILE_PATH, OUT_STORY_CORRECT_NAME, storyCorrect);
-	//readFile(FILE_PATH, STORY_MATCH_NAME, storyMatch);
-	//ofstream out(PRINT_TABLE_NAME);
+	vector<string> story;
+	vector<string> storyCorrect;
+	vector<string> storyMatch;
+	readFile(FILE_PATH, OUT_STORY_NAME, story);
+	readFile(FILE_PATH, OUT_STORY_CORRECT_NAME, storyCorrect);
+	readFile(FILE_PATH, STORY_MATCH_NAME, storyMatch);
+	ofstream out(PRINT_TABLE_NAME);
 	//0: substitution 1: insertion 2: deletion
-	/*
+
 	int errorRecord[3] = {0, 0, 0};
 	story.push_back("you");
 	story.push_back("are");
@@ -223,12 +223,8 @@ int main() {
 	printString(story, storyCorrect, out, errorRecord);
 	cout << endl << endl << endl;
 	cout << errorRecord[0] << " " << errorRecord[1] << " " << errorRecord[2] << endl;
-	*/
+
 	//print("noced", "notice", out);
 	//cout << pureLevenshteinDistance("noce", "notice") << endl;
-	double d1 = UINT_MAX / 2;
-	double d2 = 7;
-	if (d1 - d2 > 3)
-		cout << "Hi" << endl;
 	return 0;
 }

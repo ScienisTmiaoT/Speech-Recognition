@@ -1,7 +1,7 @@
 #ifndef LEXTREE_PROCESS
-
-#include <algorithm>
+#include <iostream>
 #include <map>
+#include <algorithm>
 #include "Trie.h"
 #include "readFile.h"
 

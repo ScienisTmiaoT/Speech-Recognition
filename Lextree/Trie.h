@@ -1,25 +1,26 @@
 #ifndef Trie_h
 #define Trie_h
-
 #include <iostream>
-#include <stdio.h>
 #include <vector>
-#include <string>
-#include <algorithm>
-#include <assert.h>
+#include <fstream>
 #include <sstream>
+#include <string>
+#include <assert.h>
+using namespace std;
+
 
 using namespace std;
 
 #define MAX_BRANCH_NUM  52   // we have 26 characters. double it so that can store the one that ends here
 #define BEAM (3)
-
+// one letter of the word that store there
+// the pointers' vectors that point to the next branch
 /* define the class for the node of the trie tree*/
 class TrieNode
 {
 public:
-	char letter;     // one letter of the word that store there
-	TrieNode* nextBranch[MAX_BRANCH_NUM];   // the pointers' vectors that point to the next branch
+	char letter;     
+	TrieNode* nextBranch[MAX_BRANCH_NUM];   
 	TrieNode* parentBranch;
 	int preNodeCost;
 	int curNodeCost;
