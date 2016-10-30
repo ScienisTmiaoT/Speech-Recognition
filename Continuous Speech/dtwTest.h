@@ -1,11 +1,3 @@
-//
-//  dtwTest.h
-//  DTW
-//
-//  Created by hty on 01/10/2016.
-//  Copyright © 2016 hty. All rights reserved.
-//
-
 #ifndef dtwTest_h
 #define dtwTest_h
 

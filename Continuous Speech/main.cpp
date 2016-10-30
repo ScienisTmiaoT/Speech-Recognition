@@ -1,25 +1,33 @@
-//
-//  main.cpp
-//  SpeechRecognition
-//
-//  Created by hty on 9/2/16.
-//  Copyright © 2016 hty. All rights reserved.
-//
-
 #include <iostream>
-#include "fft.h"
-#include "featureExtraction.h"
-#include "dtw.h"
-#include "dtwTest.h"
+#include "framePrune.h"
+#include "readwave.h"
 
 using namespace std;
 
+int main()
+{
+	short* dataWave;    // store the original wave data
+	int numSample;
+	int sampleRate;
+	string wavpath = "record.wav";
+	const char *wavFile = wavpath.c_str();
+	// read in the wave data
+	dataWave = ReadWavFile(wavFile, &numSample, &sampleRate);
+	cout << "numSample " << numSample << endl;
+	short start = pruneFrameFromStart(dataWave, numSample);
+	short end = pruneFrameFromEnd(dataWave, numSample);
+	dataWave += start;
+	numSample = numSample - start - end;
+	cout << "numSample " << numSample << endl;
+    char writePath[] = "record_prune.wav";
+	WriteWave(writePath, dataWave, numSample, sampleRate);
+	return 0;
+}
 
 
 
 
-
-
+/*
 int main(int argc, const char * argv[]) {
     
     
@@ -29,6 +37,7 @@ int main(int argc, const char * argv[]) {
     testSegTem();       // test segmental k-mean
 
 }
+*/
 
 //void getTem1(vector<vector<vector<double>>>& temGroup){
 //    string wavTemPath = "/Users/hty/desktop/testingData/test 4.0/template";
