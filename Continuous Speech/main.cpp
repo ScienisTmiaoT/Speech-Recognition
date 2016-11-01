@@ -1,9 +1,70 @@
 #include <iostream>
-#include "framePrune.h"
+#include "ContinuousPhone.h"
 #include "readwave.h"
 
 using namespace std;
 
+string wavTestPath = "C:\\Users\\Administrator\\Desktop\\Current\\Continuous Speech\\record.wav";
+string txtTestPath = "C:\\Users\\Administrator\\Desktop\\Current\\Continuous Speech\\";
+
+
+string wavTemPath = "C:\\Users\\Administrator\\Desktop\\Current\\Continuous Speech\\test 4.0\\template";
+string txtTemPath = "C:\\Users\\Administrator\\Desktop\\Current\\Continuous Speech\\test 4.0\\template";
+string wavInputPath = "C:\\Users\\Administrator\\Desktop\\Current\\Continuous Speech\\test 4.0\\input";
+string txtInputPath = "C:\\Users\\Administrator\\Desktop\\Current\\Continuous Speech\\test 4.0\\input";
+
+
+
+// test segmental k-mean
+int main(){
+	vector<vector<vector<double>>> segTemGroup;
+	for (int i = 0; i < TYPE_NUM; i++) {
+		vector<vector<vector<double>>> temGroup;
+		for (int j = 0; j < TEM_NUM; j++) {
+			cout << "-----------------------Template " << i << " Instance " << j << "------------------------" << endl;
+			string wavpath = wavTemPath + to_string(i) + "\\" + to_string(j) + "\\record.wav";
+			//            capture(wavpath);
+			vector<vector<double>> temFeature;
+			string txtpath = txtTemPath + to_string(i) + "\\" + to_string(j) + "\\";
+			featureExtraction(temFeature, wavpath, txtpath);
+			temGroup.push_back(temFeature);
+		}
+		vector<vector<double>> segTem;
+		segTem = dtw2hmm(temGroup);
+		cout << "You have got the segment template!!!!!!!!!!!!!!!!!!!" << endl;
+		segTemGroup.push_back(segTem);
+	}
+
+	vector<vector<double>> testInput;
+	featureExtraction(testInput, wavTestPath, txtTestPath);
+	Trie trie;
+	TrieNode* root = trie.getRoot();
+	for(int i = 0; i < MAX_BRANCH_NUM - 1; i++)
+	{
+		root->nextBranch[i]->segTemplate = segTemGroup[i];
+	}
+
+	int length = testInput.size();
+	vector<int> minNode(INT_MAX / 2, length);
+	RestrictPhone(trie, testInput, minNode);
+	for (int i = 0; i < length; i++)
+		cout << minNode[i] << " ";
+	cout << endl;
+	return 0;
+}
+
+
+
+
+
+
+
+
+
+
+
+
+/*
 int main()
 {
 	short* dataWave;    // store the original wave data
@@ -14,16 +75,17 @@ int main()
 	// read in the wave data
 	dataWave = ReadWavFile(wavFile, &numSample, &sampleRate);
 	cout << "numSample " << numSample << endl;
-	short start = pruneFrameFromStart(dataWave, numSample);
-	short end = pruneFrameFromEnd(dataWave, numSample);
+	int start = pruneFrameFromStart(dataWave, numSample);
+	int end = pruneFrameFromEnd(dataWave, numSample);
 	dataWave += start;
-	numSample = numSample - start - end;
+	numSample = end - start;
 	cout << "numSample " << numSample << endl;
     char writePath[] = "record_prune.wav";
 	WriteWave(writePath, dataWave, numSample, sampleRate);
 	return 0;
 }
 
+*/
 
 
 

@@ -12,14 +12,14 @@
 //string txtTemPath = "/Users/hty/desktop/testingData/test data2/template";
 //string wavInputPath = "/Users/hty/desktop/testingData/test data2/input";
 //string txtInputPath = "/Users/hty/desktop/testingData/test data2/input";
-string wavTestPath = "/Users/hty/desktop/testingData/test data2";
-string txtTestPath = "/Users/hty/desktop/testingData/test data2";
+string wavTestPath1 = "/Users/hty/desktop/testingData/test data2";
+string txtTestPath1 = "/Users/hty/desktop/testingData/test data2";
 
 
-string wavTemPath = "/Users/hty/desktop/testingData/test 4.0/template";
-string txtTemPath = "/Users/hty/desktop/testingData/test 4.0/template";
-string wavInputPath = "/Users/hty/desktop/testingData/test 4.0/input";
-string txtInputPath = "/Users/hty/desktop/testingData/test 4.0/input";
+string wavTemPath1 = "/Users/hty/desktop/testingData/test 4.0/template";
+string txtTemPath1 = "/Users/hty/desktop/testingData/test 4.0/template";
+string wavInputPath1 = "/Users/hty/desktop/testingData/test 4.0/input";
+string txtInputPath1 = "/Users/hty/desktop/testingData/test 4.0/input";
 
 //string wavTemPath = "/Users/hty/desktop/testingData/temp/template";
 //string txtTemPath = "/Users/hty/desktop/testingData/temp/template";
@@ -39,7 +39,7 @@ void getTem(vector<vector<vector<double>>>& temGroup){
 //    for (unsigned int i = 0; i < 1; i++) {
         for(unsigned int j = 0; j < TEM_NUM; j ++){
             cout << "-----------------------Template " << i << " Instance " << j <<"------------------------" << endl;
-            string wavpath = wavTemPath +  to_string(i) + "/" + to_string(j)+ "/record.wav";
+            string wavpath = wavTemPath1 +  to_string(i) + "/" + to_string(j)+ "/record.wav";
             
 //            capture(wavpath);
             
@@ -53,7 +53,7 @@ void getTem(vector<vector<vector<double>>>& temGroup){
 
             
             vector<vector<double>> temFeature;
-            string txtpath = txtTemPath + to_string(i) +  "/" + to_string(j) +  "/";
+            string txtpath = txtTemPath1 + to_string(i) +  "/" + to_string(j) +  "/";
             featureExtraction(temFeature, wavpath, txtpath);
             temGroup.push_back(temFeature);
         }
@@ -83,8 +83,8 @@ void getResult(){
             cout << endl;
             cout <<"-----------------------Input " << i <<"   Instance " << j << "------------------------" << endl;
             vector<vector<double>> input;
-            string wavPath = wavInputPath + to_string(i) + "/" + to_string(j) + "/record.wav";
-            string txtPath = txtInputPath + to_string(i) + "/" + to_string(j) + "/";
+            string wavPath = wavInputPath1 + to_string(i) + "/" + to_string(j) + "/record.wav";
+            string txtPath = txtInputPath1 + to_string(i) + "/" + to_string(j) + "/";
 //            capture(wavPath);
 //            cout << "Enter 0 to go on, otherwise to record again"<< endl;
 //            int out = getchar();
@@ -140,8 +140,8 @@ void getSynDTWResult(){
             cout << endl;
             cout <<"-----------------------Input " << i <<"   Instance " << j << "------------------------" << endl;
             vector<vector<double>> input;
-            string wavPath = wavInputPath + to_string(i) + "/" + to_string(j) + "/record.wav";
-            string txtPath = txtInputPath + to_string(i) + "/" + to_string(j) + "/";
+            string wavPath = wavInputPath1 + to_string(i) + "/" + to_string(j) + "/record.wav";
+            string txtPath = txtInputPath1 + to_string(i) + "/" + to_string(j) + "/";
             getInput(input, wavPath, txtPath);
             
             vector<double> costMap = beamSynchronousDTW(input, temGroup);
@@ -189,10 +189,10 @@ void getSegTem(){
         vector<vector<vector<double>>> temGroup;
         for (int j = 0; j < TEM_NUM; j++) {
             cout << "-----------------------Template " << i << " Instance " << j <<"------------------------" << endl;
-            string wavpath = wavTemPath +  to_string(i) + "/" + to_string(j)+ "/record.wav";
+            string wavpath = wavTemPath1 +  to_string(i) + "/" + to_string(j)+ "/record.wav";
 //            capture(wavpath);
             vector<vector<double>> temFeature;
-            string txtpath = txtTemPath + to_string(i) + "/" + to_string(j) + "/";
+            string txtpath = txtTemPath1 + to_string(i) + "/" + to_string(j) + "/";
             featureExtraction(temFeature, wavpath, txtpath);
             temGroup.push_back(temFeature);
         }
@@ -212,8 +212,8 @@ void getSegTem(){
             cout << endl;
             cout <<"-----------------------Input " << i <<"   Instance " << j << "------------------------" << endl;
             vector<vector<double>> input;
-            string wavPath = wavInputPath + to_string(i) + "/" + to_string(j) + "/record.wav";
-            string txtPath = txtInputPath + to_string(i) + "/" + to_string(j) + "/";
+            string wavPath = wavInputPath1 + to_string(i) + "/" + to_string(j) + "/record.wav";
+            string txtPath = txtInputPath1 + to_string(i) + "/" + to_string(j) + "/";
             getInput(input, wavPath, txtPath);
             
             double minDtw = dtw(input, segTemGroup[0]);
@@ -256,10 +256,10 @@ void testSegTem(){
         vector<vector<vector<double>>> temGroup;
         for (int j = 0; j < TEM_NUM; j++) {
             cout << "-----------------------Template " << i << " Instance " << j <<"------------------------" << endl;
-            string wavpath = wavTemPath +  to_string(i) + "/" + to_string(j)+ "/record.wav";
+            string wavpath = wavTemPath1 +  to_string(i) + "/" + to_string(j)+ "/record.wav";
             //            capture(wavpath);
             vector<vector<double>> temFeature;
-            string txtpath = txtTemPath + to_string(i) + "/" + to_string(j) + "/";
+            string txtpath = txtTemPath1 + to_string(i) + "/" + to_string(j) + "/";
             featureExtraction(temFeature, wavpath, txtpath);
             temGroup.push_back(temFeature);
         }
@@ -275,8 +275,8 @@ void testSegTem(){
     
     while (i != 48) {
         vector<vector<double>> input;
-        string wavPath = wavTestPath + "/test/record.wav";
-        string txtPath = txtTestPath + "/test/";
+        string wavPath = wavTestPath1 + "/test/record.wav";
+        string txtPath = txtTestPath1 + "/test/";
         featureExtraction(input, wavPath, txtPath);
         
         double minDtw = dtw(input, segTemGroup[0]);

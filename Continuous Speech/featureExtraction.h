@@ -5,6 +5,7 @@
 #include <fstream>
 #include "readwave.h"
 #include "fft.h"
+#include "framePrune.h"
 #include <vector>
 
 using namespace std;
@@ -33,7 +34,7 @@ using namespace std;
 #define NUM_FILTER              (40)     // set the num of filters to be 40
 
 #define COMPARE_SCALE (15)
-
+#define PI (3.141592653589793238460)
 typedef short SAMPLE;
 #define FORGET_FACTOR   (1)
 #define ADJUSTMENT      (0.05)

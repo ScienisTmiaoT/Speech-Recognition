@@ -59,8 +59,8 @@ int pruneFrameFromStart(short* dataWave, int& numSamples) {
 	bool startFlag = true;
 	int continueSpeakTimef = 0;
 
-	for (int i = FRAME_IGNORE * SAMPLE_PER_FRAME; i < numSamples; i += SAMPLE_PER_FRAME) {
-		if (i < (FRAME_IGNORE + FRAME_TO_BACKGROUND) * SAMPLE_PER_FRAME) {
+	for (int i = FRAME_IGNORE_S * SAMPLE_PER_FRAME; i < numSamples; i += SAMPLE_PER_FRAME) {
+		if (i < (FRAME_IGNORE_S + FRAME_TO_BACKGROUND) * SAMPLE_PER_FRAME) {
 			double current = EnergyPerSample(dataWave + i, SAMPLE_PER_FRAME);
 			backgroundOf10f += current;
 		}
@@ -95,8 +95,8 @@ int pruneFrameFromEnd(short* dataWave, int& numSamples) {
 
 	int continueSpeakTimef = 0;
 
-	for (int i = numSamples - FRAME_IGNORE * SAMPLE_PER_FRAME; i > 0; i -= SAMPLE_PER_FRAME) {
-		if (i > numSamples - (FRAME_IGNORE + FRAME_TO_BACKGROUND) * SAMPLE_PER_FRAME) {
+	for (int i = numSamples - FRAME_IGNORE_E * SAMPLE_PER_FRAME; i > 0; i -= SAMPLE_PER_FRAME) {
+		if (i > numSamples - (FRAME_IGNORE_E + FRAME_TO_BACKGROUND) * SAMPLE_PER_FRAME) {
 			double current = EnergyPerSample(dataWave + i, SAMPLE_PER_FRAME);
 			backgroundOf10f += current;
 		}
@@ -113,7 +113,7 @@ int pruneFrameFromEnd(short* dataWave, int& numSamples) {
 			}
 		}
 		if (continueSpeakTimef > SILENCETHRESHOLD && endFlag) {
-			end = i - SILENCETHRESHOLD * SAMPLE_PER_FRAME;
+			end = i + SILENCETHRESHOLD * SAMPLE_PER_FRAME;
 			endFlag = false;
 			break;
 		}

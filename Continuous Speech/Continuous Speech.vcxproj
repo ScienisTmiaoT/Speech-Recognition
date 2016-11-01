@@ -19,6 +19,7 @@
     </ProjectConfiguration>
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="ContinuousPhone.h" />
     <ClInclude Include="dtw.h" />
     <ClInclude Include="dtwTest.h" />
     <ClInclude Include="featureExtraction.h" />
@@ -26,8 +27,10 @@
     <ClInclude Include="framePrune.h" />
     <ClInclude Include="readwave.h" />
     <ClInclude Include="seg_K_mean.h" />
+    <ClInclude Include="Trie.h" />
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="ContinuousPhone.cpp" />
     <ClCompile Include="dtw.cpp" />
     <ClCompile Include="dtwTest.cpp" />
     <ClCompile Include="featureExtraction.cpp" />
@@ -36,6 +39,7 @@
     <ClCompile Include="main.cpp" />
     <ClCompile Include="readwave.cpp" />
     <ClCompile Include="seg_K_mean.cpp" />
+    <ClCompile Include="Trie.cpp" />
   </ItemGroup>
   <PropertyGroup Label="Globals">
     <ProjectGuid>{E3BD2D1D-B2C0-439E-A3A6-FD50FE6243A3}</ProjectGuid>

@@ -36,6 +36,12 @@
     <ClInclude Include="framePrune.h">
       <Filter>头文件</Filter>
     </ClInclude>
+    <ClInclude Include="Trie.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="ContinuousPhone.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="dtw.cpp">
@@ -60,6 +66,12 @@
       <Filter>源文件</Filter>
     </ClCompile>
     <ClCompile Include="framePrune.cpp">
+      <Filter>源文件</Filter>
+    </ClCompile>
+    <ClCompile Include="Trie.cpp">
+      <Filter>源文件</Filter>
+    </ClCompile>
+    <ClCompile Include="ContinuousPhone.cpp">
       <Filter>源文件</Filter>
     </ClCompile>
   </ItemGroup>
