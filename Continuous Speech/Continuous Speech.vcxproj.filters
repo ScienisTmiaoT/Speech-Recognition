@@ -21,9 +21,6 @@
     <ClInclude Include="dtwTest.h">
       <Filter>头文件</Filter>
     </ClInclude>
-    <ClInclude Include="featureExtraction.h">
-      <Filter>头文件</Filter>
-    </ClInclude>
     <ClInclude Include="fft.h">
       <Filter>头文件</Filter>
     </ClInclude>
@@ -42,15 +39,15 @@
     <ClInclude Include="ContinuousPhone.h">
       <Filter>头文件</Filter>
     </ClInclude>
+    <ClInclude Include="featureExtraction.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="dtw.cpp">
       <Filter>源文件</Filter>
     </ClCompile>
     <ClCompile Include="dtwTest.cpp">
-      <Filter>源文件</Filter>
-    </ClCompile>
-    <ClCompile Include="featureExtraction.cpp">
       <Filter>源文件</Filter>
     </ClCompile>
     <ClCompile Include="fft.cpp">
@@ -72,6 +69,9 @@
       <Filter>源文件</Filter>
     </ClCompile>
     <ClCompile Include="ContinuousPhone.cpp">
+      <Filter>源文件</Filter>
+    </ClCompile>
+    <ClCompile Include="featureExtraction.cpp">
       <Filter>源文件</Filter>
     </ClCompile>
   </ItemGroup>

@@ -7,7 +7,7 @@
 #include "featureExtraction.h"
 #include "seg_K_mean.h"
 
-#define PENALTY  1
+#define PENALTY  (50)
 #define TYPE_NUM    (10)
 #define TEM_NUM     (10)
 #define INPUT_NUM   (10)

@@ -44,6 +44,7 @@ typedef short SAMPLE;
 #define FRAME_IGNORE        (4)
 #define FRAME_TO_BACKGROUND (5)
 
+void featureExtractionTwo(vector<vector<double>>& normDCT, string& wav, string& filePath);
 void featureExtraction(vector<vector<double>>& normDCT, string& wav, string& filePath);
 
 #endif

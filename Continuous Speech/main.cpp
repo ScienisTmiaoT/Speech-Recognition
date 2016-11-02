@@ -1,4 +1,5 @@
 #include <iostream>
+#include <fstream>
 #include "ContinuousPhone.h"
 #include "readwave.h"
 
@@ -6,6 +7,8 @@ using namespace std;
 
 string wavTestPath = "C:\\Users\\Administrator\\Desktop\\Current\\Continuous Speech\\record.wav";
 string txtTestPath = "C:\\Users\\Administrator\\Desktop\\Current\\Continuous Speech\\";
+//used to save segment result
+string segmentPath = "C:\\Users\\Administrator\\Desktop\\Current\\Continuous Speech\\segment.txt";
 
 
 string wavTemPath = "C:\\Users\\Administrator\\Desktop\\Current\\Continuous Speech\\test 4.0\\template";
@@ -17,7 +20,10 @@ string txtInputPath = "C:\\Users\\Administrator\\Desktop\\Current\\Continuous Sp
 
 // test segmental k-mean
 int main(){
-	vector<vector<vector<double>>> segTemGroup;
+	vector<vector<vector<double>>> segTemGroup(TYPE_NUM, vector<vector<double>>(SEG_NUM, vector<double>(DIMENSION)));
+	//vector<vector<vector<double>>> segTemGroup;
+
+	/*
 	for (int i = 0; i < TYPE_NUM; i++) {
 		vector<vector<vector<double>>> temGroup;
 		for (int j = 0; j < TEM_NUM; j++) {
@@ -34,22 +40,76 @@ int main(){
 		cout << "You have got the segment template!!!!!!!!!!!!!!!!!!!" << endl;
 		segTemGroup.push_back(segTem);
 	}
+	
 
+
+	
+	ofstream out(segmentPath);
+	for(int i = 0; i < TYPE_NUM; i++)
+	{
+		cout << "template " << i << endl;
+		for(int j = 0; j < SEG_NUM; j++)
+		{
+			cout << "state " << j << endl;
+			for(int k = 0; k < DIMENSION; k++)
+			{
+				out << segTemGroup[i][j][k] << " ";
+			}
+			out << endl;
+		}
+		out << endl;
+	}
+	*/
+
+	
+	ifstream in(segmentPath);
+	for (int i = 0; i < TYPE_NUM; i++)
+	{
+		for (int j = 0; j < SEG_NUM; j++)
+		{
+			for (int k = 0; k < DIMENSION; k++)
+			{
+				in >> segTemGroup[i][j][k];
+			}
+		}
+	}
+	
+
+	/*
+	for (int i = 0; i < TYPE_NUM; i++)
+	{
+		cout << "template " << i << endl;
+		for (int j = 0; j < SEG_NUM; j++)
+		{
+			cout << "state " << j << endl;
+			for (int k = 0; k < DIMENSION; k++)
+			{
+				cout << segTemGroup[i][j][k] << " ";
+			}
+			cout << endl;
+		}
+		cout << endl;
+	}
+	*/
+
+	
 	vector<vector<double>> testInput;
-	featureExtraction(testInput, wavTestPath, txtTestPath);
+	featureExtractionTwo(testInput, wavTestPath, txtTestPath);
 	Trie trie;
 	TrieNode* root = trie.getRoot();
-	for(int i = 0; i < MAX_BRANCH_NUM - 1; i++)
+	for (int i = 0; i < MAX_BRANCH_NUM - 1; i++)
 	{
 		root->nextBranch[i]->segTemplate = segTemGroup[i];
 	}
-
 	int length = testInput.size();
-	vector<int> minNode(INT_MAX / 2, length);
-	RestrictPhone(trie, testInput, minNode);
+	vector<int> minNodeTemp(length, -1);
+	RestrictPhone(trie, testInput, minNodeTemp);
 	for (int i = 0; i < length; i++)
-		cout << minNode[i] << " ";
+		if(minNodeTemp[i] != -1)
+			cout << minNodeTemp[i] << " ";
 	cout << endl;
+	
+
 	return 0;
 }
 

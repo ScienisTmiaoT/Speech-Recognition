@@ -105,7 +105,7 @@ TrieNode* Trie::getRoot()
 void Trie::swapNodeCost()
 {
 	pRoot->preNodeCost = pRoot->curNodeCost;
-	for (int i = 0; i > MAX_BRANCH_NUM; i++)
+	for (int i = 0; i < MAX_BRANCH_NUM; i++)
 		pRoot->nextBranch[i]->preNodeCost = pRoot->nextBranch[i]->curNodeCost;
 }
 
