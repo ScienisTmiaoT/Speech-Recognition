@@ -20,7 +20,8 @@ double Dis(vector<double>& matrix1, vector<double>& matrix2) {
 	return distance;
 }
 
-//caculate the minimal value of dis add leaf or leaf's parent
+//caculate the minimal value of Euclidean distance add leaf or leaf's parent, and record
+//the position to know which digit is the result
 double costUtil(vector<double>& vec, double c, int& pos)
 {
 	int length = vec.size();
@@ -66,8 +67,8 @@ void RestrictPhone(Trie& trie, vector<vector<double>>& input, vector<int>& minNo
 			}
 			else
 			{
-				//avoid that in every template, if first state and second state all come from
-				//loop back, then the minNode will change twice
+				//if first state and second state all come from
+				//loop back, then the minNode only need change once
 				bool addFlag = false;
 				for (int k = 0; k < SEG_NUM; k++)
 				{

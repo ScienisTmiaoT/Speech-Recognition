@@ -44,7 +44,10 @@ typedef short SAMPLE;
 #define FRAME_IGNORE        (4)
 #define FRAME_TO_BACKGROUND (5)
 
+
+//prune frame from start and end at different time, then get feature
 void featureExtractionTwo(vector<vector<double>>& normDCT, string& wav, string& filePath);
+//prune frame from start and end at same time, then get feature
 void featureExtraction(vector<vector<double>>& normDCT, string& wav, string& filePath);
 
 #endif
