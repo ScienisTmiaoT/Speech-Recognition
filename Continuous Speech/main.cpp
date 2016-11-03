@@ -101,15 +101,8 @@ int main(){
 	{
 		root->nextBranch[i]->segTemplate = segTemGroup[i];
 	}
-	int length = testInput.size();
-	vector<int> minNodeTemp(length, -1);
-	RestrictPhone(trie, testInput, minNodeTemp);
-	for (int i = 0; i < length; i++)
-		if(minNodeTemp[i] != -1)
-			cout << minNodeTemp[i] << " ";
+	RestrictPhone(trie, testInput);
 	cout << endl;
-	
-
 	return 0;
 }
 

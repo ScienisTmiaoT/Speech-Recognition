@@ -9,6 +9,7 @@
 #include <vector>
 #include <map>
 
+
 using namespace std;
 
 #define MAX_BRANCH_NUM  11   // we have 26 characters. double it so that can store the one that ends here

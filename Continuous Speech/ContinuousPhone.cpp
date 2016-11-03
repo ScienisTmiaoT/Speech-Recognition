@@ -37,17 +37,15 @@ double costUtil(vector<double>& vec, double c, int& pos)
 	return cost;
 }
 
-void RestrictPhone(Trie& trie, vector<vector<double>>& input, vector<int>& minNode)
+void RestrictPhone(Trie& trie, vector<vector<double>>& input)
 {
 	int input_size = input.size();
 	TrieNode* root = trie.getRoot();
 
-	//initial non-emitting count
-	vector<int> emitTemp(input_size, 0);
-	for(int i = 0; i < MAX_BRANCH_NUM - 1; i++)
-	{
-		root->nextBranch[i]->nonEmitting = emitTemp;
-	}
+	//back table is used to record every frame comes from which state in which template
+	//vector<int> contains the state num and whether have loop back
+	//backTable[][][0] refer the state number, backTable[][][1] refer whether loop back
+	vector<vector<vector<int>>> backTable(SEG_NUM * TYPE_NUM, vector<vector<int>>(input_size, vector<int>(2)));
 
 	//leaf of every template
 	vector<double> last(MAX_BRANCH_NUM - 1, INT_MAX / 2);
@@ -67,9 +65,6 @@ void RestrictPhone(Trie& trie, vector<vector<double>>& input, vector<int>& minNo
 			}
 			else
 			{
-				//if first state and second state all come from
-				//loop back, then the minNode only need change once
-				bool addFlag = false;
 				for (int k = 0; k < SEG_NUM; k++)
 				{
 					double var1 = Dis(input[i], root->nextBranch[j]->segTemplate[k]);
@@ -89,15 +84,17 @@ void RestrictPhone(Trie& trie, vector<vector<double>>& input, vector<int>& minNo
 							root->nextBranch[j]->curNodeCost[k] = var2;
 						if (root->nextBranch[j]->curNodeCost[k] == var5)
 						{
-							root->nextBranch[j]->nonEmitting[k]++;
-							minNode[i] = pos1;
-							addFlag = true;
+							backTable[SEG_NUM * j + k][i][0] = SEG_NUM * pos1 + (SEG_NUM - 1);
+							backTable[SEG_NUM * j + k][i][1] = 1;
 						}
 						else if (root->nextBranch[j]->curNodeCost[k] == var6)
 						{
-							root->nextBranch[j]->nonEmitting[k]++;
-							minNode[i] = pos2;
-							addFlag = true;
+							backTable[SEG_NUM * j + k][i][0] = SEG_NUM * pos2 + (SEG_NUM - 2);
+							backTable[SEG_NUM * j + k][i][1] = 1;
+						}
+						else if (root->nextBranch[j]->curNodeCost[k] == var2)
+						{
+							backTable[SEG_NUM * j + k][i][0] = SEG_NUM * j + k;
 						}
 					}
 					else if (k == 1) {
@@ -105,14 +102,36 @@ void RestrictPhone(Trie& trie, vector<vector<double>>& input, vector<int>& minNo
 							root->nextBranch[j]->curNodeCost[k] = min({ var3, var2, var5 });
 						else
 							root->nextBranch[j]->curNodeCost[k] = min({ var3, var2 });
-						if (root->nextBranch[j]->curNodeCost[k] == var5 && addFlag == false)
+						if (root->nextBranch[j]->curNodeCost[k] == var5)
 						{
-							root->nextBranch[j]->nonEmitting[k]++;
-							minNode[i] = pos1;
+							backTable[SEG_NUM * j + k][i][0] = SEG_NUM * pos1 + (SEG_NUM - 1);
+							backTable[SEG_NUM * j + k][i][1] = 1;
+						}
+						else if (root->nextBranch[j]->curNodeCost[k] == var2)
+						{
+							backTable[SEG_NUM * j + k][i][0] = SEG_NUM * j + k;
+						}
+						else if (root->nextBranch[j]->curNodeCost[k] == var3)
+						{
+							backTable[SEG_NUM * j + k][i][0] = SEG_NUM * j + (k - 1);
 						}
 					}
 					else
+					{
 						root->nextBranch[j]->curNodeCost[k] = min({ var4, var3, var2 });
+						if (root->nextBranch[j]->curNodeCost[k] == var4)
+						{
+							backTable[SEG_NUM * j + k][i][0] = SEG_NUM * j + (k - 2);
+						}
+						else if (root->nextBranch[j]->curNodeCost[k] == var2)
+						{
+							backTable[SEG_NUM * j + k][i][0] = SEG_NUM * j + k;
+						}
+						else if (root->nextBranch[j]->curNodeCost[k] == var3)
+						{
+							backTable[SEG_NUM * j + k][i][0] = SEG_NUM * j + (k - 1);
+						}
+					}
 				}
 				last[j] = root->nextBranch[j]->curNodeCost[SEG_NUM - 1];
 				lastTwo[j] = root->nextBranch[j]->curNodeCost[SEG_NUM - 2];
@@ -122,6 +141,37 @@ void RestrictPhone(Trie& trie, vector<vector<double>>& input, vector<int>& minNo
 		{
 			trie.swapNodeCost();
 		}
+	}
+	
+	//get the minimal state at last frame
+	double minLast = INT_MAX / 2;
+	int posLast = 0;
+	for(int i = 0; i < MAX_BRANCH_NUM - 1; i++)
+	{
+		if(minLast > last[i])
+		{
+			minLast = last[i];
+			posLast = i * SEG_NUM + (SEG_NUM - 1);
+		}
+	}
+
+	//back tracing
+	stack<int> resultPhone;
+	int tracePos = posLast;
+	for(int i = input_size - 1; i >= 0; i--)\
+	{
+		int curPos = backTable[tracePos][i][0];
+		int loopBack = backTable[tracePos][i][1];
+		if (loopBack == 1)
+		{
+			resultPhone.push(curPos / SEG_NUM);
+		}
+		tracePos = curPos;
+	}
+	while(!resultPhone.empty())
+	{
+		cout << resultPhone.top() << " ";
+		resultPhone.pop();
 	}
 	return;
 }
