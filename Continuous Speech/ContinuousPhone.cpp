@@ -157,6 +157,7 @@ void RestrictPhone(Trie& trie, vector<vector<double>>& input)
 
 	//back tracing
 	stack<int> resultPhone;
+	resultPhone.push(posLast / SEG_NUM);
 	int tracePos = posLast;
 	for(int i = input_size - 1; i >= 0; i--)\
 	{
