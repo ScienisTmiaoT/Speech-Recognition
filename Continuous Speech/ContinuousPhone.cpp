@@ -38,9 +38,9 @@ double costUtil(vector<double>& vec, double c, int& pos)
 }
 
 //return the position in input to decide which frame is the end frame of one digit
-stack<int> RestrictPhone(Trie& trie, vector<vector<double>>& input)
+stack<int> RestrictPhone(Trie& trie, vector<vector<double>>& input, vector<vector<vector<double>>>& varianceTerm, vector<vector<vector<int>>>& countTransfer)
 {
-	int input_size = input.size();
+	int input_size = (int)input.size();
 	TrieNode* root = trie.getRoot();
 
 	//back table is used to record every frame comes from which state in which template
@@ -53,32 +53,34 @@ stack<int> RestrictPhone(Trie& trie, vector<vector<double>>& input)
 	//leaf's parent of every template
 	vector<double> lastTwo(MAX_BRANCH_NUM - 1, INT_MAX / 2);
 
-	for(int i = 0; i < input_size; i++)
+	for (int i = 0; i < input_size; i++)
 	{
-		for(int j = 0; j < MAX_BRANCH_NUM - 1; j++)
+		for (int j = 0; j < MAX_BRANCH_NUM - 1; j++)
 		{
 			vector<double> temp(SEG_NUM, INT_MAX / 2);
 			root->nextBranch[j]->curNodeCost = temp;
-			if(i == 0)
+			if (i == 0)
 			{
-				root->nextBranch[j]->preNodeCost[0] = Dis(input[i], root->nextBranch[j]->segTemplate[0]);
-				root->nextBranch[j]->preNodeCost[1] = Dis(input[i], root->nextBranch[j]->segTemplate[1]);
+				root->nextBranch[j]->preNodeCost[0] = nodeCost(input[i], root->nextBranch[j]->segTemplate[0], varianceTerm[j][0]) + edgeCost(0, countTransfer[j][0]);
+				root->nextBranch[j]->preNodeCost[1] = nodeCost(input[i], root->nextBranch[j]->segTemplate[1], varianceTerm[j][1]) + edgeCost(1, countTransfer[j][0]);
 			}
 			else
 			{
 				for (int k = 0; k < SEG_NUM; k++)
 				{
-					double var1 = Dis(input[i], root->nextBranch[j]->segTemplate[k]);
-					double var2 = root->nextBranch[j]->preNodeCost[k] + var1;
-					double var3 = root->nextBranch[j]->preNodeCost[k - 1] + var1;
-					double var4 = root->nextBranch[j]->preNodeCost[k - 2] + var1;
+					double var1 = nodeCost(input[i], root->nextBranch[j]->segTemplate[k], varianceTerm[j][k]);
+					double var2 = root->nextBranch[j]->preNodeCost[k] + var1 + edgeCost(k, countTransfer[j][k + 1]);
+					//                    double var3 = root->nextBranch[j]->preNodeCost[k - 1] + var1 + edgeCost(k, countTransfer[j][k]);
+					//                    double var4 = root->nextBranch[j]->preNodeCost[k - 2] + var1 + edgeCost(k, countTransfer[j][k - 1]);
 					int pos1 = 0;
 					int pos2 = 0;
 					double var5 = costUtil(last, var1, pos1) + PENALTY;
 					double var6 = costUtil(lastTwo, var1, pos2) + PENALTY;
 					if (k == 0) {
-						if (var5 < INT_MAX / 2 )
-							root->nextBranch[j]->curNodeCost[k] = min({ var2, var5, var6 });
+						var5 += edgeCost(k, countTransfer[j][0]);
+						var6 += edgeCost(k, countTransfer[j][0]);
+						if (var5 < INT_MAX / 2)
+							root->nextBranch[j]->curNodeCost[k] = min({ var2, var5 , var6 });
 						else if (var6 < INT_MAX / 2)
 							root->nextBranch[j]->curNodeCost[k] = min({ var2, var6 });
 						else
@@ -96,9 +98,12 @@ stack<int> RestrictPhone(Trie& trie, vector<vector<double>>& input)
 						else if (root->nextBranch[j]->curNodeCost[k] == var2)
 						{
 							backTable[SEG_NUM * j + k][i][0] = SEG_NUM * j + k;
+							//backTable[SEG_NUM * j + k][i][1] = backTable[SEG_NUM * j + k][i - 1][1];
 						}
 					}
 					else if (k == 1) {
+						var5 += edgeCost(k, countTransfer[j][0]);
+						double var3 = root->nextBranch[j]->preNodeCost[k - 1] + var1 + edgeCost(k, countTransfer[j][k]);
 						if (var5 < INT_MAX / 2)
 							root->nextBranch[j]->curNodeCost[k] = min({ var3, var2, var5 });
 						else
@@ -111,26 +116,33 @@ stack<int> RestrictPhone(Trie& trie, vector<vector<double>>& input)
 						else if (root->nextBranch[j]->curNodeCost[k] == var2)
 						{
 							backTable[SEG_NUM * j + k][i][0] = SEG_NUM * j + k;
+							//backTable[SEG_NUM * j + k][i][1] = backTable[SEG_NUM * j + k][i - 1][1];
 						}
 						else if (root->nextBranch[j]->curNodeCost[k] == var3)
 						{
 							backTable[SEG_NUM * j + k][i][0] = SEG_NUM * j + (k - 1);
+							//backTable[SEG_NUM * j + k][i][1] = backTable[SEG_NUM * j + (k - 1)][i - 1][1];
 						}
 					}
 					else
 					{
+						double var3 = root->nextBranch[j]->preNodeCost[k - 1] + var1 + edgeCost(k, countTransfer[j][k]);
+						double var4 = root->nextBranch[j]->preNodeCost[k - 2] + var1 + edgeCost(k, countTransfer[j][k - 1]);
 						root->nextBranch[j]->curNodeCost[k] = min({ var4, var3, var2 });
 						if (root->nextBranch[j]->curNodeCost[k] == var4)
 						{
 							backTable[SEG_NUM * j + k][i][0] = SEG_NUM * j + (k - 2);
+							//backTable[SEG_NUM * j + k][i][1] = backTable[SEG_NUM * j + (k - 2)][i - 1][1];
 						}
 						else if (root->nextBranch[j]->curNodeCost[k] == var2)
 						{
 							backTable[SEG_NUM * j + k][i][0] = SEG_NUM * j + k;
+							//backTable[SEG_NUM * j + k][i][1] = backTable[SEG_NUM * j + k][i - 1][1];
 						}
 						else if (root->nextBranch[j]->curNodeCost[k] == var3)
 						{
 							backTable[SEG_NUM * j + k][i][0] = SEG_NUM * j + (k - 1);
+							//backTable[SEG_NUM * j + k][i][1] = backTable[SEG_NUM * j + (k - 1)][i - 1][1];
 						}
 					}
 				}
@@ -138,7 +150,7 @@ stack<int> RestrictPhone(Trie& trie, vector<vector<double>>& input)
 				lastTwo[j] = root->nextBranch[j]->curNodeCost[SEG_NUM - 2];
 			}
 		}
- 		if (i > 0)
+		if (i > 0)
 		{
 			trie.swapNodeCost();
 		}
@@ -191,10 +203,10 @@ stack<int> backTrace(vector<vector<double>>& input, vector<vector<vector<int>>>&
 }
 
 //cut digit frame from continuous speech, then do k-mean to get seg template
-void getContinuousSeg(Trie& trie, vector<vector<double>>& input)
+void getContinuousSeg(Trie& trie, vector<vector<double>>& input, vector<vector<vector<double>>>& varianceTerm, vector<vector<vector<int>>>& countTransfer)
 {
 	stack<int> resultPos;
-	resultPos = RestrictPhone(trie, input);
+	resultPos = RestrictPhone(trie, input, varianceTerm, countTransfer);
 	vector<vector<vector<double>>> inputSeg;
 	int count = 0;
 	int curX = 0;
