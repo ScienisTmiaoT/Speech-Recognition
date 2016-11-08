@@ -207,7 +207,8 @@ void getContinuousSeg(Trie& trie, vector<vector<double>>& input, vector<vector<v
 {
 	stack<int> resultPos;
 	resultPos = RestrictPhone(trie, input, varianceTerm, countTransfer);
-	vector<vector<vector<double>>> inputSeg;
+	int segSize = resultPos.size() + 1;
+	vector<vector<vector<double>>> inputSeg(segSize, vector<vector<double>>());
 	int count = 0;
 	int curX = 0;
 	int preX = 0;
@@ -219,14 +220,14 @@ void getContinuousSeg(Trie& trie, vector<vector<double>>& input, vector<vector<v
 		{
 			for (int i = 0; i <= segLength; i++)
 			{
-				inputSeg[count][i] = input[i + preX];
+				inputSeg[count].push_back(input[i + preX]);
 			}
 		}
 		else
 		{
 			for (int i = 0; i < segLength; i++)
 			{
-				inputSeg[count][i] = input[(i + 1) + preX];
+				inputSeg[count].push_back(input[(i + 1) + preX]);
 			}
 		}
 		preX = curX;
@@ -237,7 +238,7 @@ void getContinuousSeg(Trie& trie, vector<vector<double>>& input, vector<vector<v
 	//get the last seg
 	for(int i = 0; i < (input_length - 1 - preX); i++)
 	{
-		inputSeg[count][i] = input[(i + 1) + preX];
+		inputSeg[count].push_back(input[(i + 1) + preX]);
 	}
 
 	//vector<vector<vector<double>>> segTemGroup;

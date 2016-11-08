@@ -26,7 +26,7 @@ void part6();
 
 int main()
 {
-	getResult();
+//	getResult();
 	return 0;
 }
 
@@ -218,4 +218,3 @@ void part6() {
 	cout << endl;
 	*/
 }
-

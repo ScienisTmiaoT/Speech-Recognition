@@ -21,7 +21,6 @@
   <ItemGroup>
     <ClInclude Include="ContinuousPhone.h" />
     <ClInclude Include="dtw.h" />
-    <ClInclude Include="dtwTest.h" />
     <ClInclude Include="featureExtraction.h" />
     <ClInclude Include="fft.h" />
     <ClInclude Include="framePrune.h" />
@@ -32,7 +31,6 @@
   <ItemGroup>
     <ClCompile Include="ContinuousPhone.cpp" />
     <ClCompile Include="dtw.cpp" />
-    <ClCompile Include="dtwTest.cpp" />
     <ClCompile Include="featureExtraction.cpp" />
     <ClCompile Include="fft.cpp" />
     <ClCompile Include="framePrune.cpp" />

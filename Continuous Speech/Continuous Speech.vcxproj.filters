@@ -18,9 +18,6 @@
     <ClInclude Include="dtw.h">
       <Filter>头文件</Filter>
     </ClInclude>
-    <ClInclude Include="dtwTest.h">
-      <Filter>头文件</Filter>
-    </ClInclude>
     <ClInclude Include="fft.h">
       <Filter>头文件</Filter>
     </ClInclude>
@@ -45,9 +42,6 @@
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="dtw.cpp">
-      <Filter>源文件</Filter>
-    </ClCompile>
-    <ClCompile Include="dtwTest.cpp">
       <Filter>源文件</Filter>
     </ClCompile>
     <ClCompile Include="fft.cpp">
