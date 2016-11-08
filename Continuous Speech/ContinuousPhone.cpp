@@ -37,7 +37,8 @@ double costUtil(vector<double>& vec, double c, int& pos)
 	return cost;
 }
 
-void RestrictPhone(Trie& trie, vector<vector<double>>& input)
+//return the position in input to decide which frame is the end frame of one digit
+stack<int> RestrictPhone(Trie& trie, vector<vector<double>>& input)
 {
 	int input_size = input.size();
 	TrieNode* root = trie.getRoot();
@@ -142,36 +143,125 @@ void RestrictPhone(Trie& trie, vector<vector<double>>& input)
 			trie.swapNodeCost();
 		}
 	}
-	
+
+	stack<int> resultPos;
+	resultPos = backTrace(input, backTable, last);
+	return resultPos;
+}
+
+//return the position in input to decide which frame is the end frame of one digit
+stack<int> backTrace(vector<vector<double>>& input, vector<vector<vector<int>>>& backTable, vector<double>& last)
+{
+	int input_size = input.size();
 	//get the minimal state at last frame
 	double minLast = INT_MAX / 2;
 	int posLast = 0;
-	for(int i = 0; i < MAX_BRANCH_NUM - 1; i++)
+	for (int i = 0; i < MAX_BRANCH_NUM - 1; i++)
 	{
-		if(minLast > last[i])
+		if (minLast > last[i])
 		{
 			minLast = last[i];
 			posLast = i * SEG_NUM + (SEG_NUM - 1);
 		}
 	}
 
+	//result position of input
+	stack<int> resultPos;
 	//back tracing
 	stack<int> resultPhone;
+	resultPhone.push(posLast / SEG_NUM);
 	int tracePos = posLast;
-	for(int i = input_size - 1; i >= 0; i--)\
+	for (int i = input_size - 1; i >= 0; i--)\
 	{
 		int curPos = backTable[tracePos][i][0];
 		int loopBack = backTable[tracePos][i][1];
 		if (loopBack == 1)
 		{
 			resultPhone.push(curPos / SEG_NUM);
+			resultPos.push(i);
 		}
 		tracePos = curPos;
 	}
-	while(!resultPhone.empty())
+	while (!resultPhone.empty())
 	{
 		cout << resultPhone.top() << " ";
 		resultPhone.pop();
 	}
-	return;
+	return resultPos;
+}
+
+//cut digit frame from continuous speech, then do k-mean to get seg template
+void getContinuousSeg(Trie& trie, vector<vector<double>>& input)
+{
+	stack<int> resultPos;
+	resultPos = RestrictPhone(trie, input);
+	vector<vector<vector<double>>> inputSeg;
+	int count = 0;
+	int curX = 0;
+	int preX = 0;
+	while(!resultPos.empty())
+	{
+		curX = resultPos.top();
+		int segLength = curX - preX;
+		if (preX == 0)
+		{
+			for (int i = 0; i <= segLength; i++)
+			{
+				inputSeg[count][i] = input[i + preX];
+			}
+		}
+		else
+		{
+			for (int i = 0; i < segLength; i++)
+			{
+				inputSeg[count][i] = input[(i + 1) + preX];
+			}
+		}
+		preX = curX;
+		count++;
+		resultPos.pop();
+	}
+	int input_length = input.size();
+	//get the last seg
+	for(int i = 0; i < (input_length - 1 - preX); i++)
+	{
+		inputSeg[count][i] = input[(i + 1) + preX];
+	}
+
+	//vector<vector<vector<double>>> segTemGroup;
+
+	/*
+	for (int i = 0; i < TYPE_NUM; i++) {
+	vector<vector<vector<double>>> temGroup;
+	for (int j = 0; j < TEM_NUM; j++) {
+	cout << "-----------------------Template " << i << " Instance " << j << "------------------------" << endl;
+	string wavpath = wavTemPath + to_string(i) + "\\" + to_string(j) + "\\record.wav";
+	//            capture(wavpath);
+	vector<vector<double>> temFeature;
+	string txtpath = txtTemPath + to_string(i) + "\\" + to_string(j) + "\\";
+	featureExtraction(temFeature, wavpath, txtpath);
+	temGroup.push_back(temFeature);
+	}
+	vector<vector<double>> segTem;
+	segTem = dtw2hmm(temGroup);
+	cout << "You have got the segment template!!!!!!!!!!!!!!!!!!!" << endl;
+	segTemGroup.push_back(segTem);
+	}
+
+	ofstream out(segmentPath);
+	for(int i = 0; i < TYPE_NUM; i++)
+	{
+	cout << "template " << i << endl;
+	for(int j = 0; j < SEG_NUM; j++)
+	{
+	cout << "state " << j << endl;
+	for(int k = 0; k < DIMENSION; k++)
+	{
+	out << segTemGroup[i][j][k] << " ";
+	}
+	out << endl;
+	}
+	out << endl;
+	}
+	*/
 }

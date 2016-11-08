@@ -15,7 +15,8 @@
 
 double Dis(vector<double>& matrix1, vector<double>& matrix2);
 double costUtil(vector<double>& vec, double c, int& pos);
-void RestrictPhone(Trie& trie, vector<vector<double>>& input);
-
+stack<int> RestrictPhone(Trie& trie, vector<vector<double>>& input);
+stack<int> backTrace(vector<vector<double>>& input, vector<vector<vector<int>>>& backTable, vector<double>& last);
+void getContinuousSeg(Trie& trie, vector<vector<double>>& input);
 #endif
 

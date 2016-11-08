@@ -19,7 +19,7 @@ string txtInputPath = "C:\\Users\\Administrator\\Desktop\\Current\\Continuous Sp
 
 
 // test segmental k-mean
-int main(){
+void part6(){
 	vector<vector<vector<double>>> segTemGroup(TYPE_NUM, vector<vector<double>>(SEG_NUM, vector<double>(DIMENSION)));
 	//vector<vector<vector<double>>> segTemGroup;
 
@@ -73,7 +73,7 @@ int main(){
 			}
 		}
 	}
-	
+	in.close();
 
 	/*
 	for (int i = 0; i < TYPE_NUM; i++)
@@ -103,12 +103,15 @@ int main(){
 	}
 	RestrictPhone(trie, testInput);
 	cout << endl;
-	return 0;
 }
 
 
 
-
+int main()
+{
+	part6();
+	return 0;
+}
 
 
 
