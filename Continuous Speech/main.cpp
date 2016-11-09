@@ -8,14 +8,18 @@ using namespace std;
 string wavTestPath = "C:\\Users\\Administrator\\Desktop\\Current\\Continuous Speech\\record.wav";
 string txtTestPath = "C:\\Users\\Administrator\\Desktop\\Current\\Continuous Speech\\";
 //used to save segment result
-string segmentPath = "C:\\Users\\Administrator\\Desktop\\Current\\Continuous Speech\\segment.txt";
-string variancePath = "C:\\Users\\Administrator\\Desktop\\Current\\Continuous Speech\\variance.txt";
-string transferPath = "C:\\Users\\Administrator\\Desktop\\Current\\Continuous Speech\\transfer.txt";
+string segmentPath = "C:\\Users\\Administrator\\Desktop\\Current\\Continuous Speech\\Archive\\isolateTem\\segment.txt";
+string variancePath = "C:\\Users\\Administrator\\Desktop\\Current\\Continuous Speech\\Archive\\isolateTem\\variance.txt";
+string transferPath = "C:\\Users\\Administrator\\Desktop\\Current\\Continuous Speech\\Archive\\isolateTem\\transfer.txt";
 
-string wavTemPath = "C:\\Users\\Administrator\\Desktop\\Current\\Continuous Speech\\test 4.0\\template";
-string txtTemPath = "C:\\Users\\Administrator\\Desktop\\Current\\Continuous Speech\\test 4.0\\template";
+string wavTemPath = "C:\\Users\\Administrator\\Desktop\\Current\\Continuous Speech\\Archive\\isolateTem\\";
+string txtTemPath = "C:\\Users\\Administrator\\Desktop\\Current\\Continuous Speech\\Archive\\isolateTem\\";
 string wavInputPath = "C:\\Users\\Administrator\\Desktop\\Current\\Continuous Speech\\test 4.0\\input";
 string txtInputPath = "C:\\Users\\Administrator\\Desktop\\Current\\Continuous Speech\\test 4.0\\input";
+
+//used to record train data
+string wavTestPathDigits = "C:\\Users\\Administrator\\Desktop\\Current\\Continuous Speech\\Archive\\requiredTem\\";
+string txtTestPathDigits = "C:\\Users\\Administrator\\Desktop\\Current\\Continuous Speech\\Archive\\requiredTem\\";
 
 void writeSeg();
 void getResult();
@@ -26,7 +30,7 @@ void part6();
 
 int main()
 {
-//	getResult();
+	writeSeg();
 	return 0;
 }
 
@@ -38,10 +42,10 @@ void writeSeg() {
 		vector<vector<vector<double>>> temGroup;
 		for (int j = 0; j < TEM_NUM; j++) {
 			cout << "-----------------------Template " << i << " Instance " << j << "------------------------" << endl;
-			string wavpath = wavTemPath + to_string(i) + "/" + to_string(j) + "/record.wav";
+			string wavpath = wavTemPath + to_string(i) + "\\" + to_string(j) + "\\record.wav";
 			//            capture(wavpath);
 			vector<vector<double>> temFeature;
-			string txtpath = txtTemPath + to_string(i) + "/" + to_string(j) + "/";
+			string txtpath = txtTemPath + to_string(i) + "\\" + to_string(j) + "\\";
 			featureExtraction(temFeature, wavpath, txtpath);
 			temGroup.push_back(temFeature);
 		}
@@ -87,7 +91,7 @@ void writeSeg() {
 }
 
 
-void getResult() {
+void trainDigits() {
 	vector<vector<vector<double>>> segTemGroup(TYPE_NUM, vector<vector<double>>(SEG_NUM, vector<double>(DIMENSION)));
 	vector<vector<vector<double>>> varianceTerm(TYPE_NUM, vector<vector<double>>(SEG_NUM, vector<double>(DIMENSION)));
 	vector<vector<vector<int>>> countTransfer(TYPE_NUM, vector<vector<int>>(SEG_NUM + 1, vector<int>(SEG_NUM)));
@@ -114,15 +118,28 @@ void getResult() {
 	in2.close();
 	in3.close();
 
-	vector<vector<double>> testInput;
-	featureExtractionTwo(testInput, wavTestPath, txtTestPath);
+	vector<vector<vector<vector<double>>>> input(TRAIN_TYPE, vector<vector<vector<double>>>(TRAIN_NUM, vector<vector<double>>()));
+	
+	string dir[] = { "0123456789", "0987654321", "1234567890", "1357902468", "8642097531", "9876543210" };
+	for(int i = 0; i < TRAIN_TYPE; i++)
+	{
+		for(int j = 0; j < TRAIN_NUM; j++)
+		{
+			string wavTestPath = wavTestPathDigits + dir[i] + "\\" + to_string(j) + "\\record.wav";
+			string txtTestPath = txtTestPathDigits + dir[i] + "\\" + to_string(j) + "\\";
+			vector<vector<double>> testInput;
+			featureExtractionTwo(testInput, wavTestPath, txtTestPath);
+			input[i][j] = testInput;
+		}
+	}
+
 	Trie trie;
 	TrieNode* root = trie.getRoot();
 	for (int i = 0; i < MAX_BRANCH_NUM - 1; i++)
 	{
 		root->nextBranch[i]->segTemplate = segTemGroup[i];
 	}
-	RestrictPhone(trie, testInput, varianceTerm, countTransfer);
+	vector<vector<vector<vector<int>>>> allState = getAllStateIndex(trie, input, varianceTerm, countTransfer);
 	cout << endl;
 	//vector<vector<double>> testInput;
 	//featureExtractionTwo(testInput, wavTestPath, txtTestPath);

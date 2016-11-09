@@ -202,13 +202,20 @@ stack<int> backTrace(vector<vector<double>>& input, vector<vector<vector<int>>>&
 	return resultPos;
 }
 
-//cut digit frame from continuous speech, then do k-mean to get seg template
-void getContinuousSeg(Trie& trie, vector<vector<double>>& input, vector<vector<vector<double>>>& varianceTerm, vector<vector<vector<int>>>& countTransfer)
+//cut digit frame from continuous speech
+vector<vector<vector<double>>> getContinuousSeg(Trie& trie, vector<vector<double>>& input, vector<vector<vector<double>>>& varianceTerm, vector<vector<vector<int>>>& countTransfer)
 {
 	stack<int> resultPos;
 	resultPos = RestrictPhone(trie, input, varianceTerm, countTransfer);
+	vector<vector<vector<double>>> inputSeg(DIGIT_NUM, vector<vector<double>>());
 	int segSize = resultPos.size() + 1;
-	vector<vector<vector<double>>> inputSeg(segSize, vector<vector<double>>());
+	//check the seg size
+	if(segSize != DIGIT_NUM)
+	{
+		cout << "seg num is wrong, please check the penalty!" << endl;
+		return inputSeg;
+	}
+	
 	int count = 0;
 	int curX = 0;
 	int preX = 0;
@@ -240,41 +247,345 @@ void getContinuousSeg(Trie& trie, vector<vector<double>>& input, vector<vector<v
 	{
 		inputSeg[count].push_back(input[(i + 1) + preX]);
 	}
+	return inputSeg;
+}
 
-	//vector<vector<vector<double>>> segTemGroup;
+//record state index in input
+vector<vector<int>> getStateIndex(Trie& trie, vector<vector<double>>& input, vector<vector<vector<double>>>& varianceTerm, vector<vector<vector<int>>>& countTransfer)
+{
+	stack<int> resultPos;
+	resultPos = RestrictPhone(trie, input, varianceTerm, countTransfer);
+	vector<vector<int>> stateIndex(DIGIT_NUM * SEG_NUM, vector<int>(2));
+	int segSize = resultPos.size() + 1;
+	//check the seg size
+	if (segSize != DIGIT_NUM)
+	{
+		cout << "seg num is wrong, please check the penalty!" << endl;
+		return stateIndex;
+	}
+	int curX = 0;
+	int preX = 0;
+	int count = 0;
+	while (!resultPos.empty())
+	{
+		curX = resultPos.top();
+		if (preX == 0)
+		{
+			int interval = (curX - preX + 1) / SEG_NUM;
+			int preVal = preX;
+			for(int i = 0; i < SEG_NUM; i++)
+			{
+				if (i == SEG_NUM - 1)
+				{
+					stateIndex[count * SEG_NUM + i][0] = preVal;
+					stateIndex[count * SEG_NUM + i][1] = curX;
+					break;
+				}
+				//start index
+				stateIndex[count * SEG_NUM + i][0] = preVal;
+				//end index
+				stateIndex[count * SEG_NUM + i][1] = preVal + interval - 1;
+				preVal = preVal + interval;
+			}
+		}
+		else
+		{
+			int interval = (curX - preX) / SEG_NUM;
+			int preVal = preX;
+			for (int i = 0; i < SEG_NUM; i++)
+			{			
+				if (i == SEG_NUM - 1)
+				{
+					stateIndex[count * SEG_NUM + i][0] = preVal + 1;
+					stateIndex[count * SEG_NUM + i][1] = curX;
+					break;
+				}
+				//start index
+				stateIndex[count * SEG_NUM + i][0] = preVal + 1;
+				//end index
+				stateIndex[count * SEG_NUM + i][1] = preVal + interval;
+				preVal = preVal + interval;
+			}
+		}
+		preX = curX;
+		count++;
+		resultPos.pop();
+	}
+	int input_length = input.size();
+	int last_interval = (input_length - 1 - preX) / SEG_NUM;
+	int last_pre = preX;
+	//get the last digit state index
+	for (int i = 0; i < SEG_NUM; i++)
+	{
+		if (i == SEG_NUM - 1)
+		{
+			stateIndex[count * SEG_NUM + i][0] = last_pre + 1;
+			stateIndex[count * SEG_NUM + i][1] = input_length - 1;
+			break;
+		}
+		stateIndex[count * SEG_NUM + i][0] = last_pre + 1;
+		stateIndex[count * SEG_NUM + i][1] = last_pre + last_interval;
+		last_pre = last_pre + last_interval;
+	}
+	return stateIndex;
+}
 
-	/*
-	for (int i = 0; i < TYPE_NUM; i++) {
-	vector<vector<vector<double>>> temGroup;
-	for (int j = 0; j < TEM_NUM; j++) {
-	cout << "-----------------------Template " << i << " Instance " << j << "------------------------" << endl;
-	string wavpath = wavTemPath + to_string(i) + "\\" + to_string(j) + "\\record.wav";
-	//            capture(wavpath);
-	vector<vector<double>> temFeature;
-	string txtpath = txtTemPath + to_string(i) + "\\" + to_string(j) + "\\";
-	featureExtraction(temFeature, wavpath, txtpath);
-	temGroup.push_back(temFeature);
+/* return: [tem_type][tem_num][digit_type][start_end]
+ * input: [tem_type][tem_num][tem_length][dimension]
+ */
+vector<vector<vector<vector<int>>>> getAllStateIndex(Trie& trie, vector<vector<vector<vector<double>>>>& input, vector<vector<vector<double>>>& varianceTerm, vector<vector<vector<int>>>& countTransfer)
+{
+	vector<vector<vector<vector<int>>>> allStateIndex(TRAIN_TYPE, vector<vector<vector<int>>>(TRAIN_NUM, vector<vector<int>>()));
+	for(int i = 0; i < TRAIN_TYPE; i++)
+	{
+		for(int j = 0; j < TRAIN_NUM; j++)
+		{
+			allStateIndex[i][j] = getStateIndex(trie, input[i][j], varianceTerm, countTransfer);
+		}
 	}
-	vector<vector<double>> segTem;
-	segTem = dtw2hmm(temGroup);
-	cout << "You have got the segment template!!!!!!!!!!!!!!!!!!!" << endl;
-	segTemGroup.push_back(segTem);
+	return allStateIndex;
+}
+
+// return the minCost of the last one vector and rewrite the pos
+double minLast(vector<vector<double>> vec, int& pos, int state)
+{
+	int lenth = (int)vec.size();
+	double cost = INT_MAX / 2;
+	for (int i = 0; i < lenth; i++) {
+		if (cost > vec[i][state]) {
+			cost = vec[i][state];
+			pos = i;
+		}
+	}
+	return cost;
+}
+
+// get the index of the traceMatrix
+int getMatrixIndex(int digit_index, int tem_index, int state)
+{
+	return digit_index * TYPE_NUM * SEG_NUM + tem_index *SEG_NUM + state;
+}
+
+// get digit based on the index
+int getDigit(int index) {
+	return (index / (TYPE_NUM * SEG_NUM));
+}
+
+// get tem index
+int getTem(int index) {
+	return (index % (TYPE_NUM * SEG_NUM)) / SEG_NUM;
+}
+
+// for cost Matrix, value is cost, (input_length, digit, different_template)
+// for segTemGroup, (tem_index, state, dimension)
+void DigitRecognition(int digit_num, vector<vector<double>>& input, vector<vector<vector<double>>> segTemGroup)
+{
+	int input_length = (int)input.size();
+	vector<vector<int>> traceMatrix(input_length, vector<int>(digit_num * TYPE_NUM * SEG_NUM, -1));
+	vector<bool> digit_able;
+	for (int i = 0; i < digit_num; i++) {
+		digit_able.push_back(false);
+	}
+	digit_able[0] = true;
+
+	vector<vector<vector<double>>> pre_col(digit_num, vector<vector<double>>(TYPE_NUM, vector<double>(SEG_NUM)));
+
+	// initialize the pre_col
+	for (int i = 0; i < digit_num; i++) {
+		for (int j = 0; j < TYPE_NUM; j++) {
+			for (int k = 0; k < SEG_NUM; k++) {
+				pre_col[i][j][k] = INT_MAX / 2;
+			}
+		}
 	}
 
-	ofstream out(segmentPath);
-	for(int i = 0; i < TYPE_NUM; i++)
-	{
-	cout << "template " << i << endl;
-	for(int j = 0; j < SEG_NUM; j++)
-	{
-	cout << "state " << j << endl;
-	for(int k = 0; k < DIMENSION; k++)
-	{
-	out << segTemGroup[i][j][k] << " ";
+	vector<vector<vector<double>>> cur_col = pre_col;
+
+	double last_one, last_two;
+	int posOne = -1;
+	int posTwo = -1;
+
+	double preMinCost;
+
+	// get the minimum cost and fill the trace matrix
+	for (int i = 0; i < input_length; i++) {
+		for (int digit = 0; digit < digit_num; digit++) {
+			for (int tem_index = 0; tem_index < TYPE_NUM; tem_index++) {
+				if (digit_num == DIGIT_NUM7 && tem_index == 0 && digit == 0) {
+					tem_index += 2;
+				}
+				if (i == 0)
+				{
+					if (digit == 0) {
+						cur_col[0][tem_index][0] = Dis(input[i], segTemGroup[tem_index][0]);
+						cur_col[0][tem_index][1] = Dis(input[i], segTemGroup[tem_index][1]);
+						pre_col[0][tem_index][0] = Dis(input[i], segTemGroup[tem_index][0]);
+						pre_col[0][tem_index][1] = Dis(input[i], segTemGroup[tem_index][1]);
+					}
+				}
+				for (int state_index = 0; state_index < SEG_NUM; state_index++) {
+					//                    if (i == 0) // the first column
+					//                    {
+					//                        //  the first column can only be handled at digit 0
+					//                        if (digit == 0) {
+					//                            cur_col[0][tem_index][0] = Dis(input[i], segTemGroup[tem_index][0]);
+					//                            cur_col[0][tem_index][1] = Dis(input[i], segTemGroup[tem_index][1]);
+					//                        }
+					//                    }
+					if (i != 0)
+					{
+						if (digit_able[digit]) {
+							if (digit > 0) {
+								if (state_index == 0)
+								{
+									posOne = -1;
+									posTwo = -1;
+									last_one = minLast(pre_col[digit - 1], posOne, SEG_NUM - 1);
+									last_two = minLast(pre_col[digit - 1], posTwo, SEG_NUM - 2);
+									preMinCost = min({ last_one, last_two, pre_col[digit][tem_index][state_index] });
+									cur_col[digit][tem_index][state_index] = preMinCost + Dis(input[i], segTemGroup[tem_index][state_index]);
+									if (preMinCost == last_one) {
+										traceMatrix[i][getMatrixIndex(digit, tem_index, state_index)] = getMatrixIndex(digit - 1, posOne, SEG_NUM - 1);
+									}
+									else if (preMinCost == last_two) {
+										traceMatrix[i][getMatrixIndex(digit, tem_index, state_index)] = getMatrixIndex(digit - 1, posTwo, SEG_NUM - 2);
+									}
+									else {
+										traceMatrix[i][getMatrixIndex(digit, tem_index, state_index)] = getMatrixIndex(digit, tem_index, state_index);
+									}
+								}
+								else if (state_index == 1)
+								{
+									posOne = -1;
+									last_one = minLast(pre_col[digit - 1], posOne, SEG_NUM - 1);
+									preMinCost = min({ last_one, pre_col[digit][tem_index][state_index - 1], pre_col[digit][tem_index][state_index] });
+									cur_col[digit][tem_index][state_index] = preMinCost + Dis(input[i], segTemGroup[tem_index][state_index]);
+									if (preMinCost == last_one) {
+										traceMatrix[i][getMatrixIndex(digit, tem_index, state_index)] = getMatrixIndex(digit - 1, posOne, SEG_NUM - 1);
+									}
+									else if (preMinCost == pre_col[digit][tem_index][state_index - 1]) {
+										traceMatrix[i][getMatrixIndex(digit, tem_index, state_index)] = getMatrixIndex(digit, tem_index, state_index - 1);
+									}
+									else {
+										traceMatrix[i][getMatrixIndex(digit, tem_index, state_index)] = getMatrixIndex(digit, tem_index, state_index);
+									}
+								}
+								else
+								{
+									preMinCost = min({ pre_col[digit][tem_index][state_index], pre_col[digit][tem_index][state_index - 1], pre_col[digit][tem_index][state_index - 2] });
+									cur_col[digit][tem_index][state_index] = preMinCost + Dis(input[i], segTemGroup[tem_index][state_index]);
+									if (digit < digit_num - 1) {
+										if (!digit_able[digit + 1])
+										{
+											if ((state_index == SEG_NUM - 2) && (cur_col[digit][tem_index][state_index] < INT_MAX)) {
+												digit_able[digit + 1] = true;
+											}
+										}
+									}
+									if (preMinCost == pre_col[digit][tem_index][state_index - 2]) {
+										traceMatrix[i][getMatrixIndex(digit, tem_index, state_index)] = getMatrixIndex(digit, tem_index, state_index - 2);
+									}
+									else if (preMinCost == pre_col[digit][tem_index][state_index - 1]) {
+										traceMatrix[i][getMatrixIndex(digit, tem_index, state_index)] = getMatrixIndex(digit, tem_index, state_index - 1);
+									}
+									else {
+										traceMatrix[i][getMatrixIndex(digit, tem_index, state_index)] = getMatrixIndex(digit, tem_index, state_index);
+									}
+								}
+							}
+
+							// digit == 0
+							else
+							{
+								if (state_index == 0) {
+									cur_col[digit][tem_index][state_index] = pre_col[digit][tem_index][state_index] + Dis(input[i], segTemGroup[tem_index][state_index]);
+									traceMatrix[i][getMatrixIndex(digit, tem_index, state_index)] = getMatrixIndex(digit, tem_index, state_index);
+								}
+								else if (state_index == 1) {
+									preMinCost = min({ pre_col[digit][tem_index][state_index], pre_col[digit][tem_index][state_index - 1] });
+									cur_col[digit][tem_index][state_index] = preMinCost + Dis(input[i], segTemGroup[tem_index][state_index]);
+									if (preMinCost == pre_col[digit][tem_index][state_index - 1]) {
+										traceMatrix[i][getMatrixIndex(digit, tem_index, state_index)] = getMatrixIndex(digit, tem_index, state_index - 1);
+									}
+									else {
+										traceMatrix[i][getMatrixIndex(digit, tem_index, state_index)] = getMatrixIndex(digit, tem_index, state_index);
+									}
+								}
+								else {
+									preMinCost = min({ pre_col[digit][tem_index][state_index], pre_col[digit][tem_index][state_index - 1], pre_col[digit][tem_index][state_index - 2] });
+									cur_col[digit][tem_index][state_index] = preMinCost + Dis(input[i], segTemGroup[tem_index][state_index]);
+									if (!digit_able[digit + 1])
+									{
+										if ((state_index == SEG_NUM - 2) && (cur_col[digit][tem_index][state_index] < INT_MAX)) {
+											digit_able[digit + 1] = true;
+										}
+									}
+									if (preMinCost == pre_col[digit][tem_index][state_index - 2]) {
+										traceMatrix[i][getMatrixIndex(digit, tem_index, state_index)] = getMatrixIndex(digit, tem_index, state_index - 2);
+									}
+									else if (preMinCost == pre_col[digit][tem_index][state_index - 1]) {
+										traceMatrix[i][getMatrixIndex(digit, tem_index, state_index)] = getMatrixIndex(digit, tem_index, state_index - 1);
+									}
+									else {
+										traceMatrix[i][getMatrixIndex(digit, tem_index, state_index)] = getMatrixIndex(digit, tem_index, state_index);
+									}
+								}
+							}
+						}
+					}
+				}
+			}
+		}
+		cur_col.swap(pre_col);
 	}
-	out << endl;
+
+	posOne = -1;
+	posTwo = -1;
+	last_one = minLast(pre_col[digit_num - 1], posOne, SEG_NUM - 1);
+	last_two = minLast(pre_col[digit_num - 1], posTwo, SEG_NUM - 2);
+
+	double minCost = min({ last_one, last_two });
+	int minIndex = -1;
+	if (minCost == last_two) {
+		minIndex = getMatrixIndex(digit_num - 1, posTwo, SEG_NUM - 2);
 	}
-	out << endl;
+	else {
+		minIndex = getMatrixIndex(digit_num - 1, posOne, SEG_NUM - 1);
 	}
-	*/
+
+
+	int cur_index = minIndex;
+	int pre_index;
+
+	stack<int> resultPhone;
+	resultPhone.push(getTem(cur_index));
+
+	int cur_digit = -1;
+	int pre_digit = -1;
+
+	// do the backtracing
+	for (int i = input_length - 1; i >= 0; i--) {
+		pre_index = traceMatrix[i][cur_index];
+		if (pre_index < 0 && i != 0) {
+			cout << "Output error";
+			return;
+		}
+
+		if (i > 0) {
+			cur_digit = getDigit(cur_index);
+			pre_digit = getDigit(pre_index);
+			if (cur_digit != pre_digit) {
+				int temp = getTem(pre_index);
+				resultPhone.push(temp);
+			}
+		}
+		cur_index = pre_index;
+	}
+
+	while (!resultPhone.empty())
+	{
+		cout << resultPhone.top() << " ";
+		resultPhone.pop();
+	}
+	return;
 }

@@ -27,6 +27,9 @@ double nodeCost(vector<double>& frame, vector<double>& segTem, vector<double>& v
 
 	for (int i = 0; i < DIMENSION; i++) {
 		//        double x = log(2 * PI * varianceTerm[i]);
+		//        double variance = varianceTerm[i];
+		//        double distance = pow((frame[i] - segTem[i]), 2);
+		//        double gauLog = log(2 * PI * varianceTerm[i]);
 		nodeCost += log(2 * PI * varianceTerm[i]) + pow((frame[i] - segTem[i]), 2) / varianceTerm[i];
 	}
 
@@ -55,6 +58,8 @@ double edgeCost(int nextIndex, vector<int>& countTransfer) {
 	return edgeCost;
 }
 
+
+/*
 //// return the edgecost according to the count/sum
 //double edgeCost(int nextIndex, vector<int>& countTransfer){
 //
@@ -74,6 +79,8 @@ double edgeCost(int nextIndex, vector<int>& countTransfer) {
 //    }
 //    return edgeCost;
 //}
+*/
+
 
 // compute how to segment one template, return one best way of segment based on the best path and the best value
 vector<vector<int>> getOneSegIndex(vector<vector<double>>& temp1, vector<vector<double>>& segmentTem, vector<vector<double>>& varianceTerm, vector<vector<int>>& countTransfer, vector<vector<int>>& segIndexPrev) {
@@ -189,21 +196,21 @@ vector<vector<int>> getOneSegIndex(vector<vector<double>>& temp1, vector<vector<
 
 // vector<vector<vector<int>>> segIndex : first vector means each template,  second means each segment, third is 2 length [seg starting index, seg ending index], if == -1, means that there is no such segment in this template.
 // Here we get the segment template
-vector<vector<double>> getSegTem(vector<vector<vector<int>>>& segIndex, vector<vector<vector<double>>>& temGroup) {
+vector<vector<double>> getSegTem(vector<vector<vector<int>>>& segIndex, vector<vector<vector<double>>>& temGroup, int state_num) {
 
 	int temNum = int(temGroup.size());
 
 	vector<double> oneSeg(DIMENSION);   // each segment
 	vector<vector<double>> segmentTem;  // the whole segment template
-	vector<int> countVector(SEG_NUM);   // count the number of frames in each segment, in order to divide
+	vector<int> countVector(state_num);   // count the number of frames in each segment, in order to divide
 
-										// initialize the segment vector
-	for (int i = 0; i < SEG_NUM; i++) {
+										  // initialize the segment vector
+	for (int i = 0; i < state_num; i++) {
 		segmentTem.push_back(oneSeg);
 	}
 
 	for (int i = 0; i < temNum; i++) {
-		for (int j = 0; j < SEG_NUM; j++) {
+		for (int j = 0; j < state_num; j++) {
 			// get the starting and ending frame's index
 			int segStart = segIndex[i][j][0];
 
@@ -224,7 +231,7 @@ vector<vector<double>> getSegTem(vector<vector<vector<int>>>& segIndex, vector<v
 	}
 
 	// compute the average of the segmental templates.
-	for (int i = 0; i < SEG_NUM; i++) {
+	for (int i = 0; i < state_num; i++) {
 		for (int j = 0; j < DIMENSION; j++) {
 			segmentTem[i][j] /= countVector[i];
 		}
@@ -345,12 +352,12 @@ vector<vector<double>> dtw2hmm(vector<vector<vector<double>>>& temGroup, vector<
 	//    vector<vector<int>> countTransfer(SEG_NUM + 1, vector<int>(SEG_NUM));
 
 	// get the first segment template
-	segmentTem = getSegTem(segIndex, temGroup);
+	segmentTem = getSegTem(segIndex, temGroup, SEG_NUM);
 	segIndex = getSegIndex(segmentTem, temGroup, segIndexPrev, varianceTerm, countTransfer);
 
 	while (segIndex != segIndexPrev) {
 		segIndexPrev = segIndex;
-		segmentTem = getSegTem(segIndex, temGroup);
+		segmentTem = getSegTem(segIndex, temGroup, SEG_NUM);
 		segIndex = getSegIndex(segmentTem, temGroup, segIndexPrev, varianceTerm, countTransfer);
 	}
 
@@ -410,6 +417,39 @@ double segmentalDtw(vector<vector<double>>& inputAduio, vector<vector<double>>& 
 
 	return prevCol[temFrameNum - 1];
 }
+
+
+
+vector<vector<vector<vector<int>>>> conDtw2hmm(vector<vector<vector<vector<double>>>> temGroup, vector<vector<vector<vector<int>>>> initSegIndex, vector<vector<vector<double>>>& varianceTerm, vector<vector<vector<int>>>& countTransfer)
+{
+	int tem_type = (int)temGroup.size();
+
+	// seg-index: seg method, vector: tem_type -> tem_num -> states_num -> start & end
+	vector<vector<vector<vector<int>>>> segIndex = initSegIndex;
+	vector<vector<vector<vector<int>>>> segIndexPrev = initSegIndex;
+	vector<vector<vector<double>>> segmentFullTems;
+
+
+	for (int i = 0; i < tem_type; i++)
+	{
+		int state_num = (int)temGroup[i][0].size();
+		vector<vector<double>> segmentTem;
+		segmentTem = getSegTem(segIndex[i], temGroup[i], state_num);
+		segIndex[i] = getSegIndex(segmentTem, temGroup[i], segIndexPrev[i], varianceTerm[i], countTransfer[i]);
+		while (segIndex[i] != segIndexPrev[i]) {
+			segIndexPrev[i] = segIndex[i];
+			segmentTem = getSegTem(segIndex[i], temGroup[i], state_num);
+			segIndex[i] = getSegIndex(segmentTem, temGroup[i], segIndexPrev[i], varianceTerm[i], countTransfer[i]);
+		}
+		segmentFullTems.push_back(segmentTem);
+	}
+
+	return segIndex;
+}
+
+
+
+
 
 
 
