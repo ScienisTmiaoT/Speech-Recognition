@@ -20,9 +20,10 @@ string txtInputPath = "C:\\Users\\Administrator\\Desktop\\Current\\Continuous Sp
 //used to record train data
 string wavTestPathDigits = "C:\\Users\\Administrator\\Desktop\\Current\\Continuous Speech\\Archive\\requiredTem\\";
 string txtTestPathDigits = "C:\\Users\\Administrator\\Desktop\\Current\\Continuous Speech\\Archive\\requiredTem\\";
+string segTestPathDigits = "C:\\Users\\Administrator\\Desktop\\Current\\Continuous Speech\\Archive\\requiredTem\\segment.txt";
 
 void writeSeg();
-void getResult();
+void trainDigits();
 // test segmental k-mean
 void part6();
 
@@ -30,7 +31,7 @@ void part6();
 
 int main()
 {
-	writeSeg();
+	trainDigits();
 	return 0;
 }
 
@@ -120,32 +121,54 @@ void trainDigits() {
 
 	vector<vector<vector<vector<double>>>> input(TRAIN_TYPE, vector<vector<vector<double>>>(TRAIN_NUM, vector<vector<double>>()));
 	
+
 	string dir[] = { "0123456789", "0987654321", "1234567890", "1357902468", "8642097531", "9876543210" };
 	for(int i = 0; i < TRAIN_TYPE; i++)
 	{
 		for(int j = 0; j < TRAIN_NUM; j++)
 		{
-			string wavTestPath = wavTestPathDigits + dir[i] + "\\" + to_string(j) + "\\record.wav";
-			string txtTestPath = txtTestPathDigits + dir[i] + "\\" + to_string(j) + "\\";
+			//string wavTestPath = wavTestPathDigits + dir[i] + "\\" + to_string(j) + "\\record.wav";
+			string txtTestPath = txtTestPathDigits + dir[i] + "\\" + to_string(j) + "\\result.txt";
+			ifstream inTrain(txtTestPath);
 			vector<vector<double>> testInput;
-			featureExtractionTwo(testInput, wavTestPath, txtTestPath);
+			vector<double> singleInput;
+			double temp;
+			for(int k = 0; !inTrain.eof(); k++)
+			{
+				if(k == DIMENSION)
+				{
+					k = 0;
+					testInput.push_back(singleInput);
+					singleInput.clear();
+				}
+				inTrain >> temp;
+				singleInput.push_back(temp);
+			}
+			//featureExtractionTwo(testInput, wavTestPath, txtTestPath);
 			input[i][j] = testInput;
 		}
 	}
+	vector<vector<vector<vector<int>>>> allState = getAllStateIndex(DIGIT_NUM7, segTemGroup, input, varianceTerm, countTransfer);
+	vector<vector<vector<double>>> variance(TRAIN_TYPE, vector<vector<double>>(DIGIT_NUM * SEG_NUM, vector<double>(DIMENSION)));
+	vector<vector<vector<int>>> transfer(TRAIN_TYPE, vector<vector<int>>(DIGIT_NUM * SEG_NUM + 1, vector<int>(DIGIT_NUM * SEG_NUM)));
+	vector<vector<vector<vector<int>>>> resultState = conDtw2hmm(input, allState, variance, transfer);
+	vector<vector<vector<double>>>resultSeg = getSegFrame(resultState, input);
 
-	Trie trie;
-	TrieNode* root = trie.getRoot();
-	for (int i = 0; i < MAX_BRANCH_NUM - 1; i++)
+	ofstream out(segTestPathDigits);
+	for(int i = 0; i < DIGIT_NUM; i++)
 	{
-		root->nextBranch[i]->segTemplate = segTemGroup[i];
+		for(int j = 0; j < SEG_NUM; j++)
+		{
+			for (int k = 0; k < DIMENSION; k++)
+			{
+				out << resultSeg[i][j][k] << " ";
+			}
+			out << endl;
+		}
+		out << endl;
 	}
-	vector<vector<vector<vector<int>>>> allState = getAllStateIndex(trie, input, varianceTerm, countTransfer);
+	out.close();
 	cout << endl;
-	//vector<vector<double>> testInput;
-	//featureExtractionTwo(testInput, wavTestPath, txtTestPath);
-	//featureExtractionTwo(testInput, testPath, testPath);
-	//problem3(segTemGroup, testInput, varianceTerm, countTransfer);
-	//problem1(segTemGroup, testInput, varianceTerm, countTransfer);
 }
 
 // test segmental k-mean

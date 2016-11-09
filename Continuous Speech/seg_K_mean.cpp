@@ -420,9 +420,11 @@ double segmentalDtw(vector<vector<double>>& inputAduio, vector<vector<double>>& 
 
 
 
-vector<vector<vector<vector<int>>>> conDtw2hmm(vector<vector<vector<vector<double>>>> temGroup, vector<vector<vector<vector<int>>>> initSegIndex, vector<vector<vector<double>>>& varianceTerm, vector<vector<vector<int>>>& countTransfer)
+vector<vector<vector<vector<int>>>> conDtw2hmm(vector<vector<vector<vector<double>>>> temGroup, 
+	vector<vector<vector<vector<int>>>> initSegIndex, vector<vector<vector<double>>>& varianceTerm,
+		vector<vector<vector<int>>>& countTransfer)
 {
-	int tem_type = (int)temGroup.size();
+	int tem_type = (int)initSegIndex.size();
 
 	// seg-index: seg method, vector: tem_type -> tem_num -> states_num -> start & end
 	vector<vector<vector<vector<int>>>> segIndex = initSegIndex;
@@ -432,7 +434,7 @@ vector<vector<vector<vector<int>>>> conDtw2hmm(vector<vector<vector<vector<doubl
 
 	for (int i = 0; i < tem_type; i++)
 	{
-		int state_num = (int)temGroup[i][0].size();
+		int state_num = (int)initSegIndex[i][0].size();
 		vector<vector<double>> segmentTem;
 		segmentTem = getSegTem(segIndex[i], temGroup[i], state_num);
 		segIndex[i] = getSegIndex(segmentTem, temGroup[i], segIndexPrev[i], varianceTerm[i], countTransfer[i]);

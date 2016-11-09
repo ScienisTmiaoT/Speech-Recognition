@@ -203,10 +203,10 @@ stack<int> backTrace(vector<vector<double>>& input, vector<vector<vector<int>>>&
 }
 
 //cut digit frame from continuous speech
-vector<vector<vector<double>>> getContinuousSeg(Trie& trie, vector<vector<double>>& input, vector<vector<vector<double>>>& varianceTerm, vector<vector<vector<int>>>& countTransfer)
+vector<vector<vector<double>>> getContinuousSeg(int digit_num, vector<vector<vector<double>>>& segTemGroup, vector<vector<double>>& input, vector<vector<vector<double>>>& varianceTerm, vector<vector<vector<int>>>& countTransfer)
 {
 	stack<int> resultPos;
-	resultPos = RestrictPhone(trie, input, varianceTerm, countTransfer);
+	resultPos = DigitRecognition(digit_num, input, segTemGroup, varianceTerm, countTransfer);
 	vector<vector<vector<double>>> inputSeg(DIGIT_NUM, vector<vector<double>>());
 	int segSize = resultPos.size() + 1;
 	//check the seg size
@@ -251,10 +251,10 @@ vector<vector<vector<double>>> getContinuousSeg(Trie& trie, vector<vector<double
 }
 
 //record state index in input
-vector<vector<int>> getStateIndex(Trie& trie, vector<vector<double>>& input, vector<vector<vector<double>>>& varianceTerm, vector<vector<vector<int>>>& countTransfer)
+vector<vector<int>> getStateIndex(int digit_num, vector<vector<vector<double>>>& segTemGroup, vector<vector<double>>& input, vector<vector<vector<double>>>& varianceTerm, vector<vector<vector<int>>>& countTransfer)
 {
 	stack<int> resultPos;
-	resultPos = RestrictPhone(trie, input, varianceTerm, countTransfer);
+	resultPos = DigitRecognition(digit_num, input, segTemGroup, varianceTerm, countTransfer);
 	vector<vector<int>> stateIndex(DIGIT_NUM * SEG_NUM, vector<int>(2));
 	int segSize = resultPos.size() + 1;
 	//check the seg size
@@ -333,17 +333,65 @@ vector<vector<int>> getStateIndex(Trie& trie, vector<vector<double>>& input, vec
 /* return: [tem_type][tem_num][digit_type][start_end]
  * input: [tem_type][tem_num][tem_length][dimension]
  */
-vector<vector<vector<vector<int>>>> getAllStateIndex(Trie& trie, vector<vector<vector<vector<double>>>>& input, vector<vector<vector<double>>>& varianceTerm, vector<vector<vector<int>>>& countTransfer)
+vector<vector<vector<vector<int>>>> getAllStateIndex(int digit_num, vector<vector<vector<double>>>& segTemGroup, vector<vector<vector<vector<double>>>>& input, vector<vector<vector<double>>>& varianceTerm, vector<vector<vector<int>>>& countTransfer)
 {
 	vector<vector<vector<vector<int>>>> allStateIndex(TRAIN_TYPE, vector<vector<vector<int>>>(TRAIN_NUM, vector<vector<int>>()));
 	for(int i = 0; i < TRAIN_TYPE; i++)
 	{
 		for(int j = 0; j < TRAIN_NUM; j++)
 		{
-			allStateIndex[i][j] = getStateIndex(trie, input[i][j], varianceTerm, countTransfer);
+			allStateIndex[i][j] = getStateIndex(digit_num, segTemGroup, input[i][j], varianceTerm, countTransfer);
 		}
 	}
 	return allStateIndex;
+}
+
+//use the state index from k-means to cut the frame from template
+vector<vector<vector<double>>> getSegFrame(vector<vector<vector<vector<int>>>>& allState, vector<vector<vector<vector<double>>>>& input)
+{
+	vector<vector<vector<double>>> temSeg(DIGIT_NUM, vector<vector<double>>(SEG_NUM, vector<double>(DIMENSION)));
+	vector<vector<vector<vector<double>>>> stateFrame(DIGIT_NUM, vector<vector<vector<double>>>(SEG_NUM, vector<vector<double>>()));
+	vector<vector<int>> digits = { {0, 1, 2, 3, 4, 5, 6, 7, 8, 9}, {0, 9, 8, 7, 6, 5, 4, 3, 2, 1}, {1, 2, 3, 4, 5, 6, 7, 8, 9, 0},
+									{1, 3, 5, 7, 9, 0, 2, 4, 6, 8}, {8, 6, 4, 2, 0, 9, 7, 5, 3, 1}, {9, 8, 7, 6, 5, 4, 3, 2, 1, 0 } };
+	
+	//extract frame
+	for(int i = 0; i < TRAIN_TYPE; i++)
+	{
+		for(int j = 0; j < DIGIT_NUM; j++)
+		{
+			for(int k = 0; k < TRAIN_NUM; k++)
+			{
+				for (int p = 0; p < SEG_NUM; p++)
+				{
+					int start = allState[i][k][j * SEG_NUM + p][0];
+					int end = allState[i][k][j * SEG_NUM + p][1];
+					for(int x = start; x <= end; x++)
+					{
+						stateFrame[digits[i][j]][p].push_back(input[i][k][x]);
+					}	
+				}
+			}
+		}
+	}
+
+	//average frame
+	for(int i = 0; i < DIGIT_NUM; i++)
+	{
+		for(int j = 0; j < SEG_NUM; j++)
+		{
+			int len = stateFrame[i][j].size();
+			for(int k = 0; k < DIMENSION; k++)
+			{
+				int sum = 0;
+				for(int p = 0; p < len; p++)
+				{
+					sum += stateFrame[i][j][p][k];
+				}
+				temSeg[i][j][k] = sum / len;
+			}
+		}
+	}
+	return temSeg;
 }
 
 // return the minCost of the last one vector and rewrite the pos
@@ -378,7 +426,7 @@ int getTem(int index) {
 
 // for cost Matrix, value is cost, (input_length, digit, different_template)
 // for segTemGroup, (tem_index, state, dimension)
-void DigitRecognition(int digit_num, vector<vector<double>>& input, vector<vector<vector<double>>> segTemGroup)
+stack<int> DigitRecognition(int digit_num, vector<vector<double>>& input, vector<vector<vector<double>>>& segTemGroup, vector<vector<vector<double>>>& varianceTerm, vector<vector<vector<int>>>& countTransfer)
 {
 	int input_length = (int)input.size();
 	vector<vector<int>> traceMatrix(input_length, vector<int>(digit_num * TYPE_NUM * SEG_NUM, -1));
@@ -411,9 +459,9 @@ void DigitRecognition(int digit_num, vector<vector<double>>& input, vector<vecto
 	for (int i = 0; i < input_length; i++) {
 		for (int digit = 0; digit < digit_num; digit++) {
 			for (int tem_index = 0; tem_index < TYPE_NUM; tem_index++) {
-				if (digit_num == DIGIT_NUM7 && tem_index == 0 && digit == 0) {
-					tem_index += 2;
-				}
+//				if (digit_num == DIGIT_NUM7 && tem_index == 0 && digit == 0) {
+//					tem_index += 2;
+//				}
 				if (i == 0)
 				{
 					if (digit == 0) {
@@ -558,7 +606,7 @@ void DigitRecognition(int digit_num, vector<vector<double>>& input, vector<vecto
 	int pre_index;
 
 	stack<int> resultPhone;
-	resultPhone.push(getTem(cur_index));
+//	resultPhone.push(cur_index);
 
 	int cur_digit = -1;
 	int pre_digit = -1;
@@ -568,24 +616,24 @@ void DigitRecognition(int digit_num, vector<vector<double>>& input, vector<vecto
 		pre_index = traceMatrix[i][cur_index];
 		if (pre_index < 0 && i != 0) {
 			cout << "Output error";
-			return;
+			return resultPhone;
 		}
 
 		if (i > 0) {
 			cur_digit = getDigit(cur_index);
 			pre_digit = getDigit(pre_index);
 			if (cur_digit != pre_digit) {
-				int temp = getTem(pre_index);
-				resultPhone.push(temp);
+//				int temp = getTem(pre_index);
+				resultPhone.push(i);
 			}
 		}
 		cur_index = pre_index;
 	}
 
-	while (!resultPhone.empty())
-	{
-		cout << resultPhone.top() << " ";
-		resultPhone.pop();
-	}
-	return;
+//	while (!resultPhone.empty())
+//	{
+//		cout << resultPhone.top() << " ";
+//		resultPhone.pop();
+//	}
+	return resultPhone;
 }

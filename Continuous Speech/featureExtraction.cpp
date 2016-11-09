@@ -140,8 +140,8 @@ int pruneFrame(short* dataWave, int& numSamples) {
 }
 
 /**
- 
- *  do the pre-emphasize   s'[n] = s[n] - alpha * s[n-1]
+
+*  do the pre-emphasize   s'[n] = s[n] - alpha * s[n-1]
 *
 *  @param waveData    input original wave data
 *  @param factor      the factor alpha in the formula
@@ -259,7 +259,7 @@ double* getFftEnergy(double* frameData, int actualNumPerFrame) {
 /**
 *  get the mel-fre power spectrum
 *
-*  @param fftSample discrete frequency power spectrum after fft(the first half)
+*  @param fftSampleEnergy discrete frequency power spectrum after fft(the first half)
 *
 *  @return mel-fre power spectrum
 */
@@ -346,7 +346,7 @@ double* getMelLogEnergy(double* melEnergy) {
 /**
 *  do the DCT for each frame.
 *
-*  @param melEnergy        the log mel-fre power spectrum of a frame
+*  @param melLogEnergy        the log mel-fre power spectrum of a frame
 *
 *  @return         the 13-D DCT result
 */
@@ -375,30 +375,30 @@ double* getDCT(double* melLogEnergy) {
 *  @param dctResult        the 13 * frameNum DCT result
 */
 void getNormalizedDCT(double** dctResult) {
-    double averageValue;
-    double varianceValue;
-    
-    // do the norm
-    for(int k = 0; k < DCT_DIMENSION; k++){
-        averageValue = 0;
-        varianceValue = 0;
-        // compute the average of this dimension
-        for (int i = 0; i < frameNumber; i++) {
-            averageValue += dctResult[i][k];
-        }
-        averageValue =  averageValue / frameNumber;
-        // minus the average from the dimension
-        for (int i = 0; i < frameNumber; i++) {
-            dctResult[i][k] -= averageValue;
-            varianceValue += pow(dctResult[i][k], 2);
-        }
-        varianceValue =varianceValue / frameNumber;
-        varianceValue = sqrt(varianceValue);
-        // divide the variance from the dimension
-        for (int i = 0; i < frameNumber; i++) {
-            dctResult[i][k] /= varianceValue;
-        }
-    }
+	double averageValue;
+	double varianceValue;
+
+	// do the norm
+	for (int k = 0; k < DCT_DIMENSION; k++) {
+		averageValue = 0;
+		varianceValue = 0;
+		// compute the average of this dimension
+		for (int i = 0; i < frameNumber; i++) {
+			averageValue += dctResult[i][k];
+		}
+		averageValue = averageValue / frameNumber;
+		// minus the average from the dimension
+		for (int i = 0; i < frameNumber; i++) {
+			dctResult[i][k] -= averageValue;
+			varianceValue += pow(dctResult[i][k], 2);
+		}
+		varianceValue = varianceValue / frameNumber;
+		varianceValue = sqrt(varianceValue);
+		// divide the variance from the dimension
+		for (int i = 0; i < frameNumber; i++) {
+			dctResult[i][k] /= varianceValue;
+		}
+	}
 }
 
 
@@ -408,79 +408,79 @@ void getNormalizedDCT(double** dctResult) {
 *  @param dctResult        the 13 * frameNum DCT result
 *  @param normDCT          the vector of each frame, each with 39-D normed feature, it should be initially null
 */
-void DCTNorm(double** dctResult, vector<vector<double>>& normDCT){
+void DCTNorm(double** dctResult, vector<vector<double>>& normDCT) {
 
-    // put normed dct value into vector
-    for (int i = 0; i < frameNumber; i++) {
-        vector<double> dimension(DCT_DIMENSION * 3);
-        for (int k = 0; k < DCT_DIMENSION * 3; k++) {
-            if (k < DCT_DIMENSION) {
-                dimension[k] = dctResult[i][k];
-            }
-            else if (k < DCT_DIMENSION * 2){
-                if(i == (frameNumber - 1)){
-                    dimension[k] = dctResult[i][k - DCT_DIMENSION] - dctResult[i - 1][k - DCT_DIMENSION];
-                }
-                else if(i == 0){
-//                    cout << "front = " << dctResult[i + 1][k - DCT_DIMENSION]  << endl;
-//                    cout << "now = " << dctResult[i ][k - DCT_DIMENSION] << endl;
-                    dimension[k] = dctResult[i + 1][k - DCT_DIMENSION] - dctResult[i][k - DCT_DIMENSION];
-                    
-                }
-                else{
-                    dimension[k] = dctResult[i + 1][k - DCT_DIMENSION] - dctResult[i - 1][k - DCT_DIMENSION];
-                }
-            }
-            else{
-                if (i == 0) {
-                    dimension[k] = (dctResult[i + 2][k - 2 * DCT_DIMENSION] - dctResult[i][k - 2 * DCT_DIMENSION]) - (dctResult[i + 1][k - 2 * DCT_DIMENSION] - dctResult[i][k - 2 * DCT_DIMENSION]);
-                }
-                else if (i == (frameNumber -1)){
-                    dimension[k] = (dctResult[i][k - 2 * DCT_DIMENSION] - dctResult[i - 1][k - 2 * DCT_DIMENSION]) - (dctResult[i][k - 2 * DCT_DIMENSION] - dctResult[i - 2][k - 2 * DCT_DIMENSION]);
-                }
-                else if (i == 1){
-                    dimension[k] = (dctResult[i + 2][k - 2 * DCT_DIMENSION] - dctResult[i][k - 2 * DCT_DIMENSION]) - (dctResult[i][k - 2 * DCT_DIMENSION] - dctResult[i - 1][k - 2 * DCT_DIMENSION]);
-                }
-                else if (i ==(frameNumber - 2)){
-                    dimension[k] = (dctResult[i + 1][k - 2 * DCT_DIMENSION] - dctResult[i][k - 2 * DCT_DIMENSION]) - (dctResult[i][k - 2 * DCT_DIMENSION] - dctResult[i - 2][k - 2 * DCT_DIMENSION]);
-                }
-                else{
-                    dimension[k] = (dctResult[i + 2][k - 2 * DCT_DIMENSION] - dctResult[i][k - 2 * DCT_DIMENSION]) - (dctResult[i][k - 2 * DCT_DIMENSION] - dctResult[i - 2][k - 2 * DCT_DIMENSION]);
-                }
-            }
-        }
-        normDCT.push_back(dimension);
-    }
+	// put normed dct value into vector
+	for (int i = 0; i < frameNumber; i++) {
+		vector<double> dimension(DCT_DIMENSION * 3);
+		for (int k = 0; k < DCT_DIMENSION * 3; k++) {
+			if (k < DCT_DIMENSION) {
+				dimension[k] = dctResult[i][k];
+			}
+			else if (k < DCT_DIMENSION * 2) {
+				if (i == (frameNumber - 1)) {
+					dimension[k] = dctResult[i][k - DCT_DIMENSION] - dctResult[i - 1][k - DCT_DIMENSION];
+				}
+				else if (i == 0) {
+					//                    cout << "front = " << dctResult[i + 1][k - DCT_DIMENSION]  << endl;
+					//                    cout << "now = " << dctResult[i ][k - DCT_DIMENSION] << endl;
+					dimension[k] = dctResult[i + 1][k - DCT_DIMENSION] - dctResult[i][k - DCT_DIMENSION];
+
+				}
+				else {
+					dimension[k] = dctResult[i + 1][k - DCT_DIMENSION] - dctResult[i - 1][k - DCT_DIMENSION];
+				}
+			}
+			else {
+				if (i == 0) {
+					dimension[k] = (dctResult[i + 2][k - 2 * DCT_DIMENSION] - dctResult[i][k - 2 * DCT_DIMENSION]) - (dctResult[i + 1][k - 2 * DCT_DIMENSION] - dctResult[i][k - 2 * DCT_DIMENSION]);
+				}
+				else if (i == (frameNumber - 1)) {
+					dimension[k] = (dctResult[i][k - 2 * DCT_DIMENSION] - dctResult[i - 1][k - 2 * DCT_DIMENSION]) - (dctResult[i][k - 2 * DCT_DIMENSION] - dctResult[i - 2][k - 2 * DCT_DIMENSION]);
+				}
+				else if (i == 1) {
+					dimension[k] = (dctResult[i + 2][k - 2 * DCT_DIMENSION] - dctResult[i][k - 2 * DCT_DIMENSION]) - (dctResult[i][k - 2 * DCT_DIMENSION] - dctResult[i - 1][k - 2 * DCT_DIMENSION]);
+				}
+				else if (i == (frameNumber - 2)) {
+					dimension[k] = (dctResult[i + 1][k - 2 * DCT_DIMENSION] - dctResult[i][k - 2 * DCT_DIMENSION]) - (dctResult[i][k - 2 * DCT_DIMENSION] - dctResult[i - 2][k - 2 * DCT_DIMENSION]);
+				}
+				else {
+					dimension[k] = (dctResult[i + 2][k - 2 * DCT_DIMENSION] - dctResult[i][k - 2 * DCT_DIMENSION]) - (dctResult[i][k - 2 * DCT_DIMENSION] - dctResult[i - 2][k - 2 * DCT_DIMENSION]);
+				}
+			}
+		}
+		normDCT.push_back(dimension);
+	}
 }
 
 
 
 
-void featureExtractionTwo(vector<vector<double>>& normDCT,  string& wav, string& filePath) {
-    
+void featureExtractionTwo(vector<vector<double>>& normDCT, string& wav, string& filePath) {
+
 	frameNumber = 0;
-    
-    
+
+
 	short* dataWave;    // store the original wave data
 	double* waveDataAfter; // store the wave data after pre-emphasize
 	double** frameData;   // store the wave data in each frame
 	int numSample;
 	int sampleRate;
-	
+
 	const char *wavFile = wav.c_str();
 
 	// read in the wave data
 	dataWave = ReadWavFile(wavFile, &numSample, &sampleRate);
-    cout << "numSample " << numSample << endl;
-    
-    
-    int start = pruneFrameFromStart(dataWave, numSample);
+	cout << "numSample " << numSample << endl;
+
+
+	int start = pruneFrameFromStart(dataWave, numSample);
 	int end = pruneFrameFromEnd(dataWave, numSample);
-    dataWave += start;
+	dataWave += start;
 	numSample = end - start;
-    cout << "numSample " << numSample << endl;
-    
-    
+	cout << "numSample " << numSample << endl;
+
+
 	//    cout << dataWave;
 
 	// do the preemphasize
@@ -505,71 +505,27 @@ void featureExtractionTwo(vector<vector<double>>& normDCT,  string& wav, string&
 		frameDCT[i] = getDCT(melLogEnergy[i]);
 	}
 
-    ofstream fileSample(filePath + "sample.txt");
-    ofstream filePreemphasized(filePath + "sample_after_preemphasize.txt");
-    ofstream fileFrame(filePath + "frameData.txt");
-    ofstream fileFrameEnergy(filePath + "frameEnergy.txt");
-    ofstream fileMelEnergy(filePath + "melEnergy.txt");
-    ofstream fileMelLogEnergy(filePath + "melLogEnergy.txt");
-    ofstream fileDCT(filePath + "DCT.txt");
-    ofstream fileNormDCT(filePath + "NormDCT.txt");
+	ofstream fileResult(filePath + "result.txt");
 
-	for (int i = 0; i < numSample; i++) {
-		fileSample << dataWave[i];
-		fileSample << " ";
-		filePreemphasized << waveDataAfter[i];
-		filePreemphasized << " ";
-	}
-//	delete[] dataWave;
-//	delete[] waveDataAfter;
+	//	delete[] dataWave;
+	//	delete[] waveDataAfter;
 
-	for (int i = 0; i < frameNumber; i++) {
-
-		for (int j = 0; j < ACTUAL_SAMPLE_PER_FRAME; j++) {
-			fileFrame << frameData[i][j];
-			fileFrame << " ";
-		}
-
-		for (int k = 0; k < ACTUAL_SAMPLE_PER_FRAME / 2 + 1; k++) {
-			fileFrameEnergy << frameEnergy[i][k];
-			fileFrameEnergy << " ";
-		}
-
-		for (int l = 0; l < MEL_POINT; l++) {
-			fileMelEnergy << melEnergy[i][l];
-			fileMelEnergy << " ";
-			fileMelLogEnergy << melLogEnergy[i][l];
-			fileMelLogEnergy << " ";
-		}
-
-		for (int m = 0; m < DCT_DIMENSION; m++) {
-			fileDCT << frameDCT[i][m];
-			//            cout << frameDCT[i][m] << endl;
-			fileDCT << " ";
-		}
-
-		fileFrame << endl;
-		fileFrameEnergy << endl;
-		fileMelEnergy << endl;
-		fileMelLogEnergy << endl;
-		fileDCT << endl;
-	}
-    
-    
 
 	getNormalizedDCT(frameDCT);
 
+	cout << "frameNumber =  " << frameNumber << endl;
+
+	DCTNorm(frameDCT, normDCT);
+
 	for (int i = 0; i < frameNumber; i++) {
 
-		for (int j = 0; j < DCT_DIMENSION; j++) {
-			fileNormDCT << frameDCT[i][j] << " ";
+		for (int j = 0; j < DCT_DIMENSION * 3; j++) {
+			fileResult << normDCT[i][j] << " ";
 		}
-		fileNormDCT << endl;
+		fileResult << endl;
 	}
-	cout << "frameNumber =  " << frameNumber << endl;
-    
-    DCTNorm(frameDCT, normDCT);
-    
+
+
 }
 
 void featureExtraction(vector<vector<double>>& normDCT, string& wav, string& filePath) {
@@ -624,70 +580,23 @@ void featureExtraction(vector<vector<double>>& normDCT, string& wav, string& fil
 		frameDCT[i] = getDCT(melLogEnergy[i]);
 	}
 
-	ofstream fileSample(filePath + "sample.txt");
-	ofstream filePreemphasized(filePath + "sample_after_preemphasize.txt");
-	ofstream fileFrame(filePath + "frameData.txt");
-	ofstream fileFrameEnergy(filePath + "frameEnergy.txt");
-	ofstream fileMelEnergy(filePath + "melEnergy.txt");
-	ofstream fileMelLogEnergy(filePath + "melLogEnergy.txt");
-	ofstream fileDCT(filePath + "DCT.txt");
-	ofstream fileNormDCT(filePath + "NormDCT.txt");
+	ofstream fileResult(filePath + "result.txt");
 
-	for (int i = 0; i < numSample; i++) {
-		fileSample << dataWave[i];
-		fileSample << " ";
-		filePreemphasized << waveDataAfter[i];
-		filePreemphasized << " ";
-	}
 	//	delete[] dataWave;
 	//	delete[] waveDataAfter;
 
-	for (int i = 0; i < frameNumber; i++) {
-
-		for (int j = 0; j < ACTUAL_SAMPLE_PER_FRAME; j++) {
-			fileFrame << frameData[i][j];
-			fileFrame << " ";
-		}
-
-		for (int k = 0; k < ACTUAL_SAMPLE_PER_FRAME / 2 + 1; k++) {
-			fileFrameEnergy << frameEnergy[i][k];
-			fileFrameEnergy << " ";
-		}
-
-		for (int l = 0; l < MEL_POINT; l++) {
-			fileMelEnergy << melEnergy[i][l];
-			fileMelEnergy << " ";
-			fileMelLogEnergy << melLogEnergy[i][l];
-			fileMelLogEnergy << " ";
-		}
-
-		for (int m = 0; m < DCT_DIMENSION; m++) {
-			fileDCT << frameDCT[i][m];
-			//            cout << frameDCT[i][m] << endl;
-			fileDCT << " ";
-		}
-
-		fileFrame << endl;
-		fileFrameEnergy << endl;
-		fileMelEnergy << endl;
-		fileMelLogEnergy << endl;
-		fileDCT << endl;
-	}
-
-
-
 	getNormalizedDCT(frameDCT);
 
-	for (int i = 0; i < frameNumber; i++) {
-
-		for (int j = 0; j < DCT_DIMENSION; j++) {
-			fileNormDCT << frameDCT[i][j] << " ";
-		}
-		fileNormDCT << endl;
-	}
 	cout << "frameNum =  " << frameNumber << endl;
 
 	DCTNorm(frameDCT, normDCT);
+	for (int i = 0; i < frameNumber; i++) {
+
+		for (int j = 0; j < DCT_DIMENSION * 3; j++) {
+			fileResult << normDCT[i][j] << " ";
+		}
+		fileResult << endl;
+	}
 
 }
 
