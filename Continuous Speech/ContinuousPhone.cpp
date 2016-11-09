@@ -61,14 +61,14 @@ stack<int> RestrictPhone(Trie& trie, vector<vector<double>>& input, vector<vecto
 			root->nextBranch[j]->curNodeCost = temp;
 			if (i == 0)
 			{
-				root->nextBranch[j]->preNodeCost[0] = nodeCost(input[i], root->nextBranch[j]->segTemplate[0], varianceTerm[j][0]) + edgeCost(0, countTransfer[j][0]);
-				root->nextBranch[j]->preNodeCost[1] = nodeCost(input[i], root->nextBranch[j]->segTemplate[1], varianceTerm[j][1]) + edgeCost(1, countTransfer[j][0]);
+				root->nextBranch[j]->preNodeCost[0] = Dis(input[i], root->nextBranch[j]->segTemplate[0]) + edgeCost(0, countTransfer[j][0]);
+				root->nextBranch[j]->preNodeCost[1] = Dis(input[i], root->nextBranch[j]->segTemplate[1]) + edgeCost(1, countTransfer[j][0]);
 			}
 			else
 			{
 				for (int k = 0; k < SEG_NUM; k++)
 				{
-					double var1 = nodeCost(input[i], root->nextBranch[j]->segTemplate[k], varianceTerm[j][k]);
+					double var1 = Dis(input[i], root->nextBranch[j]->segTemplate[k]);
 					double var2 = root->nextBranch[j]->preNodeCost[k] + var1 + edgeCost(k, countTransfer[j][k + 1]);
 					//                    double var3 = root->nextBranch[j]->preNodeCost[k - 1] + var1 + edgeCost(k, countTransfer[j][k]);
 					//                    double var4 = root->nextBranch[j]->preNodeCost[k - 2] + var1 + edgeCost(k, countTransfer[j][k - 1]);
