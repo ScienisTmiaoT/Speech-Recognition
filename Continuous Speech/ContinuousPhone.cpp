@@ -363,8 +363,8 @@ vector<vector<vector<double>>> getSegFrame(vector<vector<vector<vector<int>>>>& 
 			{
 				for (int p = 0; p < SEG_NUM; p++)
 				{
-					int start = allState[i][k][j * SEG_NUM + p][0];
-					int end = allState[i][k][j * SEG_NUM + p][1];
+					int start = allState[i][k][j * SEG_NUM + p][0];  //digits[i][j], state[p]
+					int end = allState[i][k][j * SEG_NUM + p][1];  //digits[i][j], state[p]
 					for(int x = start; x <= end; x++)
 					{
 						stateFrame[digits[i][j]][p].push_back(input[i][k][x]);
