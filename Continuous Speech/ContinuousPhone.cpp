@@ -365,10 +365,13 @@ vector<vector<vector<double>>> getSegFrame(vector<vector<vector<vector<int>>>>& 
 				{
 					int start = allState[i][k][j * SEG_NUM + p][0];
 					int end = allState[i][k][j * SEG_NUM + p][1];
+					//[start, end] == [-1, -1] means ignore current state, so this situation should be considerred 
+					if (start == -1)
+						continue;
 					for(int x = start; x <= end; x++)
 					{
 						stateFrame[digits[i][j]][p].push_back(input[i][k][x]);
-					}	
+					}	                                                                                                                                                      
 				}
 			}
 		}
