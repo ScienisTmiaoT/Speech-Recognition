@@ -5,10 +5,10 @@
 #include <stack>
 #include "Trie.h"
 #include "dtw.h"
-#include "featureExtraction.h"
+#include "featureExtractionOld.h"
 #include "seg_K_mean.h"
 
-#define PENALTY  (5)
+#define PENALTY  (10)
 #define TYPE_NUM    (10)
 #define TEM_NUM     (5)
 #define INPUT_NUM   (10)

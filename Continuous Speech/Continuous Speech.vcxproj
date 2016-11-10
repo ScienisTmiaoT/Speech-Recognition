@@ -21,9 +21,11 @@
   <ItemGroup>
     <ClInclude Include="ContinuousPhone.h" />
     <ClInclude Include="dtw.h" />
-    <ClInclude Include="featureExtraction.h" />
+    <ClInclude Include="featureExtractionNew.h" />
+    <ClInclude Include="featureExtractionOld.h" />
     <ClInclude Include="fft.h" />
     <ClInclude Include="framePrune.h" />
+    <ClInclude Include="ReadDir.h" />
     <ClInclude Include="readwave.h" />
     <ClInclude Include="seg_K_mean.h" />
     <ClInclude Include="Trie.h" />
@@ -31,10 +33,12 @@
   <ItemGroup>
     <ClCompile Include="ContinuousPhone.cpp" />
     <ClCompile Include="dtw.cpp" />
-    <ClCompile Include="featureExtraction.cpp" />
+    <ClCompile Include="featureExtractionNew.cpp" />
+    <ClCompile Include="featureExtractionOld.cpp" />
     <ClCompile Include="fft.cpp" />
     <ClCompile Include="framePrune.cpp" />
     <ClCompile Include="main.cpp" />
+    <ClCompile Include="ReadDir.cpp" />
     <ClCompile Include="readwave.cpp" />
     <ClCompile Include="seg_K_mean.cpp" />
     <ClCompile Include="Trie.cpp" />

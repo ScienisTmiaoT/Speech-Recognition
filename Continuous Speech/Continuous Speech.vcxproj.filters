@@ -36,7 +36,13 @@
     <ClInclude Include="ContinuousPhone.h">
       <Filter>头文件</Filter>
     </ClInclude>
-    <ClInclude Include="featureExtraction.h">
+    <ClInclude Include="ReadDir.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="featureExtractionOld.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="featureExtractionNew.h">
       <Filter>头文件</Filter>
     </ClInclude>
   </ItemGroup>
@@ -65,7 +71,13 @@
     <ClCompile Include="ContinuousPhone.cpp">
       <Filter>源文件</Filter>
     </ClCompile>
-    <ClCompile Include="featureExtraction.cpp">
+    <ClCompile Include="ReadDir.cpp">
+      <Filter>源文件</Filter>
+    </ClCompile>
+    <ClCompile Include="featureExtractionOld.cpp">
+      <Filter>源文件</Filter>
+    </ClCompile>
+    <ClCompile Include="featureExtractionNew.cpp">
       <Filter>源文件</Filter>
     </ClCompile>
   </ItemGroup>

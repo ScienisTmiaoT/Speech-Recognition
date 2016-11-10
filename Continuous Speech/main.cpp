@@ -2,6 +2,8 @@
 #include <fstream>
 #include "ContinuousPhone.h"
 #include "readwave.h"
+#include "ReadDir.h"
+#include "featureExtractionNew.h"
 
 using namespace std;
 
@@ -17,11 +19,16 @@ string txtTemPath = "C:\\Users\\Administrator\\Desktop\\Current\\Continuous Spee
 string wavInputPath = "C:\\Users\\Administrator\\Desktop\\Current\\Continuous Speech\\test 4.0\\input";
 string txtInputPath = "C:\\Users\\Administrator\\Desktop\\Current\\Continuous Speech\\test 4.0\\input";
 
-//used to record train data
+//used to record train data project 7.1
 string wavTestPathDigits = "C:\\Users\\Administrator\\Desktop\\Current\\Continuous Speech\\Archive\\requiredTem\\";
 string txtTestPathDigits = "C:\\Users\\Administrator\\Desktop\\Current\\Continuous Speech\\Archive\\requiredTem\\";
 string segTestPathDigits = "C:\\Users\\Administrator\\Desktop\\Current\\Continuous Speech\\Archive\\requiredTem\\segment.txt";
 
+//used to record train data project 7.2
+string trainWavPath = "C:\\Users\\Administrator\\Desktop\\Current\\Continuous Speech\\hwdata\\train\\";
+string trainTestWavPath = "C:\\Users\\Administrator\\Desktop\\Current\\Continuous Speech\\hwdata\\test\\";
+string trainTxtPath = "C:\\Users\\Administrator\\Desktop\\Current\\Continuous Speech\\hwdata\\train_txt\\";
+string trainTestTxtPath = "C:\\Users\\Administrator\\Desktop\\Current\\Continuous Speech\\hwdata\\test_txt\\";
 
 void problem3(vector<vector<vector<double>>> segTemGroup, vector<vector<double>> testInput, vector<vector<vector<double>>> varianceTerm, vector<vector<vector<int>>> countTransfer)
 {
@@ -47,7 +54,7 @@ void writeSeg() {
 			//            capture(wavpath);
 			vector<vector<double>> temFeature;
 			string txtpath = txtTemPath + to_string(i) + "\\" + to_string(j) + "\\";
-			featureExtraction(temFeature, wavpath, txtpath);
+			featureExtractionOld(temFeature, wavpath, txtpath);
 			temGroup.push_back(temFeature);
 		}
 		vector<vector<double>> segTem;
@@ -126,7 +133,7 @@ void trainDigits() {
 	{
 		for(int j = 0; j < TRAIN_NUM; j++)
 		{
-			//string wavTestPath = wavTestPathDigits + dir[i] + "\\" + to_string(j) + "\\record.wav";
+//			string wavTestPath = wavTestPathDigits + dir[i] + "\\" + to_string(j) + "\\record.wav";
 			string txtTestPath = txtTestPathDigits + dir[i] + "\\" + to_string(j) + "\\result.txt";
 			ifstream inTrain(txtTestPath);
 			vector<vector<double>> testInput;
@@ -143,11 +150,11 @@ void trainDigits() {
 				inTrain >> temp;
 				singleInput.push_back(temp);
 			}
-			//featureExtractionTwo(testInput, wavTestPath, txtTestPath);
+//			featureExtractionTwo(testInput, wavTestPath, txtTestPath);
 			input[i][j] = testInput;
 		}
 	}
-	vector<vector<vector<vector<int>>>> allState = getAllStateIndex(DIGIT_NUM7, segTemGroup, input, varianceTerm, countTransfer);
+	vector<vector<vector<vector<int>>>> allState = getAllStateIndex(DIGIT_NUM10, segTemGroup, input, varianceTerm, countTransfer);
 	vector<vector<vector<double>>> variance(TRAIN_TYPE, vector<vector<double>>(DIGIT_NUM * SEG_NUM, vector<double>(DIMENSION)));
 	vector<vector<vector<int>>> transfer(TRAIN_TYPE, vector<vector<int>>(DIGIT_NUM * SEG_NUM + 1, vector<int>(DIGIT_NUM * SEG_NUM)));
 	vector<vector<vector<vector<int>>>> resultState = conDtw2hmm(input, allState, variance, transfer);
@@ -200,7 +207,7 @@ void readSeg() {
 
 	vector<vector<double>> testInput;
 	//    featureExtractionTwo(testInput, wavTestPath, txtTestPath);
-	featureExtractionTwo(testInput, wavTestPath, txtTestPath);
+	featureExtractionTwoOld(testInput, wavTestPath, txtTestPath);
 
 	vector<vector<vector<double>>> varianceTerm;
 	vector<vector<vector<int>>> countTransfer;
@@ -209,8 +216,6 @@ void readSeg() {
 	problem3(segTemGroup, testInput, varianceTerm, countTransfer);
 
 }
-
-
 
 // test segmental k-mean
 void part6() {
@@ -300,8 +305,69 @@ void part6() {
 	*/
 }
 
+// first arg: path
+// second arg: file name vector
+// store in Allfiles.txt
+int testReadDir()
+{
+	vector<string> files;
+	string result = trainTxtPath + "testWavName.txt";
+	const char * distAll = result.c_str();
+
+	//read all file, include child file
+	//GetAllFiles(filePath, files);
+
+	//read all .wav
+	string format = ".wav";
+	GetAllFormatFiles(trainWavPath, files, format);
+
+	
+	int vec_len = files.size();
+	for(int i = 0; i < vec_len; i++)
+	{
+		string wavpath = trainWavPath + files[i];
+		string txtpath = trainTxtPath + to_string(i);
+		vector<vector<double>> testInput;
+		featureExtractionNew(testInput, wavpath, txtpath);
+		cout << "file index : " << i << " file name: " << files[i] << endl;
+	} 
+	
+
+	//string wavpath = trainWavPath + files[50];
+	//string txtpath = trainTxtPath;
+	//vector<vector<double>> testInput;
+	//featureExtractionNew(testInput, wavpath, txtpath);
+	/*
+	//store path + filename
+	ofstream ofn(distAll);
+	int size = files.size();
+	//ofn << size << endl;
+	for (int i = 0;i<size;i++)
+	{
+		ofn << files[i] << endl;
+		//cout << files[i] << endl;
+	}
+	ofn.close();
+	*/
+	return 0;
+}
+
+int testSingleWav(int index)
+{
+	vector<string> files;
+	string result = trainTxtPath + "testWavName.txt";
+	const char * distAll = result.c_str();
+	string format = ".wav";
+	GetAllFormatFiles(trainWavPath, files, format);
+	string wavpath = trainWavPath + files[index];
+	string txtpath = trainTxtPath;
+	vector<vector<double>> testInput;
+	featureExtractionNew(testInput, wavpath, txtpath);
+	return 0;
+}
 int main()
 {
-	trainDigits();
+	testReadDir();
+	//testSingleWav(370);
 	return 0;
 }
