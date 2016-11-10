@@ -365,6 +365,9 @@ vector<vector<vector<double>>> getSegFrame(vector<vector<vector<vector<int>>>>& 
 				{
 					int start = allState[i][k][j * SEG_NUM + p][0];
 					int end = allState[i][k][j * SEG_NUM + p][1];
+					//[start, end] == [-1, -1] means ignore current state, so this situation should be considerred 
+					if (start == -1)
+						continue;
 					for(int x = start; x <= end; x++)
 					{
 						stateFrame[digits[i][j]][p].push_back(input[i][k][x]);
@@ -382,7 +385,7 @@ vector<vector<vector<double>>> getSegFrame(vector<vector<vector<vector<int>>>>& 
 			int len = stateFrame[i][j].size();
 			for(int k = 0; k < DIMENSION; k++)
 			{
-				int sum = 0;
+				double sum = 0;
 				for(int p = 0; p < len; p++)
 				{
 					sum += stateFrame[i][j][p][k];
