@@ -44,7 +44,9 @@ double edgeCost(int nextIndex, vector<int>& countTransfer) {
 
 	int sum = 0;
 
-	for (int i = 0; i < SEG_NUM; i++) {
+	int state_num = (int)countTransfer.size();
+
+	for (int i = 0; i < state_num; i++) {
 		sum += countTransfer[i];
 	}
 
@@ -83,7 +85,7 @@ double edgeCost(int nextIndex, vector<int>& countTransfer) {
 
 
 // compute how to segment one template, return one best way of segment based on the best path and the best value
-vector<vector<int>> getOneSegIndex(vector<vector<double>>& temp1, vector<vector<double>>& segmentTem, vector<vector<double>>& varianceTerm, vector<vector<int>>& countTransfer, vector<vector<int>>& segIndexPrev) {
+vector<vector<int>> getOneSegIndex(vector<vector<double>>& temp1, vector<vector<double>>& segmentTem, vector<vector<double>>& varianceTerm, vector<vector<int>>& countTransfer, vector<vector<int>>& segIndexPrev, int state_num) {
 
 	int frameNum = int(temp1.size());   // the frame number
 	vector<vector<int>> temSegIndex;    // store the segment information
@@ -95,11 +97,11 @@ vector<vector<int>> getOneSegIndex(vector<vector<double>>& temp1, vector<vector<
 										//    }
 
 										// use the method of two column to compute the best cost
-	vector<double> col(SEG_NUM), prevCol(SEG_NUM), colMax(SEG_NUM);
+	vector<double> col(state_num), prevCol(state_num), colMax(state_num);
 	vector<vector<double>> costMap;
 
 	// initialize the colMap vector
-	for (int i = 0; i < SEG_NUM; i++) {
+	for (int i = 0; i < state_num; i++) {
 		colMax[i] = UINT_MAX / 2;
 	}
 
@@ -110,62 +112,62 @@ vector<vector<int>> getOneSegIndex(vector<vector<double>>& temp1, vector<vector<
 
 	prevCol = colMax;
 	prevCol[0] = nodeCost(temp1[0], segmentTem[0], varianceTerm[0]) + edgeCost(0, countTransfer[0]);
-	prevCol[1] = nodeCost(temp1[0], segmentTem[1], varianceTerm[1]) + edgeCost(1, countTransfer[0]);
+	//    prevCol[1] = nodeCost(temp1[0], segmentTem[1], varianceTerm[1]) + edgeCost(1, countTransfer[0]);
 	costMap[0] = prevCol;
 
 
 	// get the best cost and the full map of the cost value
 	for (int i = 1; i < frameNum; i++) {
-		int top = min({ 2 * (i + 1), SEG_NUM });
+		int top = min({ (i + 1), state_num });
 		col = colMax;
 
 		for (int j = 0; j < top; j++) {
 			if (j == 0) {
 				col[j] = prevCol[j] + nodeCost(temp1[i], segmentTem[j], varianceTerm[j]) + edgeCost(j, countTransfer[j + 1]);
 			}
-			else if (j == 1) {
+			else {
 				double cost1 = prevCol[j - 1] + edgeCost(j, countTransfer[j]);
 				double cost2 = prevCol[j] + edgeCost(j, countTransfer[j + 1]);
 				col[j] = min({ cost1, cost2 }) + nodeCost(temp1[i], segmentTem[j], varianceTerm[j]);
 			}
-			else {
-				double cost1 = prevCol[j - 2] + edgeCost(j, countTransfer[j - 1]);
-				double cost2 = prevCol[j - 1] + edgeCost(j, countTransfer[j]);
-				double cost3 = prevCol[j] + edgeCost(j, countTransfer[j + 1]);
-				col[j] = min({ cost1, cost2, cost3 }) + nodeCost(temp1[i], segmentTem[j], varianceTerm[j]);
-			}
+			//            else{
+			//                double cost1 = prevCol[j - 2] + edgeCost(j, countTransfer[j - 1]);
+			//                double cost2 = prevCol[j - 1] + edgeCost(j, countTransfer[j]);
+			//                double cost3 = prevCol[j] + edgeCost(j, countTransfer[j + 1]);
+			//                col[j] = min({cost1, cost2, cost3}) + nodeCost(temp1[i], segmentTem[j], varianceTerm[j]);
+			//            }
 		}
 		costMap[i] = col;
 		col.swap(prevCol);
 	}
 
 
-	int dummy_index = SEG_NUM - 1;
+	int dummy_index = state_num - 1;
 	int dummy_end = frameNum - 1;
 	vector<vector<int>> dummy_segIndex;  // a reverse one
 
 										 // do the backtracing
 	for (int i = frameNum - 2; i >= 0; i--) {
-		double cost1, cost2, cost3;
+		double cost1, cost2;
 		double minCost;
-		if (dummy_index > 1) {
-			cost1 = costMap[i][dummy_index];
-			cost2 = costMap[i][dummy_index - 1];
-			cost3 = costMap[i][dummy_index - 2];
-			minCost = min({ cost1,cost2,cost3 });
-			if (minCost == cost2) {
-				dummy_index -= 1;
-				dummy_segIndex.push_back({ i + 1 , dummy_end });
-				dummy_end = i;
-			}
-			else if (minCost == cost3) {
-				dummy_index -= 2;
-				dummy_segIndex.push_back({ i + 1, dummy_end });
-				dummy_segIndex.push_back({ -1 , -1 });
-				dummy_end = i;
-			}
-		}
-		else if (dummy_index == 1) {
+		//        if (dummy_index > 1) {
+		//            cost1 = costMap[i][dummy_index];
+		//            cost2 = costMap[i][dummy_index - 1];
+		//            cost3 = costMap[i][dummy_index - 2];
+		//            minCost = min({cost1,cost2,cost3});
+		//            if (minCost == cost2) {
+		//                dummy_index -= 1;
+		//                dummy_segIndex.push_back({i + 1 , dummy_end});
+		//                dummy_end = i;
+		//            }
+		//            else if (minCost == cost3){
+		//                dummy_index -= 2;
+		//                dummy_segIndex.push_back({i + 1, dummy_end});
+		//                dummy_segIndex.push_back({-1 , -1});
+		//                dummy_end = i;
+		//            }
+		//        }
+		if (dummy_index >= 1) {
 			cost1 = costMap[i][dummy_index];
 			cost2 = costMap[i][dummy_index - 1];
 			minCost = min({ cost1,cost2 });
@@ -177,17 +179,18 @@ vector<vector<int>> getOneSegIndex(vector<vector<double>>& temp1, vector<vector<
 		}
 	}
 
-	if (dummy_index != 0) {
-		dummy_segIndex.push_back({ 0, dummy_end });
-		dummy_segIndex.push_back({ -1,-1 });
-	}
-	else {
-		dummy_segIndex.push_back({ 0, dummy_end });
-	}
+	//    if (dummy_index != 0) {
+	//        dummy_segIndex.push_back({0, dummy_end});
+	//        dummy_segIndex.push_back({-1,-1});
+	//    }
+	//    else{
+	//        dummy_segIndex.push_back({0, dummy_end});
+	//    }
 
+	dummy_segIndex.push_back({ 0, dummy_end });
 
-	for (int i = 0; i < SEG_NUM; i++) {
-		temSegIndex.push_back(dummy_segIndex[SEG_NUM - 1 - i]);
+	for (int i = 0; i < state_num; i++) {
+		temSegIndex.push_back(dummy_segIndex[state_num - 1 - i]);
 	}
 
 	return temSegIndex;
@@ -198,7 +201,7 @@ vector<vector<int>> getOneSegIndex(vector<vector<double>>& temp1, vector<vector<
 // Here we get the segment template
 vector<vector<double>> getSegTem(vector<vector<vector<int>>>& segIndex, vector<vector<vector<double>>>& temGroup, int state_num) {
 
-	int temNum = int(temGroup.size());
+	int temNum = int(segIndex.size());
 
 	vector<double> oneSeg(DIMENSION);   // each segment
 	vector<vector<double>> segmentTem;  // the whole segment template
@@ -242,7 +245,7 @@ vector<vector<double>> getSegTem(vector<vector<vector<int>>>& segIndex, vector<v
 
 
 // get the segemnt index of each input template. Note that in each segIndex each int is the index of frames meaning the start of one segment. To make it easy, the last one is always the number of frames.
-vector<vector<vector<int>>> getSegIndex(vector<vector<double>>& segmentTem, vector<vector<vector<double>>>& temGroup, vector<vector<vector<int>>>& segIndexPrev, vector<vector<double>>& varianceTerm, vector<vector<int>>& countTransfer) {
+vector<vector<vector<int>>> getSegIndex(vector<vector<double>>& segmentTem, vector<vector<vector<double>>>& temGroup, vector<vector<vector<int>>>& segIndexPrev, vector<vector<double>>& varianceTerm, vector<vector<int>>& countTransfer, int state_num) {
 	int temNum = int(temGroup.size());
 
 	vector<vector<vector<int>>> segIndex;     // store the segment information
@@ -250,21 +253,27 @@ vector<vector<vector<int>>> getSegIndex(vector<vector<double>>& segmentTem, vect
 											  //    vector<vector<double>> varianceTerm;   // store the individual variance terms
 											  //    vector<double> oneSeg(DIMENSION);   // each segment
 
-	vector<int> countVector(SEG_NUM);   // count the number of frames in each segment, in order to divide
-										//    vector<vector<int>> countTransfer;  // first vector is segment part + 1, the second vector is about the number of the next static [(0-1)](index-1 refer to the static).
-										//    vector<int> tempTransfer(SEG_NUM);
+	vector<int> countVector(state_num);   // count the number of frames in each segment, in order to divide
+										  //    vector<vector<int>> countTransfer;  // first vector is segment part + 1, the second vector is about the number of the next static [(0-1)](index-1 refer to the static).
+										  //    vector<int> tempTransfer(SEG_NUM);
 
-										// initialize the variance term vector and the count transfer vector
-										//    for (int i = 0; i < SEG_NUM; i++) {
-										//        varianceTerm.push_back(oneSeg);
-										//        countTransfer.push_back(tempTransfer);
-										//    }
-										//    countTransfer.push_back(tempTransfer);
+										  // initialize the variance term vector and the count transfer vector
+										  //    for (int i = 0; i < SEG_NUM; i++) {
+										  //        varianceTerm.push_back(oneSeg);
+										  //        countTransfer.push_back(tempTransfer);
+										  //    }
+										  //    countTransfer.push_back(tempTransfer);
 
-										// count the number of frames in each segment and count the transfer number.
+	vector<vector<double>> varianceTermEmpty(state_num, vector<double>(DIMENSION));
+	varianceTerm = varianceTermEmpty;
+
+	vector<vector<int>> countTransferEmpty(state_num + 1, vector<int>(state_num));
+	countTransfer = countTransferEmpty;
+
+	// count the number of frames in each segment and count the transfer number.
 	for (int i = 0; i < temNum; i++) {
 		int segGap = 1;
-		for (int j = 0; j < SEG_NUM; j++) {
+		for (int j = 0; j < state_num; j++) {
 			int segStart = segIndexPrev[i][j][0];
 			if (segStart >= 0) {
 				int segEnd = segIndexPrev[i][j][1];
@@ -287,11 +296,11 @@ vector<vector<vector<int>>> getSegIndex(vector<vector<double>>& segmentTem, vect
 
 	// now we compute the sum of individual variance terms
 	for (int k = 0; k < temNum; k++) {
-		for (int j = 0; j < SEG_NUM; j++) {
+		for (int j = 0; j < state_num; j++) {
 			int segStart = segIndexPrev[k][j][0];
 			if (segStart >= 0) {
 				int segEnd = segIndexPrev[k][j][1];
-				for (int i = segStart; i < segEnd; i++) {
+				for (int i = segStart; i <= segEnd; i++) {
 					for (int l = 0; l < DIMENSION; l++) {
 						varianceTerm[j][l] += pow(temGroup[k][i][l] - segmentTem[j][l], 2);
 					}
@@ -301,7 +310,7 @@ vector<vector<vector<int>>> getSegIndex(vector<vector<double>>& segmentTem, vect
 	}
 
 	// divide by the number of frames in this segment, get the real individual varicance terms.
-	for (int j = 0; j < SEG_NUM; j++) {
+	for (int j = 0; j < state_num; j++) {
 		for (int l = 0; l < DIMENSION; l++) {
 			varianceTerm[j][l] /= countVector[j];
 		}
@@ -311,7 +320,7 @@ vector<vector<vector<int>>> getSegIndex(vector<vector<double>>& segmentTem, vect
 	for (int k = 0; k < temNum; k++) {
 		//vector<vector<int>> getOneSegIndex(vector<vector<double>>& temp1, vector<vector<double>>& segmentTem, vector<vector<double>>& varianceTerm, vector<vector<int>>& countTransfer, vector<vector<int>>& segIndexPrev)
 		vector<vector<int>> segIndexOf1;
-		segIndexOf1 = getOneSegIndex(temGroup[k], segmentTem, varianceTerm, countTransfer, segIndexPrev[k]);
+		segIndexOf1 = getOneSegIndex(temGroup[k], segmentTem, varianceTerm, countTransfer, segIndexPrev[k], state_num);
 		segIndex.push_back(segIndexOf1);
 	}
 
@@ -353,12 +362,13 @@ vector<vector<double>> dtw2hmm(vector<vector<vector<double>>>& temGroup, vector<
 
 	// get the first segment template
 	segmentTem = getSegTem(segIndex, temGroup, SEG_NUM);
-	segIndex = getSegIndex(segmentTem, temGroup, segIndexPrev, varianceTerm, countTransfer);
+	//    getSegIndex(segmentTem, temGroup, segIndexPrev, varianceTerm, countTransfer,SEG_NUM);
+	segIndex = getSegIndex(segmentTem, temGroup, segIndexPrev, varianceTerm, countTransfer, SEG_NUM);
 
 	while (segIndex != segIndexPrev) {
 		segIndexPrev = segIndex;
 		segmentTem = getSegTem(segIndex, temGroup, SEG_NUM);
-		segIndex = getSegIndex(segmentTem, temGroup, segIndexPrev, varianceTerm, countTransfer);
+		segIndex = getSegIndex(segmentTem, temGroup, segIndexPrev, varianceTerm, countTransfer, SEG_NUM);
 	}
 
 	return segmentTem;
@@ -386,11 +396,11 @@ double segmentalDtw(vector<vector<double>>& inputAduio, vector<vector<double>>& 
 	prevCol = colMax;
 
 	prevCol[0] = nodeCost(inputAduio[0], temAduio[0], varianceTerm[0]) + edgeCost(0, countTransfer[0]);
-	prevCol[1] = nodeCost(inputAduio[0], temAduio[1], varianceTerm[0]) + edgeCost(1, countTransfer[0]);
+	//    prevCol[1] = nodeCost(inputAduio[0], temAduio[1], varianceTerm[0]) + edgeCost(1, countTransfer[0]);
 
 	for (unsigned int i = 1; i < inputFrameNum; i++) {
 
-		unsigned int temp = min({ 2 * (i + 1), temFrameNum });
+		unsigned int temp = min({ (i + 1), temFrameNum });
 		col = colMax;
 
 		for (unsigned int j = 0; j < temp; j++) {
@@ -399,17 +409,17 @@ double segmentalDtw(vector<vector<double>>& inputAduio, vector<vector<double>>& 
 				col[j] = prevCol[j] + nodeCost(inputAduio[i], temAduio[j], varianceTerm[j]) + edgeCost(j, countTransfer[j + 1]);
 			}
 
-			else if (j == 1) {
+			else {
 				double cost1 = prevCol[j - 1] + edgeCost(j, countTransfer[j]);
 				double cost2 = prevCol[j] + edgeCost(j, countTransfer[j + 1]);
 				col[j] = min({ cost1, cost2 }) + nodeCost(inputAduio[i], temAduio[j], varianceTerm[j]);
 			}
-			else {
-				double cost1 = prevCol[j - 2] + edgeCost(j, countTransfer[j - 1]);
-				double cost2 = prevCol[j - 1] + edgeCost(j, countTransfer[j]);
-				double cost3 = prevCol[j] + edgeCost(j, countTransfer[j + 1]);
-				col[j] = min({ cost1, cost2, cost3 }) + nodeCost(inputAduio[i], temAduio[j], varianceTerm[j]);
-			}
+			//            else{
+			//                double cost1 = prevCol[j - 2] + edgeCost(j, countTransfer[j - 1]);
+			//                double cost2 = prevCol[j - 1] + edgeCost(j, countTransfer[j]);
+			//                double cost3 = prevCol[j] + edgeCost(j, countTransfer[j + 1]);
+			//                col[j] = min({cost1, cost2, cost3}) + nodeCost(inputAduio[i], temAduio[j], varianceTerm[j]);
+			//            }
 		}
 
 		col.swap(prevCol);
@@ -420,9 +430,7 @@ double segmentalDtw(vector<vector<double>>& inputAduio, vector<vector<double>>& 
 
 
 
-vector<vector<vector<vector<int>>>> conDtw2hmm(vector<vector<vector<vector<double>>>> temGroup, 
-	vector<vector<vector<vector<int>>>> initSegIndex, vector<vector<vector<double>>>& varianceTerm,
-		vector<vector<vector<int>>>& countTransfer)
+vector<vector<vector<vector<int>>>> conDtw2hmm(vector<vector<vector<vector<double>>>> temGroup, vector<vector<vector<vector<int>>>> initSegIndex, vector<vector<vector<double>>>& varianceTerm, vector<vector<vector<int>>>& countTransfer)
 {
 	int tem_type = (int)initSegIndex.size();
 
@@ -434,21 +442,23 @@ vector<vector<vector<vector<int>>>> conDtw2hmm(vector<vector<vector<vector<doubl
 
 	for (int i = 0; i < tem_type; i++)
 	{
+		int temp_num = 0;
 		int state_num = (int)initSegIndex[i][0].size();
 		vector<vector<double>> segmentTem;
 		segmentTem = getSegTem(segIndex[i], temGroup[i], state_num);
-		segIndex[i] = getSegIndex(segmentTem, temGroup[i], segIndexPrev[i], varianceTerm[i], countTransfer[i]);
+		//        getSegIndex(segmentTem, temGroup[i], segIndexPrev[i], varianceTerm[i], countTransfer[i], state_num);
+		segIndex[i] = getSegIndex(segmentTem, temGroup[i], segIndexPrev[i], varianceTerm[i], countTransfer[i], state_num);
 		while (segIndex[i] != segIndexPrev[i]) {
 			segIndexPrev[i] = segIndex[i];
 			segmentTem = getSegTem(segIndex[i], temGroup[i], state_num);
-			segIndex[i] = getSegIndex(segmentTem, temGroup[i], segIndexPrev[i], varianceTerm[i], countTransfer[i]);
+			segIndex[i] = getSegIndex(segmentTem, temGroup[i], segIndexPrev[i], varianceTerm[i], countTransfer[i], state_num);
+			temp_num += 1;
 		}
-		segmentFullTems.push_back(segmentTem);
+		//        segmentFullTems.push_back(segmentTem);
 	}
 
 	return segIndex;
 }
-
 
 
 

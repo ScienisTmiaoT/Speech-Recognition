@@ -22,17 +22,17 @@ string wavTestPathDigits = "C:\\Users\\Administrator\\Desktop\\Current\\Continuo
 string txtTestPathDigits = "C:\\Users\\Administrator\\Desktop\\Current\\Continuous Speech\\Archive\\requiredTem\\";
 string segTestPathDigits = "C:\\Users\\Administrator\\Desktop\\Current\\Continuous Speech\\Archive\\requiredTem\\segment.txt";
 
-void writeSeg();
-void trainDigits();
-// test segmental k-mean
-void part6();
 
-
-
-int main()
+void problem3(vector<vector<vector<double>>> segTemGroup, vector<vector<double>> testInput, vector<vector<vector<double>>> varianceTerm, vector<vector<vector<int>>> countTransfer)
 {
-	trainDigits();
-	return 0;
+	Trie trie;
+	TrieNode* root = trie.getRoot();
+	for (int i = 0; i < MAX_BRANCH_NUM - 1; i++)
+	{
+		root->nextBranch[i]->segTemplate = segTemGroup[i];
+	}
+	RestrictPhone(trie, testInput, varianceTerm, countTransfer);
+	cout << endl;
 }
 
 void writeSeg() {
@@ -90,7 +90,6 @@ void writeSeg() {
 	out2.close();
 	out3.close();
 }
-
 
 void trainDigits() {
 	vector<vector<vector<double>>> segTemGroup(TYPE_NUM, vector<vector<double>>(SEG_NUM, vector<double>(DIMENSION)));
@@ -170,6 +169,48 @@ void trainDigits() {
 	out.close();
 	cout << endl;
 }
+
+void readSeg() {
+	vector<vector<vector<double>>> segTemGroup(DIGIT_NUM, vector<vector<double>>(SEG_NUM, vector<double>(DIMENSION)));
+	//    vector<vector<vector<double>>> varianceTerm(TYPE_NUM, vector<vector<double>>(SEG_NUM, vector<double>(DIMENSION)));
+	//    vector<vector<vector<int>>> countTransfer(TYPE_NUM, vector<vector<int>>(SEG_NUM + 1, vector<int>(SEG_NUM)));
+
+	ifstream in(segTestPathDigits);
+	//    ifstream in2(variancePath);
+	//    ifstream in3(transferPath);
+	for (int i = 0; i < TYPE_NUM; i++)
+	{
+		for (int j = 0; j < SEG_NUM; j++)
+		{
+			for (int k = 0; k < DIMENSION; k++)
+			{
+				in >> segTemGroup[i][j][k];
+				//                in2 >> varianceTerm[i][j][k];
+			}
+		}
+		//        for (int j = 0; j < SEG_NUM + 1; j++) {
+		//            for (int k = 0; k < SEG_NUM; k++) {
+		//                in3 >> countTransfer[i][j][k];
+		//            }
+		//        }
+	}
+	in.close();
+	//    in2.close();
+	//    in3.close();
+
+	vector<vector<double>> testInput;
+	//    featureExtractionTwo(testInput, wavTestPath, txtTestPath);
+	featureExtractionTwo(testInput, wavTestPath, txtTestPath);
+
+	vector<vector<vector<double>>> varianceTerm;
+	vector<vector<vector<int>>> countTransfer;
+
+	cout << "problem3 result : ";
+	problem3(segTemGroup, testInput, varianceTerm, countTransfer);
+
+}
+
+
 
 // test segmental k-mean
 void part6() {
@@ -257,4 +298,10 @@ void part6() {
 	RestrictPhone(trie, testInput);
 	cout << endl;
 	*/
+}
+
+int main()
+{
+	trainDigits();
+	return 0;
 }

@@ -1,11 +1,3 @@
-//
-//  seg_K_mean.h
-//  DTW
-//
-//  Created by hty on 01/10/2016.
-//  Copyright © 2016 hty. All rights reserved.
-//
-
 #ifndef seg_K_mean_h
 #define seg_K_mean_h
 
