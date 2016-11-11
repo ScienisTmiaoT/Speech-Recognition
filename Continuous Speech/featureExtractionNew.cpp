@@ -488,7 +488,7 @@ void featureExtractionTwoNew(vector<vector<double>>& normDCT, string& wav, strin
 	// do the preemphasize
 	waveDataAfter = preemphasized_N(dataWave, PREEMPHASIZED_FACTOR_N, numSample);
 	// divide the wave data into frame (Here represent as 2-D)
-	frameData = getFrame_N(waveDataAfter, SAMPLE_PER_FRAME, ACTUAL_SAMPLE_PER_FRAME_N, numSample);
+	frameData = getFrame_N(waveDataAfter, SAMPLE_PER_FRAME_N, ACTUAL_SAMPLE_PER_FRAME_N, numSample);
 	// get the frame number
 	//    frameNum = sizeof(frameData);
 
