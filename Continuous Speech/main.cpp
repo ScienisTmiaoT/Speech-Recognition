@@ -308,25 +308,19 @@ void part6() {
 // first arg: path
 // second arg: file name vector
 // store in Allfiles.txt
-int testReadDir()
+int testReadDir(vector<string>& files, string wavpath, string txtpath)
 {
-	vector<string> files;
-	string result = trainTxtPath + "testWavName.txt";
-	const char * distAll = result.c_str();
+	//string result = trainTxtPath + "testWavName.txt";
+	//const char * distAll = result.c_str();
 
 	//read all file, include child file
 	//GetAllFiles(filePath, files);
 
-	//read all .wav
-	string format = ".wav";
-	GetAllFormatFiles(trainWavPath, files, format);
-
-	
 	int vec_len = files.size();
 	for(int i = 0; i < vec_len; i++)
 	{
-		string wavpath = trainWavPath + files[i];
-		string txtpath = trainTxtPath + to_string(i);
+		wavpath += files[i];
+		txtpath += to_string(i);
 		vector<vector<double>> testInput;
 		featureExtractionNew(testInput, wavpath, txtpath);
 		cout << "file index : " << i << " file name: " << files[i] << endl;
@@ -352,22 +346,69 @@ int testReadDir()
 	return 0;
 }
 
-int testSingleWav(int index)
+int testSingleWav(int index, vector<string>& files)
 {
-	vector<string> files;
-	string result = trainTxtPath + "testWavName.txt";
-	const char * distAll = result.c_str();
-	string format = ".wav";
-	GetAllFormatFiles(trainWavPath, files, format);
+	//string result = trainTxtPath + "testWavName.txt";
+	//const char * distAll = result.c_str();
 	string wavpath = trainWavPath + files[index];
 	string txtpath = trainTxtPath;
 	vector<vector<double>> testInput;
 	featureExtractionNew(testInput, wavpath, txtpath);
 	return 0;
 }
+
+//parse digit from file name
+vector<vector<int>> parseDigit(vector<string>& files)
+{
+	int vec_len = files.size();
+	vector<vector<int>> result(vec_len, vector<int>());
+	for(int i = 0; i < vec_len; i++)
+	{
+		int index = 0;
+		int end = files[i].length() - 5;
+		for(int j = 0; j < end; j++)
+		{
+			if(files[i][j] == '_')
+			{
+				index = j + 1;
+				break;
+			}
+		}
+		for(int j = index; j < end; j++)
+		{
+			int digit = 0;
+			char c = files[i][j];
+			switch(c)
+			{
+				case 'Z':
+				case 'O':
+					digit = 0;
+					break;
+				default:
+					digit = c - '0';
+					break;
+			}
+			result[i].push_back(digit);
+		}
+	}
+	return result;
+}
 int main()
 {
-	testReadDir();
-	//testSingleWav(370);
+	vector<string> files;
+	string format = ".wav";
+	GetAllFormatFiles(trainWavPath, files, format);
+
+	vector<vector<int>> digits;
+	digits = parseDigit(files);
+	cout << digits.size() << endl;
+	for(int i = 0; i < digits.size(); i++)
+	{
+		for (int j = 0; j < digits[i].size(); j++)
+			cout << digits[i][j] << " ";
+		cout << endl;
+	}
+//	testReadDir(files, trainWavPath, trainTxtPath);
+	//testSingleWav(370, files);
 	return 0;
 }

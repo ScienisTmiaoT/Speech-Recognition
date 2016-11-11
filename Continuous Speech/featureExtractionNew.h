@@ -20,7 +20,7 @@ using namespace std;
 
 #define FRAME_INTERVAL_TIME_N    (10)      // set the interval time of each frame to be 10ms, so have 10ms overlapping
 
-#define ACTUAL_SAMPLE_PER_FRAME_N (1024)    // in order to do the fft
+#define ACTUAL_SAMPLE_PER_FRAME_N (256)    // in order to do the fft
 
 #define MEL_POINT_N               (40)
 
@@ -38,11 +38,11 @@ using namespace std;
 typedef short SAMPLE_N;
 #define FORGET_FACTOR_N   (1)
 #define ADJUSTMENT_N      (0.05)
-#define THRESHOLD_F_N           (2)
-#define SPEAKTHRESHOLD_N      (2)
-#define SILENCETHRESHOLD_F_N    (2)
+#define THRESHOLD_F_N           (10)
+#define SPEAKTHRESHOLD_N      (5)
+#define SILENCETHRESHOLD_F_N    (5)
 #define FRAME_IGNORE_N        (0)
-#define FRAME_TO_BACKGROUND_N (3)
+#define FRAME_TO_BACKGROUND_N (4)
 
 
 //prune frame from start and end at different time, then get feature

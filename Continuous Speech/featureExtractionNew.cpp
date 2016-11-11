@@ -6,7 +6,7 @@ double backgroundTotal_N = 0;
 double startLevel_N = 0;
 double endLevel_N = 0;
 
-double EnergyPerSampleInDecibelf_N(SAMPLE *audioframe, long framesToCalc)
+double EnergyPerSampleInDecibelf_N(SAMPLE_N *audioframe, long framesToCalc)
 {
 	double sum = 0;
 	double decibel = 0;
@@ -23,7 +23,7 @@ double EnergyPerSampleInDecibelf_N(SAMPLE *audioframe, long framesToCalc)
 	return decibel;
 }
 
-bool classifyStartFramef_N(SAMPLE *audioframe, long framesToCalc)
+bool classifyStartFramef_N(SAMPLE_N *audioframe, long framesToCalc)
 {
 	bool isSpeech = false;
 	double current = EnergyPerSampleInDecibelf_N(audioframe, framesToCalc);
@@ -58,7 +58,7 @@ bool classifyStartFramef_N(SAMPLE *audioframe, long framesToCalc)
 }
 
 
-bool classifyEndFramef_N(SAMPLE *audioframe, long framesToCalc)
+bool classifyEndFramef_N(SAMPLE_N *audioframe, long framesToCalc)
 {
 	bool isSpeech = false;
 	double current = EnergyPerSampleInDecibelf_N(audioframe, framesToCalc);
@@ -565,7 +565,7 @@ void featureExtractionNew(vector<vector<double>>& normDCT, string& wav, string& 
 	// do the preemphasize
 	waveDataAfter = preemphasized_N(dataWave, PREEMPHASIZED_FACTOR_N, numSample);
 	// divide the wave data into frame (Here represent as 2-D)
-	frameData = getFrame_N(waveDataAfter, SAMPLE_PER_FRAME, ACTUAL_SAMPLE_PER_FRAME_N, numSample);
+	frameData = getFrame_N(waveDataAfter, SAMPLE_PER_FRAME_N, ACTUAL_SAMPLE_PER_FRAME_N, numSample);
 	// get the frame number
 	//    frameNum = sizeof(frameData);
 

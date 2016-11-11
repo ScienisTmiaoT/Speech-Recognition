@@ -394,10 +394,10 @@ vector<vector<vector<double>>> getContinuousSeg(int digit_num, vector<vector<vec
 {
 	stack<int> resultPos;
 	resultPos = DigitRecognition(digit_num, input, segTemGroup, varianceTerm, countTransfer);
-	vector<vector<vector<double>>> inputSeg(DIGIT_NUM, vector<vector<double>>());
+	vector<vector<vector<double>>> inputSeg(digit_num, vector<vector<double>>());
 	int segSize = (int)resultPos.size() + 1;
 	//check the seg size
-	if (segSize != DIGIT_NUM)
+	if (segSize != digit_num)
 	{
 		cout << "seg num is wrong, please check the penalty!" << endl;
 		return inputSeg;
@@ -442,10 +442,10 @@ vector<vector<int>> getStateIndex(int digit_num, vector<vector<vector<double>>>&
 {
 	stack<int> resultPos;
 	resultPos = DigitRecognition(digit_num, input, segTemGroup, varianceTerm, countTransfer);
-	vector<vector<int>> stateIndex(DIGIT_NUM * SEG_NUM, vector<int>(2));
+	vector<vector<int>> stateIndex(digit_num * SEG_NUM, vector<int>(2));
 	int segSize = (int)resultPos.size() + 1;
 	//check the seg size
-	if (segSize != DIGIT_NUM)
+	if (segSize != digit_num)
 	{
 		cout << "seg num is wrong, please check the penalty!" << endl;
 		return stateIndex;
