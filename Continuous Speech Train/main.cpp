@@ -29,6 +29,8 @@ string trainWavPath = "C:\\Users\\Administrator\\Desktop\\Current\\Continuous Sp
 string trainTestWavPath = "C:\\Users\\Administrator\\Desktop\\Current\\Continuous Speech\\hwdata\\test\\";
 string trainTxtPath = "C:\\Users\\Administrator\\Desktop\\Current\\Continuous Speech\\hwdata\\train_txt\\";
 string trainTestTxtPath = "C:\\Users\\Administrator\\Desktop\\Current\\Continuous Speech\\hwdata\\test_txt\\";
+string segmentTrainPath = "C:\\Users\\Administrator\\Desktop\\Current\\Continuous Speech\\hwdata\\model\\segment.txt";
+
 
 void problem3(vector<vector<vector<double>>> segTemGroup, vector<vector<double>> testInput, vector<vector<vector<double>>> varianceTerm, vector<vector<vector<int>>> countTransfer)
 {
@@ -217,94 +219,6 @@ void readSeg() {
 
 }
 
-// test segmental k-mean
-void part6() {
-	vector<vector<vector<double>>> segTemGroup(TYPE_NUM, vector<vector<double>>(SEG_NUM, vector<double>(DIMENSION)));
-	//vector<vector<vector<double>>> segTemGroup;
-
-	/*
-	for (int i = 0; i < TYPE_NUM; i++) {
-	vector<vector<vector<double>>> temGroup;
-	for (int j = 0; j < TEM_NUM; j++) {
-	cout << "-----------------------Template " << i << " Instance " << j << "------------------------" << endl;
-	string wavpath = wavTemPath + to_string(i) + "\\" + to_string(j) + "\\record.wav";
-	//            capture(wavpath);
-	vector<vector<double>> temFeature;
-	string txtpath = txtTemPath + to_string(i) + "\\" + to_string(j) + "\\";
-	featureExtraction(temFeature, wavpath, txtpath);
-	temGroup.push_back(temFeature);
-	}
-	vector<vector<double>> segTem;
-	segTem = dtw2hmm(temGroup);
-	cout << "You have got the segment template!!!!!!!!!!!!!!!!!!!" << endl;
-	segTemGroup.push_back(segTem);
-	}
-
-
-
-
-	ofstream out(segmentPath);
-	for(int i = 0; i < TYPE_NUM; i++)
-	{
-	cout << "template " << i << endl;
-	for(int j = 0; j < SEG_NUM; j++)
-	{
-	cout << "state " << j << endl;
-	for(int k = 0; k < DIMENSION; k++)
-	{
-	out << segTemGroup[i][j][k] << " ";
-	}
-	out << endl;
-	}
-	out << endl;
-	}
-	*/
-
-
-	ifstream in(segmentPath);
-	for (int i = 0; i < TYPE_NUM; i++)
-	{
-		for (int j = 0; j < SEG_NUM; j++)
-		{
-			for (int k = 0; k < DIMENSION; k++)
-			{
-				in >> segTemGroup[i][j][k];
-			}
-		}
-	}
-	in.close();
-
-	/*
-	for (int i = 0; i < TYPE_NUM; i++)
-	{
-	cout << "template " << i << endl;
-	for (int j = 0; j < SEG_NUM; j++)
-	{
-	cout << "state " << j << endl;
-	for (int k = 0; k < DIMENSION; k++)
-	{
-	cout << segTemGroup[i][j][k] << " ";
-	}
-	cout << endl;
-	}
-	cout << endl;
-	}
-	*/
-
-	/*
-	vector<vector<double>> testInput;
-	featureExtractionTwo(testInput, wavTestPath, txtTestPath);
-	Trie trie;
-	TrieNode* root = trie.getRoot();
-	for (int i = 0; i < MAX_BRANCH_NUM - 1; i++)
-	{
-	root->nextBranch[i]->segTemplate = segTemGroup[i];
-	}
-	RestrictPhone(trie, testInput);
-	cout << endl;
-	*/
-}
-
 // first arg: path
 // second arg: file name vector
 // store in Allfiles.txt
@@ -393,21 +307,97 @@ vector<vector<int>> parseDigit(vector<string>& files)
 	}
 	return result;
 }
-int main()
+
+//train all wav data for project7.2
+void trainAll()
 {
+	vector<vector<vector<double>>> segTemGroup(TYPE_NUM, vector<vector<double>>(SEG_NUM, vector<double>(DIMENSION)));
+	vector<vector<vector<double>>> varianceTerm(TYPE_NUM, vector<vector<double>>(SEG_NUM, vector<double>(DIMENSION)));
+	vector<vector<vector<int>>> countTransfer(TYPE_NUM, vector<vector<int>>(SEG_NUM + 1, vector<int>(SEG_NUM)));
+	ifstream in(segmentPath);
+	ifstream in2(variancePath);
+	ifstream in3(transferPath);
+	for (int i = 0; i < TYPE_NUM; i++)
+	{
+		for (int j = 0; j < SEG_NUM; j++)
+		{
+			for (int k = 0; k < DIMENSION; k++)
+			{
+				in >> segTemGroup[i][j][k];
+				in2 >> varianceTerm[i][j][k];
+			}
+		}
+		for (int j = 0; j < SEG_NUM + 1; j++) {
+			for (int k = 0; k < SEG_NUM; k++) {
+				in3 >> countTransfer[i][j][k];
+			}
+		}
+	}
+	in.close();
+	in2.close();
+	in3.close();
+
+	vector<vector<vector<vector<double>>>> input(TRAIN_TYPE, vector<vector<vector<double>>>(TRAIN_NUM, vector<vector<double>>()));
+
+
+	for (int i = 0; i < TRAIN_TYPE; i++)
+	{
+		for (int j = 0; j < TRAIN_NUM; j++)
+		{
+			//			string wavTestPath = wavTestPathDigits + dir[i] + "\\" + to_string(j) + "\\record.wav";
+			string txtTestPath = trainTxtPath + to_string(i) + "result.txt";
+			ifstream inTrain(txtTestPath);
+			vector<vector<double>> testInput;
+			vector<double> singleInput;
+			double temp;
+			for (int k = 0; !inTrain.eof(); k++)
+			{
+				if (k == DIMENSION)
+				{
+					k = 0;
+					testInput.push_back(singleInput);
+					singleInput.clear();
+				}
+				inTrain >> temp;
+				singleInput.push_back(temp);
+			}
+			//			featureExtractionTwo(testInput, wavTestPath, txtTestPath);
+			input[i][j] = testInput;
+		}
+	}
+
 	vector<string> files;
 	string format = ".wav";
 	GetAllFormatFiles(trainWavPath, files, format);
-
 	vector<vector<int>> digits;
 	digits = parseDigit(files);
-	cout << digits.size() << endl;
-	for(int i = 0; i < digits.size(); i++)
+
+	vector<vector<vector<vector<int>>>> allState = getAllStateIndex(DIGIT_NUM10, segTemGroup, input, digits, varianceTerm, countTransfer);
+	vector<vector<vector<double>>> variance(TRAIN_TYPE, vector<vector<double>>(DIGIT_TYPE * SEG_NUM, vector<double>(DIMENSION)));
+	vector<vector<vector<int>>> transfer(TRAIN_TYPE, vector<vector<int>>(DIGIT_TYPE * SEG_NUM + 1, vector<int>(DIGIT_TYPE * SEG_NUM)));
+	vector<vector<vector<vector<int>>>> resultState = conDtw2hmm(input, allState, variance, transfer);
+	vector<vector<vector<double>>>resultSeg = getTrainFrame(resultState, input, digits);
+
+	ofstream out(segmentTrainPath);
+	for (int i = 0; i < DIGIT_NUM; i++)
 	{
-		for (int j = 0; j < digits[i].size(); j++)
-			cout << digits[i][j] << " ";
-		cout << endl;
+		for (int j = 0; j < SEG_NUM; j++)
+		{
+			for (int k = 0; k < DIMENSION; k++)
+			{
+				out << resultSeg[i][j][k] << " ";
+			}
+			out << endl;
+		}
+		out << endl;
 	}
+	out.close();
+	cout << endl;
+}
+
+int main()
+{
+//	trainAll();
 //	testReadDir(files, trainWavPath, trainTxtPath);
 	//testSingleWav(370, files);
 	return 0;

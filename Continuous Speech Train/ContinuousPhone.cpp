@@ -520,14 +520,14 @@ vector<vector<int>> getStateIndex(int digit_num, vector<vector<vector<double>>>&
 /* return: [tem_type][tem_num][digit_type][start_end]
 * input: [tem_type][tem_num][tem_length][dimension]
 */
-vector<vector<vector<vector<int>>>> getAllStateIndex(int digit_num, vector<vector<vector<double>>>& segTemGroup, vector<vector<vector<vector<double>>>>& input, vector<vector<vector<double>>>& varianceTerm, vector<vector<vector<int>>>& countTransfer)
+vector<vector<vector<vector<int>>>> getAllStateIndex(int digit_num, vector<vector<vector<double>>>& segTemGroup, vector<vector<vector<vector<double>>>>& input, vector<vector<int>>& digits, vector<vector<vector<double>>>& varianceTerm, vector<vector<vector<int>>>& countTransfer)
 {
 	vector<vector<vector<vector<int>>>> allStateIndex(TRAIN_TYPE, vector<vector<vector<int>>>(TRAIN_NUM, vector<vector<int>>()));
 	for (int i = 0; i < TRAIN_TYPE; i++)
 	{
 		for (int j = 0; j < TRAIN_NUM; j++)
 		{
-			allStateIndex[i][j] = getStateIndex(digit_num, segTemGroup, input[i][j], varianceTerm, countTransfer);
+			allStateIndex[i][j] = getStateIndex(digits[i].size(), segTemGroup, input[i][j], varianceTerm, countTransfer);
 		}
 	}
 	return allStateIndex;
@@ -582,6 +582,52 @@ vector<vector<vector<double>>> getSegFrame(vector<vector<vector<vector<int>>>>& 
 	return temSeg;
 }
 
+//use the state from k-means to cut the frame from template
+//major used for trainning data
+vector<vector<vector<double>>> getTrainFrame(vector<vector<vector<vector<int>>>>& allState, vector<vector<vector<vector<double>>>>& input, vector<vector<int>> digits)
+{
+	vector<vector<vector<double>>> temSeg(DIGIT_TYPE, vector<vector<double>>(SEG_NUM, vector<double>(DIMENSION)));
+	vector<vector<vector<vector<double>>>> stateFrame(DIGIT_TYPE, vector<vector<vector<double>>>(SEG_NUM, vector<vector<double>>()));
+
+	//extract frame
+	for (int i = 0; i < TRAIN_TYPE; i++)
+	{
+		for (int j = 0; j < digits[i].size(); j++)
+		{
+			for (int k = 0; k < TRAIN_NUM; k++)
+			{
+				for (int p = 0; p < SEG_NUM; p++)
+				{
+					int start = allState[i][k][j * SEG_NUM + p][0];
+					int end = allState[i][k][j * SEG_NUM + p][1];
+					for (int x = start; x <= end; x++)
+					{
+						stateFrame[digits[i][j]][p].push_back(input[i][k][x]);
+					}
+				}
+			}
+		}
+	}
+
+	//average frame
+	for (int i = 0; i < DIGIT_TYPE; i++)
+	{
+		for (int j = 0; j < SEG_NUM; j++)
+		{
+			int len = (int)stateFrame[i][j].size();
+			for (int k = 0; k < DIMENSION; k++)
+			{
+				double sum = 0;
+				for (int p = 0; p < len; p++)
+				{
+					sum += stateFrame[i][j][p][k];
+				}
+				temSeg[i][j][k] = sum / len;
+			}
+		}
+	}
+	return temSeg;
+}
 
 stack<int> DigitRecognition(int digit_num, vector<vector<double>>& input, vector<vector<vector<double>>>& segTemGroup, vector<vector<vector<double>>>& varianceTerm, vector<vector<vector<int>>>& countTransfer)
 {

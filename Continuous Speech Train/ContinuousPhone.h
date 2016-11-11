@@ -9,7 +9,7 @@
 #include "seg_K_mean.h"
 
 #define PENALTY  (10)
-#define TYPE_NUM    (10)
+#define TYPE_NUM    (11)
 #define TEM_NUM     (5)
 #define INPUT_NUM   (10)
 #define DIGIT_NUM10  (10)
@@ -19,9 +19,11 @@
 //one template ten digits
 #define DIGIT_NUM (10)
 //six kinds of train data
-#define TRAIN_TYPE (6)
+#define TRAIN_TYPE (8840)
 //five same train data
-#define TRAIN_NUM (5)
+#define TRAIN_NUM (1)
+//eleven digits in trainning
+#define DIGIT_TYPE (11)
 
 double Dis(vector<double>& matrix1, vector<double>& matrix2);
 double costUtil(vector<double>& vec, double c, int& pos);
@@ -33,9 +35,11 @@ vector<vector<vector<double>>> getContinuousSeg(int digit_num, vector<vector<vec
 
 vector<vector<int>> getStateIndex(int digit_num, vector<vector<vector<double>>>& segTemGroup, vector<vector<double>>& input, vector<vector<vector<double>>>& varianceTerm, vector<vector<vector<int>>>& countTransfer);
 
-vector<vector<vector<vector<int>>>> getAllStateIndex(int digit_num, vector<vector<vector<double>>>& segTemGroup, vector<vector<vector<vector<double>>>>& input, vector<vector<vector<double>>>& varianceTerm, vector<vector<vector<int>>>& countTransfer);
+vector<vector<vector<vector<int>>>> getAllStateIndex(int digit_num, vector<vector<vector<double>>>& segTemGroup, vector<vector<vector<vector<double>>>>& input, vector<vector<int>>& digits, vector<vector<vector<double>>>& varianceTerm, vector<vector<vector<int>>>& countTransfer);
 
 vector<vector<vector<double>>> getSegFrame(vector<vector<vector<vector<int>>>>& allState, vector<vector<vector<vector<double>>>>& input);
+
+vector<vector<vector<double>>> getTrainFrame(vector<vector<vector<vector<int>>>>& allState, vector<vector<vector<vector<double>>>>& input, vector<vector<int>> digits);
 
 stack<int> DigitRecognition(int digit_num, vector<vector<double>>& input, vector<vector<vector<double>>>& segTemGroup, vector<vector<vector<double>>>& varianceTerm, vector<vector<vector<int>>>& countTransfer);
 
