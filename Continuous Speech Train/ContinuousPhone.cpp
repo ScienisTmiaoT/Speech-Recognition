@@ -235,13 +235,13 @@ stack<int> RestrictPhone(Trie& trie, vector<vector<double>>& input, vector<vecto
 	vector<vector<vector<int>>> backTable(SEG_NUM * TYPE_NUM, vector<vector<int>>(input_size, vector<int>(2)));
 
 	//leaf of every template
-	vector<double> last(MAX_BRANCH_NUM - 1, INT_MAX / 2);
+	vector<double> last(MAX_BRANCH_NUM, INT_MAX / 2);
 	//leaf's parent of every template
-	//    vector<double> lastTwo(MAX_BRANCH_NUM - 1, INT_MAX / 2);
+	//    vector<double> lastTwo(MAX_BRANCH_NUM, INT_MAX / 2);
 
 	for (int i = 0; i < input_size; i++)
 	{
-		for (int j = 0; j < MAX_BRANCH_NUM - 1; j++)
+		for (int j = 0; j < MAX_BRANCH_NUM; j++)
 		{
 			vector<double> temp(SEG_NUM, INT_MAX / 2);
 			root->nextBranch[j]->curNodeCost = temp;
@@ -355,7 +355,7 @@ stack<int> backTrace(vector<vector<double>>& input, vector<vector<vector<int>>>&
 	//get the minimal state at last frame
 	double minLast = INT_MAX / 2;
 	int posLast = 0;
-	for (int i = 0; i < MAX_BRANCH_NUM - 1; i++)
+	for (int i = 0; i < MAX_BRANCH_NUM; i++)
 	{
 		if (minLast > last[i])
 		{

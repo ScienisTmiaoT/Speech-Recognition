@@ -144,7 +144,6 @@
   <ItemGroup>
     <ClInclude Include="ContinuousPhone.h" />
     <ClInclude Include="dtw.h" />
-    <ClInclude Include="dtwTest.h" />
     <ClInclude Include="featureExtractionNew.h" />
     <ClInclude Include="featureExtractionOld.h" />
     <ClInclude Include="fft.h" />
@@ -156,8 +155,6 @@
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="ContinuousPhone.cpp" />
-    <ClCompile Include="dtw.cpp" />
-    <ClCompile Include="dtwTest.cpp" />
     <ClCompile Include="featureExtractionNew.cpp" />
     <ClCompile Include="featureExtractionOld.cpp" />
     <ClCompile Include="fft.cpp" />

@@ -21,9 +21,6 @@
     <ClInclude Include="dtw.h">
       <Filter>头文件</Filter>
     </ClInclude>
-    <ClInclude Include="dtwTest.h">
-      <Filter>头文件</Filter>
-    </ClInclude>
     <ClInclude Include="featureExtractionNew.h">
       <Filter>头文件</Filter>
     </ClInclude>
@@ -51,12 +48,6 @@
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="ContinuousPhone.cpp">
-      <Filter>源文件</Filter>
-    </ClCompile>
-    <ClCompile Include="dtw.cpp">
-      <Filter>源文件</Filter>
-    </ClCompile>
-    <ClCompile Include="dtwTest.cpp">
       <Filter>源文件</Filter>
     </ClCompile>
     <ClCompile Include="featureExtractionNew.cpp">

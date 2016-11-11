@@ -10,12 +10,12 @@ using namespace std;
 string wavTestPath = "C:\\Users\\Administrator\\Desktop\\Current\\Continuous Speech\\record.wav";
 string txtTestPath = "C:\\Users\\Administrator\\Desktop\\Current\\Continuous Speech\\";
 //used to save segment result
-string segmentPath = "C:\\Users\\Administrator\\Desktop\\Current\\Continuous Speech\\Archive\\isolateTem\\segment.txt";
-string variancePath = "C:\\Users\\Administrator\\Desktop\\Current\\Continuous Speech\\Archive\\isolateTem\\variance.txt";
-string transferPath = "C:\\Users\\Administrator\\Desktop\\Current\\Continuous Speech\\Archive\\isolateTem\\transfer.txt";
+string segmentPath = "C:\\Users\\Administrator\\Desktop\\Current\\Continuous Speech\\Archive\\isolateTem11\\segment.txt";
+string variancePath = "C:\\Users\\Administrator\\Desktop\\Current\\Continuous Speech\\Archive\\isolateTem11\\variance.txt";
+string transferPath = "C:\\Users\\Administrator\\Desktop\\Current\\Continuous Speech\\Archive\\isolateTem11\\transfer.txt";
 
-string wavTemPath = "C:\\Users\\Administrator\\Desktop\\Current\\Continuous Speech\\Archive\\isolateTem\\";
-string txtTemPath = "C:\\Users\\Administrator\\Desktop\\Current\\Continuous Speech\\Archive\\isolateTem\\";
+string wavTemPath = "C:\\Users\\Administrator\\Desktop\\Current\\Continuous Speech\\Archive\\isolateTem11\\";
+string txtTemPath = "C:\\Users\\Administrator\\Desktop\\Current\\Continuous Speech\\Archive\\isolateTem11\\";
 string wavInputPath = "C:\\Users\\Administrator\\Desktop\\Current\\Continuous Speech\\test 4.0\\input";
 string txtInputPath = "C:\\Users\\Administrator\\Desktop\\Current\\Continuous Speech\\test 4.0\\input";
 
@@ -36,7 +36,7 @@ void problem3(vector<vector<vector<double>>> segTemGroup, vector<vector<double>>
 {
 	Trie trie;
 	TrieNode* root = trie.getRoot();
-	for (int i = 0; i < MAX_BRANCH_NUM - 1; i++)
+	for (int i = 0; i < MAX_BRANCH_NUM; i++)
 	{
 		root->nextBranch[i]->segTemplate = segTemGroup[i];
 	}
@@ -98,85 +98,6 @@ void writeSeg() {
 	out.close();
 	out2.close();
 	out3.close();
-}
-
-void trainDigits() {
-	vector<vector<vector<double>>> segTemGroup(TYPE_NUM, vector<vector<double>>(SEG_NUM, vector<double>(DIMENSION)));
-	vector<vector<vector<double>>> varianceTerm(TYPE_NUM, vector<vector<double>>(SEG_NUM, vector<double>(DIMENSION)));
-	vector<vector<vector<int>>> countTransfer(TYPE_NUM, vector<vector<int>>(SEG_NUM + 1, vector<int>(SEG_NUM)));
-	ifstream in(segmentPath);
-	ifstream in2(variancePath);
-	ifstream in3(transferPath);
-	for (int i = 0; i < TYPE_NUM; i++)
-	{
-		for (int j = 0; j < SEG_NUM; j++)
-		{
-			for (int k = 0; k < DIMENSION; k++)
-			{
-				in >> segTemGroup[i][j][k];
-				in2 >> varianceTerm[i][j][k];
-			}
-		}
-		for (int j = 0; j < SEG_NUM + 1; j++) {
-			for (int k = 0; k < SEG_NUM; k++) {
-				in3 >> countTransfer[i][j][k];
-			}
-		}
-	}
-	in.close();
-	in2.close();
-	in3.close();
-
-	vector<vector<vector<vector<double>>>> input(TRAIN_TYPE, vector<vector<vector<double>>>(TRAIN_NUM, vector<vector<double>>()));
-	
-
-	string dir[] = { "0123456789", "0987654321", "1234567890", "1357902468", "8642097531", "9876543210" };
-	for(int i = 0; i < TRAIN_TYPE; i++)
-	{
-		for(int j = 0; j < TRAIN_NUM; j++)
-		{
-//			string wavTestPath = wavTestPathDigits + dir[i] + "\\" + to_string(j) + "\\record.wav";
-			string txtTestPath = txtTestPathDigits + dir[i] + "\\" + to_string(j) + "\\result.txt";
-			ifstream inTrain(txtTestPath);
-			vector<vector<double>> testInput;
-			vector<double> singleInput;
-			double temp;
-			for(int k = 0; !inTrain.eof(); k++)
-			{
-				if(k == DIMENSION)
-				{
-					k = 0;
-					testInput.push_back(singleInput);
-					singleInput.clear();
-				}
-				inTrain >> temp;
-				singleInput.push_back(temp);
-			}
-//			featureExtractionTwo(testInput, wavTestPath, txtTestPath);
-			input[i][j] = testInput;
-		}
-	}
-	vector<vector<vector<vector<int>>>> allState = getAllStateIndex(DIGIT_NUM10, segTemGroup, input, varianceTerm, countTransfer);
-	vector<vector<vector<double>>> variance(TRAIN_TYPE, vector<vector<double>>(DIGIT_NUM * SEG_NUM, vector<double>(DIMENSION)));
-	vector<vector<vector<int>>> transfer(TRAIN_TYPE, vector<vector<int>>(DIGIT_NUM * SEG_NUM + 1, vector<int>(DIGIT_NUM * SEG_NUM)));
-	vector<vector<vector<vector<int>>>> resultState = conDtw2hmm(input, allState, variance, transfer);
-	vector<vector<vector<double>>>resultSeg = getSegFrame(resultState, input);
-
-	ofstream out(segTestPathDigits);
-	for(int i = 0; i < DIGIT_NUM; i++)
-	{
-		for(int j = 0; j < SEG_NUM; j++)
-		{
-			for (int k = 0; k < DIMENSION; k++)
-			{
-				out << resultSeg[i][j][k] << " ";
-			}
-			out << endl;
-		}
-		out << endl;
-	}
-	out.close();
-	cout << endl;
 }
 
 void readSeg() {
@@ -339,7 +260,6 @@ void trainAll()
 
 	vector<vector<vector<vector<double>>>> input(TRAIN_TYPE, vector<vector<vector<double>>>(TRAIN_NUM, vector<vector<double>>()));
 
-
 	for (int i = 0; i < TRAIN_TYPE; i++)
 	{
 		for (int j = 0; j < TRAIN_NUM; j++)
@@ -363,6 +283,9 @@ void trainAll()
 			}
 			//			featureExtractionTwo(testInput, wavTestPath, txtTestPath);
 			input[i][j] = testInput;
+			inTrain.close();
+			testInput.swap(vector<vector<double>>());
+			singleInput.swap(vector<double>());
 		}
 	}
 
@@ -371,11 +294,12 @@ void trainAll()
 	GetAllFormatFiles(trainWavPath, files, format);
 	vector<vector<int>> digits;
 	digits = parseDigit(files);
-
-	vector<vector<vector<vector<int>>>> allState = getAllStateIndex(DIGIT_NUM10, segTemGroup, input, digits, varianceTerm, countTransfer);
+	vector<vector<vector<vector<int>>>> allState;
+	vector<vector<vector<vector<int>>>> resultState;
+	allState = getAllStateIndex(DIGIT_NUM10, segTemGroup, input, digits, varianceTerm, countTransfer);
 	vector<vector<vector<double>>> variance(TRAIN_TYPE, vector<vector<double>>(DIGIT_TYPE * SEG_NUM, vector<double>(DIMENSION)));
 	vector<vector<vector<int>>> transfer(TRAIN_TYPE, vector<vector<int>>(DIGIT_TYPE * SEG_NUM + 1, vector<int>(DIGIT_TYPE * SEG_NUM)));
-	vector<vector<vector<vector<int>>>> resultState = conDtw2hmm(input, allState, variance, transfer);
+	resultState = conDtw2hmm(input, allState, variance, transfer);
 	vector<vector<vector<double>>>resultSeg = getTrainFrame(resultState, input, digits);
 
 	ofstream out(segmentTrainPath);
@@ -392,13 +316,13 @@ void trainAll()
 		out << endl;
 	}
 	out.close();
-	cout << endl;
 }
 
 int main()
 {
-//	trainAll();
+	trainAll();
 //	testReadDir(files, trainWavPath, trainTxtPath);
 	//testSingleWav(370, files);
+//	writeSeg();
 	return 0;
 }
