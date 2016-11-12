@@ -12,6 +12,7 @@ using namespace std;
 #define SEG_NUM     (5)
 #define DIMENSION   (39)
 #define PI          (3.1416)
+#define MIN_VARIANCE (0.001)
 
 
 double nodeCost(vector<double>& frame, vector<double>& segTem, vector<double>& varianceTerm);

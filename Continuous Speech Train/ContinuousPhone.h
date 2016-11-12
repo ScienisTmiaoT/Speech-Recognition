@@ -19,7 +19,7 @@
 //one template ten digits
 #define DIGIT_NUM (10)
 //six kinds of train data
-#define TRAIN_TYPE (8840)
+#define TRAIN_TYPE (200)
 //five same train data
 #define TRAIN_NUM (1)
 //eleven digits in trainning
@@ -39,7 +39,7 @@ vector<vector<vector<vector<int>>>> getAllStateIndex(int digit_num, vector<vecto
 
 vector<vector<vector<double>>> getSegFrame(vector<vector<vector<vector<int>>>>& allState, vector<vector<vector<vector<double>>>>& input);
 
-vector<vector<vector<double>>> getTrainFrame(vector<vector<vector<vector<int>>>>& allState, vector<vector<vector<vector<double>>>>& input, vector<vector<int>> digits);
+vector<vector<vector<double>>> getTrainFrame(vector<vector<vector<vector<int>>>>& allState, vector<vector<vector<vector<double>>>>& input, vector<vector<int>> digits, vector<vector<vector<double>>>& varianceSeg, vector<vector<vector<int>>>& transferSeg);
 
 stack<int> DigitRecognition(int digit_num, vector<vector<double>>& input, vector<vector<vector<double>>>& segTemGroup, vector<vector<vector<double>>>& varianceTerm, vector<vector<vector<int>>>& countTransfer);
 

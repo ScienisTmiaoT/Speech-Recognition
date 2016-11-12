@@ -584,7 +584,7 @@ vector<vector<vector<double>>> getSegFrame(vector<vector<vector<vector<int>>>>& 
 
 //use the state from k-means to cut the frame from template
 //major used for trainning data
-vector<vector<vector<double>>> getTrainFrame(vector<vector<vector<vector<int>>>>& allState, vector<vector<vector<vector<double>>>>& input, vector<vector<int>> digits)
+vector<vector<vector<double>>> getTrainFrame(vector<vector<vector<vector<int>>>>& allState, vector<vector<vector<vector<double>>>>& input, vector<vector<int>> digits, vector<vector<vector<double>>>& varianceSeg, vector<vector<vector<int>>>& transferSeg)
 {
 	vector<vector<vector<double>>> temSeg(DIGIT_TYPE, vector<vector<double>>(SEG_NUM, vector<double>(DIMENSION)));
 	vector<vector<vector<vector<double>>>> stateFrame(DIGIT_TYPE, vector<vector<vector<double>>>(SEG_NUM, vector<vector<double>>()));
@@ -603,7 +603,12 @@ vector<vector<vector<double>>> getTrainFrame(vector<vector<vector<vector<int>>>>
 					for (int x = start; x <= end; x++)
 					{
 						stateFrame[digits[i][j]][p].push_back(input[i][k][x]);
+						if(x != end)
+						{
+							transferSeg[j][p + 1][p] += 1;
+						}
 					}
+					transferSeg[j][p][p] += 1;
 				}
 			}
 		}
@@ -623,6 +628,24 @@ vector<vector<vector<double>>> getTrainFrame(vector<vector<vector<vector<int>>>>
 					sum += stateFrame[i][j][p][k];
 				}
 				temSeg[i][j][k] = sum / len;
+			}
+		}
+	}
+
+	for (int i = 0; i < DIGIT_TYPE; i++)
+	{
+		for (int j = 0; j < SEG_NUM; j++)
+		{
+			int len = (int)stateFrame[i][j].size();
+			for (int k = 0; k < DIMENSION; k++)
+			{
+				double sum = 0;
+				for (int p = 0; p < len; p++)
+				{
+					varianceSeg[i][j][k] += pow((stateFrame[i][j][p][k] - temSeg[i][j][k]), 2);
+					sum += 1;
+				}
+				varianceSeg[i][j][k] /= sum;
 			}
 		}
 	}

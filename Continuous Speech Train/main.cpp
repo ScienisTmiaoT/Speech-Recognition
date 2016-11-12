@@ -30,7 +30,8 @@ string trainTestWavPath = "C:\\Users\\Administrator\\Desktop\\Current\\Continuou
 string trainTxtPath = "C:\\Users\\Administrator\\Desktop\\Current\\Continuous Speech\\hwdata\\train_txt\\";
 string trainTestTxtPath = "C:\\Users\\Administrator\\Desktop\\Current\\Continuous Speech\\hwdata\\test_txt\\";
 string segmentTrainPath = "C:\\Users\\Administrator\\Desktop\\Current\\Continuous Speech\\hwdata\\model\\segment.txt";
-
+string varianceTrainPath = "C:\\Users\\Administrator\\Desktop\\Current\\Continuous Speech\\hwdata\\model\\variance.txt";
+string transferTrainPath = "C:\\Users\\Administrator\\Desktop\\Current\\Continuous Speech\\hwdata\\model\\transfer.txt";
 
 void problem3(vector<vector<vector<double>>> segTemGroup, vector<vector<double>> testInput, vector<vector<vector<double>>> varianceTerm, vector<vector<vector<int>>> countTransfer)
 {
@@ -216,8 +217,11 @@ vector<vector<int>> parseDigit(vector<string>& files)
 			switch(c)
 			{
 				case 'Z':
-				case 'O':
 					digit = 0;
+					break;
+				//use digit 10 to represent O
+				case 'O':
+					digit = 10;
 					break;
 				default:
 					digit = c - '0';
@@ -289,6 +293,8 @@ void trainAll()
 		}
 	}
 
+	cout << "load single segment" << endl;
+
 	vector<string> files;
 	string format = ".wav";
 	GetAllFormatFiles(trainWavPath, files, format);
@@ -296,26 +302,53 @@ void trainAll()
 	digits = parseDigit(files);
 	vector<vector<vector<vector<int>>>> allState;
 	vector<vector<vector<vector<int>>>> resultState;
-	allState = getAllStateIndex(DIGIT_NUM10, segTemGroup, input, digits, varianceTerm, countTransfer);
+	allState = getAllStateIndex(DIGIT_TYPE, segTemGroup, input, digits, varianceTerm, countTransfer);
+	cout << "get all state" << endl;
 	vector<vector<vector<double>>> variance(TRAIN_TYPE, vector<vector<double>>(DIGIT_TYPE * SEG_NUM, vector<double>(DIMENSION)));
 	vector<vector<vector<int>>> transfer(TRAIN_TYPE, vector<vector<int>>(DIGIT_TYPE * SEG_NUM + 1, vector<int>(DIGIT_TYPE * SEG_NUM)));
 	resultState = conDtw2hmm(input, allState, variance, transfer);
-	vector<vector<vector<double>>>resultSeg = getTrainFrame(resultState, input, digits);
+
+	cout << "get result state" << endl;
+
+	vector<vector<vector<double>>> varianceSeg(DIGIT_TYPE, vector<vector<double>>(SEG_NUM, vector<double>(DIMENSION)));
+	vector<vector<vector<int>>> transferSeg(DIGIT_TYPE, vector<vector<int>>(SEG_NUM + 1, vector<int>(SEG_NUM)));
+	vector<vector<vector<double>>>resultSeg = getTrainFrame(resultState, input, digits, varianceSeg, transferSeg);
+
+	cout << "get result seg" << endl;
 
 	ofstream out(segmentTrainPath);
-	for (int i = 0; i < DIGIT_NUM; i++)
+	ofstream out1(varianceTrainPath);
+	ofstream out2(transferTrainPath);
+	for (int i = 0; i < DIGIT_TYPE; i++)
 	{
 		for (int j = 0; j < SEG_NUM; j++)
 		{
 			for (int k = 0; k < DIMENSION; k++)
 			{
 				out << resultSeg[i][j][k] << " ";
+				out1 << varianceSeg[i][j][k] << " ";
 			}
 			out << endl;
+			out1 << endl;
 		}
+
+		for (int j = 0; j < SEG_NUM + 1; j++)
+		{
+			for (int k = 0; k < SEG_NUM; k++)
+			{
+				out2 << transferSeg[i][j][k] << " ";
+			}
+			out2 << endl;
+		}
+
 		out << endl;
+		out1 << endl;
+		out2 << endl;
 	}
 	out.close();
+	out1.close();
+	out2.close();
+	cout << "store seg" << endl;
 }
 
 int main()

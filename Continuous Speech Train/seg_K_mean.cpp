@@ -26,11 +26,14 @@ double nodeCost(vector<double>& frame, vector<double>& segTem, vector<double>& v
 	double nodeCost = 0;
 
 	for (int i = 0; i < DIMENSION; i++) {
-		//        double x = log(2 * PI * varianceTerm[i]);
-		//        double variance = varianceTerm[i];
-		//        double distance = pow((frame[i] - segTem[i]), 2);
-		//        double gauLog = log(2 * PI * varianceTerm[i]);
-		nodeCost += log(2 * PI * varianceTerm[i]) + pow((frame[i] - segTem[i]), 2) / varianceTerm[i];
+		if (varianceTerm[i] != 0)
+		{
+			nodeCost += log(2 * PI * varianceTerm[i]) + pow((frame[i] - segTem[i]), 2) / varianceTerm[i];
+		}
+		else
+		{
+			nodeCost += log(2 * PI * varianceTerm[i]) + pow((frame[i] - segTem[i]), 2) / MIN_VARIANCE;
+		}
 	}
 
 	nodeCost *= 0.5;
@@ -454,6 +457,7 @@ vector<vector<vector<vector<int>>>> conDtw2hmm(vector<vector<vector<vector<doubl
 			segIndex[i] = getSegIndex(segmentTem, temGroup[i], segIndexPrev[i], varianceTerm[i], countTransfer[i], state_num);
 			temp_num += 1;
 		}
+		cout << "k-means for type " << i << " finished" << endl;
 		//        segmentFullTems.push_back(segmentTem);
 	}
 
