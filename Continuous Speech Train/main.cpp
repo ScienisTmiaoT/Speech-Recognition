@@ -300,6 +300,8 @@ void trainAll()
 	GetAllFormatFiles(trainWavPath, files, format);
 	vector<vector<int>> digits;
 	digits = parseDigit(files);
+	//cout << files[135] << " " << files[136] << endl;
+	//return;
 	vector<vector<vector<vector<int>>>> allState;
 	vector<vector<vector<vector<int>>>> resultState;
 	allState = getAllStateIndex(DIGIT_TYPE, segTemGroup, input, digits, varianceTerm, countTransfer);

@@ -454,7 +454,9 @@ vector<vector<vector<vector<int>>>> conDtw2hmm(vector<vector<vector<vector<doubl
 		while (segIndex[i] != segIndexPrev[i]) {
 			segIndexPrev[i] = segIndex[i];
 			segmentTem = getSegTem(segIndex[i], temGroup[i], state_num);
+			cout << "get seg tem" << endl;
 			segIndex[i] = getSegIndex(segmentTem, temGroup[i], segIndexPrev[i], varianceTerm[i], countTransfer[i], state_num);
+			cout << "get seg index" << endl;
 			temp_num += 1;
 		}
 		cout << "k-means for type " << i << " finished" << endl;
