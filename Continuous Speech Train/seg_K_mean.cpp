@@ -32,7 +32,7 @@ double nodeCost(vector<double>& frame, vector<double>& segTem, vector<double>& v
 		}
 		else
 		{
-			nodeCost += log(2 * PI * varianceTerm[i]) + pow((frame[i] - segTem[i]), 2) / MIN_VARIANCE;
+			nodeCost += log(2 * PI * MIN_VARIANCE) + pow((frame[i] - segTem[i]), 2) / MIN_VARIANCE;
 		}
 	}
 
