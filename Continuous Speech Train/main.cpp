@@ -25,13 +25,17 @@ string txtTestPathDigits = "C:\\Users\\Administrator\\Desktop\\Current\\Continuo
 string segTestPathDigits = "C:\\Users\\Administrator\\Desktop\\Current\\Continuous Speech\\Archive\\requiredTem\\segment.txt";
 
 //used to record train data project 7.2
-string trainWavPath = "C:\\Users\\Administrator\\Desktop\\Current\\Continuous Speech\\hwdata\\train\\";
+//string trainWavPath = "C:\\Users\\Administrator\\Desktop\\Current\\Continuous Speech\\hwdata\\train\\";
 string trainTestWavPath = "C:\\Users\\Administrator\\Desktop\\Current\\Continuous Speech\\hwdata\\test\\";
-string trainTxtPath = "C:\\Users\\Administrator\\Desktop\\Current\\Continuous Speech\\hwdata\\train_txt\\";
+//string trainTxtPath = "C:\\Users\\Administrator\\Desktop\\Current\\Continuous Speech\\hwdata\\train_txt\\";
 string trainTestTxtPath = "C:\\Users\\Administrator\\Desktop\\Current\\Continuous Speech\\hwdata\\test_txt\\";
 string segmentTrainPath = "C:\\Users\\Administrator\\Desktop\\Current\\Continuous Speech\\hwdata\\model\\segment.txt";
 string varianceTrainPath = "C:\\Users\\Administrator\\Desktop\\Current\\Continuous Speech\\hwdata\\model\\variance.txt";
 string transferTrainPath = "C:\\Users\\Administrator\\Desktop\\Current\\Continuous Speech\\hwdata\\model\\transfer.txt";
+
+//test single wav file for project7.2
+string trainWavPath = "C:\\Users\\Administrator\\Desktop\\Current\\Continuous Speech\\hwdata\\useless\\train_for_test_single\\";
+string trainTxtPath = "C:\\Users\\Administrator\\Desktop\\Current\\Continuous Speech\\hwdata\\useless\\train_txt_for_test_single\\";
 
 void problem3(vector<vector<vector<double>>> segTemGroup, vector<vector<double>> testInput, vector<vector<vector<double>>> varianceTerm, vector<vector<vector<int>>> countTransfer)
 {
@@ -300,7 +304,7 @@ void trainAll()
 	GetAllFormatFiles(trainWavPath, files, format);
 	vector<vector<int>> digits;
 	digits = parseDigit(files);
-	//cout << files[135] << " " << files[136] << endl;
+	//cout << files[3182] << endl;
 	//return;
 	vector<vector<vector<vector<int>>>> allState;
 	vector<vector<vector<vector<int>>>> resultState;
@@ -308,7 +312,7 @@ void trainAll()
 	cout << "get all state" << endl;
 	vector<vector<vector<double>>> variance(TRAIN_TYPE, vector<vector<double>>(DIGIT_TYPE * SEG_NUM, vector<double>(DIMENSION)));
 	vector<vector<vector<int>>> transfer(TRAIN_TYPE, vector<vector<int>>(DIGIT_TYPE * SEG_NUM + 1, vector<int>(DIGIT_TYPE * SEG_NUM)));
-	resultState = conDtw2hmm(input, allState, variance, transfer);
+	resultState = conDtw2hmm(input, allState, variance, transfer, files);
 
 	cout << "get result state" << endl;
 
