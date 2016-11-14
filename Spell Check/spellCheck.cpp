@@ -488,7 +488,6 @@ void spellCheck() {
 	return;
 }
 
-
 // do levenshtein distance for multiple words at the same time
 // bool -> if true then do beam search, else do edit dis
 void multiLevenshtein(string& input, vector<string>& tem, map<string, int>& resultMap, bool disType) {

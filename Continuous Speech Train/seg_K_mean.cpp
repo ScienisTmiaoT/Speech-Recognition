@@ -433,7 +433,7 @@ double segmentalDtw(vector<vector<double>>& inputAduio, vector<vector<double>>& 
 
 
 
-vector<vector<vector<vector<int>>>> conDtw2hmm(vector<vector<vector<vector<double>>>> temGroup, vector<vector<vector<vector<int>>>> initSegIndex, vector<vector<vector<double>>>& varianceTerm, vector<vector<vector<int>>>& countTransfer, vector<string>& files)
+vector<vector<vector<vector<int>>>> conDtw2hmm(vector<vector<vector<vector<double>>>> temGroup, vector<vector<vector<vector<int>>>> initSegIndex, vector<vector<vector<double>>>& varianceTerm, vector<vector<vector<int>>>& countTransfer)
 {
 	int tem_type = (int)initSegIndex.size();
 
@@ -451,7 +451,6 @@ vector<vector<vector<vector<int>>>> conDtw2hmm(vector<vector<vector<vector<doubl
 		segmentTem = getSegTem(segIndex[i], temGroup[i], state_num);
 		//        getSegIndex(segmentTem, temGroup[i], segIndexPrev[i], varianceTerm[i], countTransfer[i], state_num);
 		segIndex[i] = getSegIndex(segmentTem, temGroup[i], segIndexPrev[i], varianceTerm[i], countTransfer[i], state_num);
-		cout << "now process " << files[i] << endl;
 		while (segIndex[i] != segIndexPrev[i]) {
 			segIndexPrev[i] = segIndex[i];
 			segmentTem = getSegTem(segIndex[i], temGroup[i], state_num);

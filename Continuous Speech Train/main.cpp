@@ -312,7 +312,7 @@ void trainAll()
 	cout << "get all state" << endl;
 	vector<vector<vector<double>>> variance(TRAIN_TYPE, vector<vector<double>>(DIGIT_TYPE * SEG_NUM, vector<double>(DIMENSION)));
 	vector<vector<vector<int>>> transfer(TRAIN_TYPE, vector<vector<int>>(DIGIT_TYPE * SEG_NUM + 1, vector<int>(DIGIT_TYPE * SEG_NUM)));
-	resultState = conDtw2hmm(input, allState, variance, transfer, files);
+	resultState = conDtw2hmm(input, allState, variance, transfer);
 
 	cout << "get result state" << endl;
 
@@ -357,9 +357,147 @@ void trainAll()
 	cout << "store seg" << endl;
 }
 
+//run test data in project7.2 and caculate accuracy
+void testTrain()
+{
+	vector<vector<vector<double>>> segTemGroup(TYPE_NUM, vector<vector<double>>(SEG_NUM, vector<double>(DIMENSION)));
+	vector<vector<vector<double>>> varianceTerm(TYPE_NUM, vector<vector<double>>(SEG_NUM, vector<double>(DIMENSION)));
+	vector<vector<vector<int>>> countTransfer(TYPE_NUM, vector<vector<int>>(SEG_NUM + 1, vector<int>(SEG_NUM)));
+	ifstream in(segmentTrainPath);
+	ifstream in2(varianceTrainPath);
+	ifstream in3(transferTrainPath);
+	for (int i = 0; i < TYPE_NUM; i++)
+	{
+		for (int j = 0; j < SEG_NUM; j++)
+		{
+			for (int k = 0; k < DIMENSION; k++)
+			{
+				in >> segTemGroup[i][j][k];
+				in2 >> varianceTerm[i][j][k];
+			}
+		}
+		for (int j = 0; j < SEG_NUM + 1; j++) {
+			for (int k = 0; k < SEG_NUM; k++) {
+				in3 >> countTransfer[i][j][k];
+			}
+		}
+	}
+	in.close();
+	in2.close();
+	in3.close();
+
+	Trie trie;
+	TrieNode* root = trie.getRoot();
+	for (int i = 0; i < MAX_BRANCH_NUM; i++)
+	{
+		root->nextBranch[i]->segTemplate = segTemGroup[i];
+	}
+
+	vector<vector<vector<vector<double>>>> input(TEST_TYPE, vector<vector<vector<double>>>(TRAIN_NUM, vector<vector<double>>()));
+
+	for (int i = 0; i < TEST_TYPE; i++)
+	{
+		for (int j = 0; j < TRAIN_NUM; j++)
+		{
+			string txtTestPath = trainTestTxtPath + to_string(i) + "result.txt";
+			ifstream inTrain(txtTestPath);
+			vector<vector<double>> testInput;
+			vector<double> singleInput;
+			double temp;
+			for (int k = 0; !inTrain.eof(); k++)
+			{
+				if (k == DIMENSION)
+				{
+					k = 0;
+					testInput.push_back(singleInput);
+					singleInput.clear();
+				}
+				inTrain >> temp;
+				singleInput.push_back(temp);
+			}
+			input[i][j] = testInput;
+			inTrain.close();
+			testInput.swap(vector<vector<double>>());
+			singleInput.swap(vector<double>());
+		}
+	}
+
+	cout << "load single segment" << endl;
+
+	vector<string> files;
+	string format = ".wav";
+	GetAllFormatFiles(trainTestWavPath, files, format);
+	vector<vector<int>> digits;
+	digits = parseDigit(files);
+
+	long correctWordByState = 0;
+	long correctWordRandom = 0;
+	long correctSen = 0;
+	long wholeWord = 0;
+	for (int i = 0; i < TEST_TYPE; i++)
+	{
+		for (int j = 0; j < TRAIN_NUM; j++)
+		{
+			stack<int> resultDigitByState;
+			resultDigitByState = getDigit(digits[i].size(), input[i][j], segTemGroup, varianceTerm, countTransfer);
+
+			stack<int> resultDigitRandom;
+			resultDigitRandom = getRandomDigit(trie, input[i][j], varianceTerm, countTransfer);
+
+			//int count = 0;
+			//bool senFlag = true;
+			vector<int> resultByState;
+			vector<int> resultRandom;
+
+			while (!resultDigitByState.empty())
+			{
+				resultByState.push_back(resultDigitByState.top());
+				resultDigitByState.pop();
+			}
+
+			while (!resultDigitRandom.empty())
+			{
+				resultRandom.push_back(resultDigitRandom.top());
+				resultDigitRandom.pop();
+			}
+			unsigned int errorByState = beamLevenshteinDistance(resultByState, digits[i]);
+			unsigned int errorRandom = beamLevenshteinDistance(resultRandom, digits[i]);
+			wholeWord += digits[i].size();
+			correctWordByState += (digits[i].size() - errorByState);
+			correctWordRandom += (digits[i].size() - errorRandom);
+			/*
+			while(!resultDigit.empty())
+			{
+				int di = resultDigit.top();
+				if(di == digits[i][count])
+				{
+					correctWord++;
+				}
+				if(di != digits[i][count])
+				{
+					senFlag = false;
+				}
+				count++;
+				resultDigit.pop();
+			}
+			wholeWord += count;
+			if(senFlag)
+			{
+				correctSen++;
+			}
+			*/
+		}
+	}
+	cout << "word accuracy by state machine: " << (double)correctWordByState / wholeWord << endl;
+	cout << "word accuracy by random: " << (double)correctWordRandom / wholeWord << endl;
+	//cout << "sentence accuracy: " << (double)correctSen / TEST_TYPE << endl;
+	return;
+}
+
 int main()
 {
-	trainAll();
+//	trainAll();
+	testTrain();
 //	testReadDir(files, trainWavPath, trainTxtPath);
 	//testSingleWav(370, files);
 //	writeSeg();

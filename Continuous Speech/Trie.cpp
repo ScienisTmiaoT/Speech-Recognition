@@ -135,14 +135,7 @@ void Trie::Init()
 	for(int i = 0; i < MAX_BRANCH_NUM; i++)
 	{
 		pRoot->nextBranch[i] = new TrieNode();
-		if(i == MAX_BRANCH_NUM - 1)
-		{
-			pRoot->nextBranch[i]->setNodeLetter('*');   //non emitting state
-		}
-		else
-		{
-			pRoot->nextBranch[i]->setNodeLetter(i + 48);   //template 0-9     
-		}
+		pRoot->nextBranch[i]->setNodeLetter(i + 48);   //template 0-9     
 		pRoot->nextBranch[i]->parentBranch = pRoot;
 	}
 }

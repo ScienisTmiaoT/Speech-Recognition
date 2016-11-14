@@ -8,7 +8,7 @@
 #include "featureExtractionOld.h"
 #include "seg_K_mean.h"
 
-#define PENALTY  (10)
+#define PENALTY  (6)
 #define TYPE_NUM    (11)
 #define TEM_NUM     (5)
 #define INPUT_NUM   (10)
@@ -24,6 +24,10 @@
 #define TRAIN_NUM (1)
 //eleven digits in trainning
 #define DIGIT_TYPE (11)
+//test data number
+#define TEST_TYPE (1000)
+//used to caculate accuracy
+#define ABSOLUTE_BEAM (3)
 
 double Dis(vector<double>& matrix1, vector<double>& matrix2);
 double costUtil(vector<double>& vec, double c, int& pos);
@@ -42,6 +46,14 @@ vector<vector<vector<double>>> getSegFrame(vector<vector<vector<vector<int>>>>& 
 vector<vector<vector<double>>> getTrainFrame(vector<vector<vector<vector<int>>>>& allState, vector<vector<vector<vector<double>>>>& input, vector<vector<int>> digits, vector<vector<vector<double>>>& varianceSeg, vector<vector<vector<int>>>& transferSeg);
 
 stack<int> DigitRecognition(int digit_num, vector<vector<double>>& input, vector<vector<vector<double>>>& segTemGroup, vector<vector<vector<double>>>& varianceTerm, vector<vector<vector<int>>>& countTransfer);
+
+stack<int> getDigit(int digit_num, vector<vector<double>>& input, vector<vector<vector<double>>>& segTemGroup, vector<vector<vector<double>>>& varianceTerm, vector<vector<vector<int>>>& countTransfer);
+
+stack<int> getRandomDigit(Trie& trie, vector<vector<double>>& input, vector<vector<vector<double>>>& varianceTerm, vector<vector<vector<int>>>& countTransfer);
+
+stack<int> backTraceRandom(vector<vector<double>>& input, vector<vector<vector<int>>>& backTable, vector<double>& last);
+
+unsigned int beamLevenshteinDistance(const vector<int>& s1, const vector<int>& s2);
 
 #endif
 
