@@ -1204,8 +1204,74 @@ stack<int> backTraceRandom(vector<vector<double>>& input, vector<vector<vector<i
 	return resultPhone;
 }
 
-//levenshtein distance with beam
-unsigned int beamLevenshteinDistance(const vector<int>& s1, const vector<int>& s2) {
+// use levenshtein distance to compare word, use beam search here
+unsigned int beamLevenshteinDistance(const vector<int>& input, const vector<int>& tem) {
+	const size_t len_input = input.size(), len_tem = tem.size();
+	vector<unsigned int > col(len_tem + 1), prevCol(len_tem + 1), colMax(len_tem + 1);
+
+	unsigned int temp_up = len_tem - 1;
+
+	int bestCost;
+
+	// initialize the max column
+	for (unsigned int i = 0; i < len_tem + 1; i++) {
+		colMax[i] = UINT_MAX / 2;
+	}
+
+	prevCol = colMax;    // initialize the first column
+
+						 // re-initialize the first column
+	for (unsigned int i = 0; i < len_tem + 1; i++)
+	{
+		if (i > BEAM) {
+			temp_up = i;
+			break;
+		}
+		prevCol[i] = i;
+	}
+
+	for (unsigned int i = 0; i < len_input; i++) {
+		col = colMax;
+
+		col[0] = prevCol[0] + 1;
+		bestCost = col[0];
+		for (unsigned int j = 0; j < len_tem; j++) {
+			if (j < temp_up + 1) {
+				col[j + 1] = min({ prevCol[1 + j] + 1, col[j] + 1, prevCol[j] + (input[i] == tem[j] ? 0 : 1) });
+			}
+			else {
+				col[j + 1] = col[j] + 1;
+			}
+			if (col[j + 1] < bestCost) {
+				bestCost = col[j + 1];
+			}
+			else if (col[j + 1] - bestCost > BEAM) {
+				temp_up = j + 1;
+				break;
+			}
+		}
+		col.swap(prevCol);
+	}
+	return prevCol[len_tem];
+}
+
+unsigned int pureLevenshteinDistance(const vector<int>& s1, const vector<int>& s2) {
+	const std::size_t len1 = s1.size(), len2 = s2.size();
+	std::vector<unsigned int> col(len2 + 1), prevCol(len2 + 1);
+	for (unsigned int i = 0; i < prevCol.size(); i++)
+		prevCol[i] = i;
+	for (unsigned int i = 0; i < len1; i++) {
+		col[0] = i + 1;
+		for (unsigned int j = 0; j < len2; j++) {
+			col[j + 1] = std::min({ prevCol[1 + j] + 1, col[j] + 1, prevCol[j] + (s1[i] == s2[j] ? 0 : 1) });
+		}
+		col.swap(prevCol);
+	}
+	return prevCol[len2];
+}
+
+//levenshtein distance with absolute beam
+unsigned int absBeamLevenshteinDistance(const vector<int>& s1, const vector<int>& s2) {
 	const size_t len_input = s1.size(), len_tem = s2.size();
 	vector<unsigned int > col(len_tem + 1), prevCol(len_tem + 1);
 

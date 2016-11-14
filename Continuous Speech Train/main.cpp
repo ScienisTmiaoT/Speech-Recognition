@@ -159,10 +159,10 @@ int testReadDir(vector<string>& files, string wavpath, string txtpath)
 	int vec_len = files.size();
 	for(int i = 0; i < vec_len; i++)
 	{
-		wavpath += files[i];
-		txtpath += to_string(i);
+		string wavp = wavpath + files[i];
+		string txtp = txtpath + to_string(i);
 		vector<vector<double>> testInput;
-		featureExtractionNew(testInput, wavpath, txtpath);
+		featureExtractionNew(testInput, wavp, txtp);
 		cout << "file index : " << i << " file name: " << files[i] << endl;
 	} 
 	
@@ -460,8 +460,24 @@ void testTrain()
 				resultRandom.push_back(resultDigitRandom.top());
 				resultDigitRandom.pop();
 			}
-			unsigned int errorByState = beamLevenshteinDistance(resultByState, digits[i]);
-			unsigned int errorRandom = beamLevenshteinDistance(resultRandom, digits[i]);
+
+			cout << "correct digits: " << endl;
+			for (int p = 0; p < digits[i].size(); p++)
+				cout << digits[i][p] << " ";
+			cout << endl;
+
+			cout << "recognize digits by state: " << endl;
+			for (int p = 0; p < resultByState.size(); p++)
+				cout << resultByState[p] << " ";
+			cout << endl;
+
+			cout << "recognize digits by random: " << endl;
+			for (int p = 0; p < resultRandom.size(); p++)
+				cout << resultRandom[p] << " ";
+			cout << endl << endl;
+
+			unsigned int errorByState = pureLevenshteinDistance(resultByState, digits[i]);
+			unsigned int errorRandom = pureLevenshteinDistance(resultRandom, digits[i]);
 			wholeWord += digits[i].size();
 			correctWordByState += (digits[i].size() - errorByState);
 			correctWordRandom += (digits[i].size() - errorRandom);
@@ -498,8 +514,19 @@ int main()
 {
 //	trainAll();
 	testTrain();
-//	testReadDir(files, trainWavPath, trainTxtPath);
+//	return 0;
+//	vector<string> files;
+//	string format = ".wav";
+//	GetAllFormatFiles(trainTestWavPath, files, format);
+//	testReadDir(files, trainTestWavPath, trainTestTxtPath);
 	//testSingleWav(370, files);
 //	writeSeg();
+	return 0;
+	vector<int> a = { 1, 2, 3, 4 };
+	vector<int> b = { 2, 3, 4, 5, 6 };
+	long x = pureLevenshteinDistance(a, b);
+	long y = absBeamLevenshteinDistance(a, b);
+	long z = beamLevenshteinDistance(a, b);
+	cout << "pure: " << x << " abs: " << y << " beam: " << z << endl;
 	return 0;
 }

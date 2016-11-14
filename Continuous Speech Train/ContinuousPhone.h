@@ -8,7 +8,7 @@
 #include "featureExtractionOld.h"
 #include "seg_K_mean.h"
 
-#define PENALTY  (6)
+#define PENALTY  (4.2)
 #define TYPE_NUM    (11)
 #define TEM_NUM     (5)
 #define INPUT_NUM   (10)
@@ -27,7 +27,8 @@
 //test data number
 #define TEST_TYPE (1000)
 //used to caculate accuracy
-#define ABSOLUTE_BEAM (3)
+#define BEAM (1)
+#define ABSOLUTE_BEAM (2)
 
 double Dis(vector<double>& matrix1, vector<double>& matrix2);
 double costUtil(vector<double>& vec, double c, int& pos);
@@ -54,6 +55,10 @@ stack<int> getRandomDigit(Trie& trie, vector<vector<double>>& input, vector<vect
 stack<int> backTraceRandom(vector<vector<double>>& input, vector<vector<vector<int>>>& backTable, vector<double>& last);
 
 unsigned int beamLevenshteinDistance(const vector<int>& s1, const vector<int>& s2);
+
+unsigned int pureLevenshteinDistance(const vector<int>& s1, const vector<int>& s2);
+
+unsigned int absBeamLevenshteinDistance(const vector<int>& s1, const vector<int>& s2);
 
 #endif
 
