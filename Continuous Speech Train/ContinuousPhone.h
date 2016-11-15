@@ -19,7 +19,7 @@
 //one template ten digits
 #define DIGIT_NUM (10)
 //six kinds of train data
-#define TRAIN_TYPE (8440)
+#define TRAIN_TYPE (20)
 //five same train data
 #define TRAIN_NUM (1)
 //eleven digits in trainning

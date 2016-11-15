@@ -441,7 +441,7 @@ vector<vector<vector<double>>> getContinuousSeg(int digit_num, vector<vector<vec
 vector<vector<int>> getStateIndex(int digit_num, vector<vector<vector<double>>>& segTemGroup, vector<vector<double>>& input, vector<vector<vector<double>>>& varianceTerm, vector<vector<vector<int>>>& countTransfer)
 {
 	stack<int> resultPos;
-	resultPos = DigitRecognition(digit_num, input, segTemGroup, varianceTerm, countTransfer);
+	resultPos = DigitGussianForTrain(digit_num, input, segTemGroup, varianceTerm, countTransfer);
 	vector<vector<int>> stateIndex(digit_num * SEG_NUM, vector<int>(2));
 	int segSize = (int)resultPos.size() + 1;
 	//check the seg size
@@ -1246,9 +1246,7 @@ stack<int> DigitGussianForTrain(int digit_num, vector<vector<double>>& input, ve
 	for (int i = 0; i < input_length; i++) {
 		for (int digit = 0; digit < digit_num; digit++) {
 			for (int tem_index = 0; tem_index < TYPE_NUM; tem_index++) {
-				if (digit_num == DIGIT_NUM7 && tem_index == 0 && digit == 0) {
-					tem_index += 2;
-				}
+				
 				if (i == 0)
 				{
 					if (digit == 0) {
