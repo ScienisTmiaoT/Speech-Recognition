@@ -25,8 +25,8 @@ string txtTestPathDigits = "C:\\Users\\Administrator\\Desktop\\Current\\Continuo
 string segTestPathDigits = "C:\\Users\\Administrator\\Desktop\\Current\\Continuous Speech\\Archive\\requiredTem\\segment.txt";
 
 //used to record train data project 7.2
-//string trainWavPath = "C:\\Users\\Administrator\\Desktop\\Current\\Continuous Speech\\hwdata\\train\\";
-//string trainTestWavPath = "C:\\Users\\Administrator\\Desktop\\Current\\Continuous Speech\\hwdata\\test\\";
+string trainWavPath = "C:\\Users\\Administrator\\Desktop\\Current\\Continuous Speech\\hwdata\\train\\";
+string trainTestWavPath = "C:\\Users\\Administrator\\Desktop\\Current\\Continuous Speech\\hwdata\\test\\";
 string trainTxtPath = "C:\\Users\\Administrator\\Desktop\\Current\\Continuous Speech\\hwdata\\train_txt\\";
 string trainTestTxtPath = "C:\\Users\\Administrator\\Desktop\\Current\\Continuous Speech\\hwdata\\test_txt\\";
 string segmentTrainPath = "C:\\Users\\Administrator\\Desktop\\Current\\Continuous Speech\\hwdata\\model\\segment.txt";
@@ -34,8 +34,15 @@ string varianceTrainPath = "C:\\Users\\Administrator\\Desktop\\Current\\Continuo
 string transferTrainPath = "C:\\Users\\Administrator\\Desktop\\Current\\Continuous Speech\\hwdata\\model\\transfer.txt";
 
 //test single wav file for project7.2
-string trainWavPath = "C:\\Users\\Administrator\\Desktop\\Current\\Continuous Speech\\hwdata\\collection\\train\\";
-string trainTestWavPath = "C:\\Users\\Administrator\\Desktop\\Current\\Continuous Speech\\hwdata\\collection\\test\\";
+//string trainWavPath = "C:\\Users\\Administrator\\Desktop\\Current\\Continuous Speech\\hwdata\\collection\\train\\";
+//string trainTestWavPath = "C:\\Users\\Administrator\\Desktop\\Current\\Continuous Speech\\hwdata\\collection\\test\\";
+
+//use single to init k-means
+string segmentPathInit = "C:\\Users\\Administrator\\Desktop\\Current\\Continuous Speech\\hwdata\\init\\segment.txt";
+string variancePathInit = "C:\\Users\\Administrator\\Desktop\\Current\\Continuous Speech\\hwdata\\init\\variance.txt";
+string transferPathInit = "C:\\Users\\Administrator\\Desktop\\Current\\Continuous Speech\\hwdata\\init\\transfer.txt";
+string wavTemPathInit = "C:\\Users\\Administrator\\Desktop\\Current\\Continuous Speech\\hwdata\\init\\";
+string txtTemPathInit = "C:\\Users\\Administrator\\Desktop\\Current\\Continuous Speech\\hwdata\\init\\";
 
 void problem3(vector<vector<vector<double>>> segTemGroup, vector<vector<double>> testInput, vector<vector<vector<double>>> varianceTerm, vector<vector<vector<int>>> countTransfer)
 {
@@ -74,6 +81,84 @@ void writeSeg() {
 	ofstream out(segmentPath);
 	ofstream out2(variancePath);
 	ofstream out3(transferPath);
+	for (int i = 0; i < TYPE_NUM; i++)
+	{
+		cout << "template " << i << endl;
+
+		for (int j = 0; j < SEG_NUM + 1; j++) {
+			for (int k = 0; k < SEG_NUM; k++) {
+				out3 << countTransfer[i][j][k] << " ";
+			}
+			out3 << endl;
+		}
+
+		for (int j = 0; j < SEG_NUM; j++)
+		{
+			cout << "state " << j << endl;
+			for (int k = 0; k < DIMENSION; k++)
+			{
+				out << segTemGroup[i][j][k] << " ";
+				out2 << varianceTerm[i][j][k] << " ";
+			}
+			out << endl;
+			out2 << endl;
+		}
+		out << endl;
+		out2 << endl;
+		out3 << endl;
+	}
+	out.close();
+	out2.close();
+	out3.close();
+}
+
+void writeSegForTain() {
+
+	vector<vector<string>> dir;
+	for(int i = 0; i < TYPE_NUM; i++)
+	{
+		vector<string> files;
+		string format = ".wav";
+		GetAllFormatFiles(wavTemPathInit + to_string(i) + "\\", files, format);
+		dir.push_back(files);
+	}
+
+
+
+	vector<vector<vector<double>>> segTemGroup;
+	vector<vector<vector<double>>> varianceTerm(TYPE_NUM, vector<vector<double>>(SEG_NUM, vector<double>(DIMENSION)));
+	vector<vector<vector<int>>> countTransfer(TYPE_NUM, vector<vector<int>>(SEG_NUM + 1, vector<int>(SEG_NUM)));
+	for (int i = 0; i < TYPE_NUM; i++) {
+		vector<vector<vector<double>>> temGroup;
+		for (int j = 0; j < dir[i].size(); j++) {
+			cout << "-----------------------Template " << i << " Instance " << j << "------------------------" << endl;
+			string wavpath = wavTemPathInit + to_string(i) + "\\" + dir[i][j];
+			//            capture(wavpath);
+			vector<vector<double>> temFeature;
+			string txtpath = txtTemPathInit + to_string(i) + "\\" + dir[i][j] + "_";
+			featureExtractionNew(temFeature, wavpath, txtpath);
+			temGroup.push_back(temFeature);
+
+			temFeature.swap(vector<vector<double>>());
+
+			//avoid memory problem
+			if (i == (TYPE_NUM - 1) && j == 40)
+				break;
+		}
+		vector<vector<double>> segTem;
+		segTem = dtw2hmm(temGroup, varianceTerm[i], countTransfer[i]);
+		cout << "You have got the segment template!!!!!!!!!!!!!!!!!!!" << endl;
+		segTemGroup.push_back(segTem);
+
+		segTem.swap(vector<vector<double>>());
+		temGroup.swap(vector<vector<vector<double>>>());
+	}
+
+	cout << segTemGroup.size() << endl;
+
+	ofstream out(segmentPathInit);
+	ofstream out2(variancePathInit);
+	ofstream out3(transferPathInit);
 	for (int i = 0; i < TYPE_NUM; i++)
 	{
 		cout << "template " << i << endl;
@@ -243,9 +328,9 @@ void trainAll()
 	vector<vector<vector<double>>> segTemGroup(TYPE_NUM, vector<vector<double>>(SEG_NUM, vector<double>(DIMENSION)));
 	vector<vector<vector<double>>> varianceTerm(TYPE_NUM, vector<vector<double>>(SEG_NUM, vector<double>(DIMENSION)));
 	vector<vector<vector<int>>> countTransfer(TYPE_NUM, vector<vector<int>>(SEG_NUM + 1, vector<int>(SEG_NUM)));
-	ifstream in(segmentPath);
-	ifstream in2(variancePath);
-	ifstream in3(transferPath);
+	ifstream in(segmentPathInit);
+	ifstream in2(variancePathInit);
+	ifstream in3(transferPathInit);
 	for (int i = 0; i < TYPE_NUM; i++)
 	{
 		for (int j = 0; j < SEG_NUM; j++)
@@ -465,11 +550,15 @@ void testTrain()
 			}
 
 			//calculate single accuracy
-			if(digits[i].size() == 1 && resultByState.size() == 1 && resultRandom.size() == 1)
-			{
+			if (digits[i].size() == 1)
 				singleWord++;
+			if(digits[i].size() == 1 && resultByState.size() == 1)
+			{
 				if (digits[i][0] == resultByState[0])
 					stateSingle++;
+			}
+			if(digits[i].size() == 1 && resultRandom.size() == 1)
+			{
 				if (digits[i][0] == resultRandom[0])
 					randomSingle++;
 			}
@@ -685,11 +774,17 @@ void testTrainOther()
 
 	vector<vector<vector<vector<double>>>> input(TEST_TYPE, vector<vector<vector<double>>>(TRAIN_NUM, vector<vector<double>>()));
 
+	vector<string> files;
+	string format = ".wav";
+	GetAllFormatFiles(trainTestWavPath, files, format);
+	vector<vector<int>> digits;
+	digits = parseDigit(files);
+
 	for (int i = 0; i < TEST_TYPE; i++)
 	{
 		for (int j = 0; j < TRAIN_NUM; j++)
 		{
-			string txtTestPath = trainTestTxtPath + to_string(i) + "result.txt";
+			string txtTestPath = trainTestWavPath + files[i].substr(0, files[i].size() - 4);
 			ifstream inTrain(txtTestPath);
 			vector<vector<double>> testInput;
 			vector<double> singleInput;
@@ -713,12 +808,6 @@ void testTrainOther()
 	}
 
 	cout << "load single segment" << endl;
-
-	vector<string> files;
-	string format = ".wav";
-	GetAllFormatFiles(trainTestWavPath, files, format);
-	vector<vector<int>> digits;
-	digits = parseDigit(files);
 
 	long correctWordByState = 0;
 	long correctWordRandom = 0;
@@ -817,13 +906,16 @@ void testTrainOther()
 
 int main()
 {
-	trainAllOther();
-//	testTrain();
+//	trainAll();
+//	trainAllOther();
+//	testTrainOther();
+	testTrain();
+//	writeSegForTain();
 	return 0;
 	vector<string> files;
 	string format = ".wav";
 	GetAllFormatFiles(trainWavPath, files, format);
-	cout << files[0];
+	cout << files[1128];
 //	testReadDir(files, trainTestWavPath, trainTestTxtPath);
 	//testSingleWav(370, files);
 //	writeSeg();

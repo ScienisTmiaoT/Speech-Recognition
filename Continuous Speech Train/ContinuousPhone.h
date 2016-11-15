@@ -8,7 +8,7 @@
 #include "featureExtractionOld.h"
 #include "seg_K_mean.h"
 
-#define PENALTY  (100)
+#define PENALTY  (60)
 #define TYPE_NUM    (11)
 #define TEM_NUM     (5)
 #define INPUT_NUM   (10)
@@ -19,7 +19,7 @@
 //one template ten digits
 #define DIGIT_NUM (10)
 //six kinds of train data
-#define TRAIN_TYPE (20)
+#define TRAIN_TYPE (8440)
 //five same train data
 #define TRAIN_NUM (1)
 //eleven digits in trainning

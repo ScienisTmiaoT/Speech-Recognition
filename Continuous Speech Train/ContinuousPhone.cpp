@@ -58,7 +58,7 @@ int getMatrixIndex(int digit_index, int tem_index, int state)
 }
 
 // get digit based on the index
-int getDigit(int index) {
+int getDigitUtil(int index) {
 	return (index / (TYPE_NUM * SEG_NUM));
 }
 
@@ -458,6 +458,7 @@ vector<vector<int>> getStateIndex(int digit_num, vector<vector<vector<double>>>&
 		curX = resultPos.top();
 		if (preX == 0)
 		{
+			//can not divide by integer
 			int interval = (curX - preX + 1) / SEG_NUM;
 			int preVal = preX;
 			for (int i = 0; i < SEG_NUM; i++)
@@ -477,6 +478,7 @@ vector<vector<int>> getStateIndex(int digit_num, vector<vector<vector<double>>>&
 		}
 		else
 		{
+			//can not divide by integer
 			int interval = (curX - preX) / SEG_NUM;
 			int preVal = preX;
 			for (int i = 0; i < SEG_NUM; i++)
@@ -829,8 +831,8 @@ stack<int> DigitRecognition(int digit_num, vector<vector<double>>& input, vector
 		}
 
 		if (i > 0) {
-			cur_digit = getDigit(cur_index);
-			pre_digit = getDigit(pre_index);
+			cur_digit = getDigitUtil(cur_index);
+			pre_digit = getDigitUtil(pre_index);
 			if (cur_digit != pre_digit) {
 				//				int temp = getTem(pre_index);
 				int temp = getTem(pre_index);
@@ -1029,8 +1031,8 @@ stack<int> getDigit(int digit_num, vector<vector<double>>& input, vector<vector<
 		}
 
 		if (i > 0) {
-			cur_digit = getDigit(cur_index);
-			pre_digit = getDigit(pre_index);
+			cur_digit = getDigitUtil(cur_index);
+			pre_digit = getDigitUtil(pre_index);
 			if (cur_digit != pre_digit) {
 				//				int temp = getTem(pre_index);
 				int temp = getTem(pre_index);
@@ -1198,8 +1200,8 @@ stack<int> DigitRecognitionGussian(int digit_num, vector<vector<double>>& input,
 		}
 
 		if (i > 0) {
-			cur_digit = getDigit(cur_index);
-			pre_digit = getDigit(pre_index);
+			cur_digit = getDigitUtil(cur_index);
+			pre_digit = getDigitUtil(pre_index);
 			if (cur_digit != pre_digit) {
 				//				int temp = getTem(pre_index);
 				int temp = getTem(pre_index);
@@ -1351,7 +1353,7 @@ stack<int> DigitGussianForTrain(int digit_num, vector<vector<double>>& input, ve
 	stack<int> resultPhone;
 	stack<int> resultWords;
 	resultWords.push(getTem(cur_index));
-	//	resultPhone.push(cur_index);
+	//resultPhone.push(cur_index);
 
 	int cur_digit = -1;
 	int pre_digit = -1;
@@ -1365,13 +1367,13 @@ stack<int> DigitGussianForTrain(int digit_num, vector<vector<double>>& input, ve
 		}
 
 		if (i > 0) {
-			cur_digit = getDigit(cur_index);
-			pre_digit = getDigit(pre_index);
+			cur_digit = getDigitUtil(cur_index);
+			pre_digit = getDigitUtil(pre_index);
 			if (cur_digit != pre_digit) {
 				//				int temp = getTem(pre_index);
 				int temp = getTem(pre_index);
 				resultWords.push(temp);
-				resultPhone.push(i);
+				resultPhone.push(i - 1);
 			}
 		}
 		cur_index = pre_index;

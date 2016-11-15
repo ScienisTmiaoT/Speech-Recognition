@@ -26,7 +26,7 @@ double nodeCost(vector<double>& frame, vector<double>& segTem, vector<double>& v
 	double nodeCost = 0;
 
 	for (int i = 0; i < DIMENSION; i++) {
-		if (varianceTerm[i] != 0)
+		if (varianceTerm[i] > MIN_VARIANCE)
 		{
 			nodeCost += log(2 * PI * varianceTerm[i]) + pow((frame[i] - segTem[i]), 2) / varianceTerm[i];
 		}
@@ -114,6 +114,8 @@ vector<vector<int>> getOneSegIndex(vector<vector<double>>& temp1, vector<vector<
 	}
 
 	prevCol = colMax;
+	double nodeTemp = nodeCost(temp1[0], segmentTem[0], varianceTerm[0]);
+	double edgeTemp = edgeCost(0, countTransfer[0]);
 	prevCol[0] = nodeCost(temp1[0], segmentTem[0], varianceTerm[0]) + edgeCost(0, countTransfer[0]);
 	//    prevCol[1] = nodeCost(temp1[0], segmentTem[1], varianceTerm[1]) + edgeCost(1, countTransfer[0]);
 	costMap[0] = prevCol;
@@ -239,7 +241,14 @@ vector<vector<double>> getSegTem(vector<vector<vector<int>>>& segIndex, vector<v
 	// compute the average of the segmental templates.
 	for (int i = 0; i < state_num; i++) {
 		for (int j = 0; j < DIMENSION; j++) {
-			segmentTem[i][j] /= countVector[i];
+			if (countVector[i] != 0)
+			{
+				segmentTem[i][j] /= countVector[i];
+			}
+			else
+			{
+				segmentTem[i][j] /= 1;
+			}
 		}
 	}
 
