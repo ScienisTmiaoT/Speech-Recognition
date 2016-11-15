@@ -25,8 +25,8 @@ string txtTestPathDigits = "C:\\Users\\Administrator\\Desktop\\Current\\Continuo
 string segTestPathDigits = "C:\\Users\\Administrator\\Desktop\\Current\\Continuous Speech\\Archive\\requiredTem\\segment.txt";
 
 //used to record train data project 7.2
-string trainWavPath = "C:\\Users\\Administrator\\Desktop\\Current\\Continuous Speech\\hwdata\\train\\";
-string trainTestWavPath = "C:\\Users\\Administrator\\Desktop\\Current\\Continuous Speech\\hwdata\\test\\";
+//string trainWavPath = "C:\\Users\\Administrator\\Desktop\\Current\\Continuous Speech\\hwdata\\train\\";
+//string trainTestWavPath = "C:\\Users\\Administrator\\Desktop\\Current\\Continuous Speech\\hwdata\\test\\";
 string trainTxtPath = "C:\\Users\\Administrator\\Desktop\\Current\\Continuous Speech\\hwdata\\train_txt\\";
 string trainTestTxtPath = "C:\\Users\\Administrator\\Desktop\\Current\\Continuous Speech\\hwdata\\test_txt\\";
 string segmentTrainPath = "C:\\Users\\Administrator\\Desktop\\Current\\Continuous Speech\\hwdata\\model\\segment.txt";
@@ -34,8 +34,8 @@ string varianceTrainPath = "C:\\Users\\Administrator\\Desktop\\Current\\Continuo
 string transferTrainPath = "C:\\Users\\Administrator\\Desktop\\Current\\Continuous Speech\\hwdata\\model\\transfer.txt";
 
 //test single wav file for project7.2
-//string trainWavPath = "C:\\Users\\Administrator\\Desktop\\Current\\Continuous Speech\\hwdata\\useless\\train_for_test\\";
-//string trainTxtPath = "C:\\Users\\Administrator\\Desktop\\Current\\Continuous Speech\\hwdata\\useless\\train_txt_for_test\\";
+string trainWavPath = "C:\\Users\\Administrator\\Desktop\\Current\\Continuous Speech\\hwdata\\collection\\train\\";
+string trainTestWavPath = "C:\\Users\\Administrator\\Desktop\\Current\\Continuous Speech\\hwdata\\collection\\test\\";
 
 void problem3(vector<vector<vector<double>>> segTemGroup, vector<vector<double>> testInput, vector<vector<vector<double>>> varianceTerm, vector<vector<vector<int>>> countTransfer)
 {
@@ -434,15 +434,18 @@ void testTrain()
 	long correctWordRandom = 0;
 	long correctSen = 0;
 	long wholeWord = 0;
+	long singleWord = 0;
+	long stateSingle = 0;
+	long randomSingle = 0;
 	for (int i = 0; i < TEST_TYPE; i++)
 	{
 		for (int j = 0; j < TRAIN_NUM; j++)
 		{
 			stack<int> resultDigitByState;
-			resultDigitByState = getDigit(digits[i].size(), input[i][j], segTemGroup, varianceTerm, countTransfer);
+			resultDigitByState = DigitRecognitionGussian(digits[i].size(), input[i][j], segTemGroup, varianceTerm, countTransfer);
 
 			stack<int> resultDigitRandom;
-			resultDigitRandom = getRandomDigit(trie, input[i][j], varianceTerm, countTransfer);
+			resultDigitRandom = RestrictPhoneGuassian(trie, input[i][j], varianceTerm, countTransfer);
 
 			//int count = 0;
 			//bool senFlag = true;
@@ -459,6 +462,16 @@ void testTrain()
 			{
 				resultRandom.push_back(resultDigitRandom.top());
 				resultDigitRandom.pop();
+			}
+
+			//calculate single accuracy
+			if(digits[i].size() == 1 && resultByState.size() == 1 && resultRandom.size() == 1)
+			{
+				singleWord++;
+				if (digits[i][0] == resultByState[0])
+					stateSingle++;
+				if (digits[i][0] == resultRandom[0])
+					randomSingle++;
 			}
 
 			cout << "correct digits: " << endl;
@@ -479,8 +492,8 @@ void testTrain()
 			unsigned int errorByState = pureLevenshteinDistance(resultByState, digits[i]);
 			unsigned int errorRandom = pureLevenshteinDistance(resultRandom, digits[i]);
 			wholeWord += digits[i].size();
-			correctWordByState += (digits[i].size() - errorByState);
-			correctWordRandom += (digits[i].size() - errorRandom);
+			correctWordByState += (digits[i].size() - errorByState) > 0 ? (digits[i].size() - errorByState) : (errorByState - digits[i].size());
+			correctWordRandom += (digits[i].size() - errorRandom) > 0 ? (digits[i].size() - errorRandom) : (errorRandom - digits[i].size());
 			/*
 			while(!resultDigit.empty())
 			{
@@ -506,6 +519,8 @@ void testTrain()
 	}
 	cout << "word accuracy by state machine: " << (double)correctWordByState / wholeWord << endl;
 	cout << "word accuracy by random: " << (double)correctWordRandom / wholeWord << endl;
+	cout << "single word accuracy by state machine: " << (double)stateSingle / singleWord << endl;
+	cout << "single word accuracy by random: " << (double)randomSingle / singleWord << endl;
 	//cout << "sentence accuracy: " << (double)correctSen / TEST_TYPE << endl;
 	return;
 }
@@ -513,11 +528,12 @@ void testTrain()
 int main()
 {
 //	trainAll();
-	testTrain();
+//	testTrain();
 //	return 0;
-//	vector<string> files;
-//	string format = ".wav";
-//	GetAllFormatFiles(trainTestWavPath, files, format);
+	vector<string> files;
+	string format = ".wav";
+	GetAllFormatFiles(trainWavPath, files, format);
+	cout << files[0];
 //	testReadDir(files, trainTestWavPath, trainTestTxtPath);
 	//testSingleWav(370, files);
 //	writeSeg();

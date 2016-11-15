@@ -8,7 +8,7 @@
 #include "featureExtractionOld.h"
 #include "seg_K_mean.h"
 
-#define PENALTY  (4.2)
+#define PENALTY  (100)
 #define TYPE_NUM    (11)
 #define TEM_NUM     (5)
 #define INPUT_NUM   (10)
@@ -50,7 +50,13 @@ stack<int> DigitRecognition(int digit_num, vector<vector<double>>& input, vector
 
 stack<int> getDigit(int digit_num, vector<vector<double>>& input, vector<vector<vector<double>>>& segTemGroup, vector<vector<vector<double>>>& varianceTerm, vector<vector<vector<int>>>& countTransfer);
 
+stack<int> DigitRecognitionGussian(int digit_num, vector<vector<double>>& input, vector<vector<vector<double>>>& segTemGroup, vector<vector<vector<double>>> &varianceTerm, vector<vector<vector<int>>>& countTransfer);
+
+stack<int> DigitGussianForTrain(int digit_num, vector<vector<double>>& input, vector<vector<vector<double>>>& segTemGroup, vector<vector<vector<double>>> &varianceTerm, vector<vector<vector<int>>>& countTransfer);
+
 stack<int> getRandomDigit(Trie& trie, vector<vector<double>>& input, vector<vector<vector<double>>>& varianceTerm, vector<vector<vector<int>>>& countTransfer);
+
+stack<int> RestrictPhoneGuassian(Trie& trie, vector<vector<double>>& input, vector<vector<vector<double>>>& varianceTerm, vector<vector<vector<int>>>& countTransfer);
 
 stack<int> backTraceRandom(vector<vector<double>>& input, vector<vector<vector<int>>>& backTable, vector<double>& last);
 
