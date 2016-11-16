@@ -914,9 +914,9 @@ int main()
 	return 0;
 	vector<string> files;
 	string format = ".wav";
-	GetAllFormatFiles(trainWavPath, files, format);
-	cout << files[1128];
-//	testReadDir(files, trainTestWavPath, trainTestTxtPath);
+	GetAllFormatFiles(trainTestWavPath, files, format);
+//	cout << files[1128];
+	testReadDir(files, trainTestWavPath, trainTestTxtPath);
 	//testSingleWav(370, files);
 //	writeSeg();
 	return 0;

@@ -454,19 +454,21 @@ vector<vector<vector<vector<int>>>> conDtw2hmm(vector<vector<vector<vector<doubl
 
 	for (int i = 0; i < tem_type; i++)
 	{
+		int loop_time = 0;
 		int temp_num = 0;
 		int state_num = (int)initSegIndex[i][0].size();
 		vector<vector<double>> segmentTem;
 		segmentTem = getSegTem(segIndex[i], temGroup[i], state_num);
 		//        getSegIndex(segmentTem, temGroup[i], segIndexPrev[i], varianceTerm[i], countTransfer[i], state_num);
 		segIndex[i] = getSegIndex(segmentTem, temGroup[i], segIndexPrev[i], varianceTerm[i], countTransfer[i], state_num);
-		while (segIndex[i] != segIndexPrev[i]) {
+		while (loop_time < 5) {
 			segIndexPrev[i] = segIndex[i];
 			segmentTem = getSegTem(segIndex[i], temGroup[i], state_num);
 			//cout << "get seg tem" << endl;
 			segIndex[i] = getSegIndex(segmentTem, temGroup[i], segIndexPrev[i], varianceTerm[i], countTransfer[i], state_num);
 			//cout << "get seg index" << endl;
 			temp_num += 1;
+			loop_time += 1;
 		}
 		cout << "k-means for type " << i << " finished" << endl;
 		//        segmentFullTems.push_back(segmentTem);
