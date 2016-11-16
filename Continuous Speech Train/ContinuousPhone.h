@@ -5,6 +5,7 @@
 #include <stack>
 #include "Trie.h"
 #include "dtw.h"
+#include "multGaussian.h"
 #include "featureExtractionOld.h"
 #include "seg_K_mean.h"
 
@@ -19,13 +20,15 @@
 //one template ten digits
 #define DIGIT_NUM (10)
 //six kinds of train data
-#define TRAIN_TYPE (8440)
+#define TRAIN_TYPE (3)
 //five same train data
 #define TRAIN_NUM (1)
 //eleven digits in trainning
 #define DIGIT_TYPE (11)
 //test data number
 #define TEST_TYPE (1000)
+//gaussian kernel number
+#define KERNEL_NUM (4)
 //used to caculate accuracy
 #define BEAM (1)
 #define ABSOLUTE_BEAM (2)
@@ -45,6 +48,8 @@ vector<vector<vector<vector<int>>>> getAllStateIndex(int digit_num, vector<vecto
 vector<vector<vector<double>>> getSegFrame(vector<vector<vector<vector<int>>>>& allState, vector<vector<vector<vector<double>>>>& input);
 
 vector<vector<vector<double>>> getTrainFrame(vector<vector<vector<vector<int>>>>& allState, vector<vector<vector<vector<double>>>>& input, vector<vector<int>> digits, vector<vector<vector<double>>>& varianceSeg, vector<vector<vector<int>>>& transferSeg);
+
+vector<vector<vector<vector<double>>>> getTrainFrame_G(vector<vector<vector<vector<int>>>>& allState, vector<vector<vector<vector<double>>>>& input, vector<vector<int>> digits, vector<vector<vector<vector<double>>>>& varianceSeg, vector<vector<vector<int>>>& transferSeg, vector<vector<vector<vector<double>>>>& multi_kernel);
 
 stack<int> DigitRecognition(int digit_num, vector<vector<double>>& input, vector<vector<vector<double>>>& segTemGroup, vector<vector<vector<double>>>& varianceTerm, vector<vector<vector<int>>>& countTransfer);
 

@@ -148,6 +148,7 @@
     <ClInclude Include="featureExtractionOld.h" />
     <ClInclude Include="fft.h" />
     <ClInclude Include="framePrune.h" />
+    <ClInclude Include="multGaussian.h" />
     <ClInclude Include="ReadDir.h" />
     <ClInclude Include="readwave.h" />
     <ClInclude Include="seg_K_mean.h" />
@@ -160,6 +161,7 @@
     <ClCompile Include="fft.cpp" />
     <ClCompile Include="framePrune.cpp" />
     <ClCompile Include="main.cpp" />
+    <ClCompile Include="multGaussian.cpp" />
     <ClCompile Include="ReadDir.cpp" />
     <ClCompile Include="readwave.cpp" />
     <ClCompile Include="seg_K_mean.cpp" />

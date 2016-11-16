@@ -5,6 +5,8 @@
 #include "ReadDir.h"
 #include "featureExtractionNew.h"
 
+
+
 using namespace std;
 
 string wavTestPath = "C:\\Users\\Administrator\\Desktop\\Current\\Continuous Speech\\record.wav";
@@ -399,11 +401,15 @@ void trainAll()
 	vector<vector<vector<int>>> transfer(TRAIN_TYPE, vector<vector<int>>(DIGIT_TYPE * SEG_NUM + 1, vector<int>(DIGIT_TYPE * SEG_NUM)));
 	resultState = conDtw2hmm(input, allState, variance, transfer);
 
+	vector<vector<vector<vector<double>>>> variance_G(TRAIN_TYPE, vector<vector<vector<double>>>());
+	vector<vector<vector<int>>> transfer_G(TRAIN_TYPE, vector<vector<int>>());
+	vector<vector<vector<vector<double>>>> multi_kernel = multiGaussDtw2hmm(input, KERNEL_NUM, resultState, variance_G, transfer_G);
+
 	cout << "get result state" << endl;
 
-	vector<vector<vector<double>>> varianceSeg(DIGIT_TYPE, vector<vector<double>>(SEG_NUM, vector<double>(DIMENSION)));
+	vector<vector<vector<vector<double>>>> varianceSeg(DIGIT_TYPE, vector<vector<vector<double>>>(SEG_NUM, vector<vector<double>>(KERNEL_NUM, vector<double>(DIMENSION))));
 	vector<vector<vector<int>>> transferSeg(DIGIT_TYPE, vector<vector<int>>(SEG_NUM + 1, vector<int>(SEG_NUM)));
-	vector<vector<vector<double>>>resultSeg = getTrainFrame(resultState, input, digits, varianceSeg, transferSeg);
+	vector<vector<vector<vector<double>>>>resultSeg = getTrainFrame_G(resultState, input, digits, varianceSeg, transferSeg, multi_kernel);
 
 	cout << "get result seg" << endl;
 
@@ -414,10 +420,15 @@ void trainAll()
 	{
 		for (int j = 0; j < SEG_NUM; j++)
 		{
-			for (int k = 0; k < DIMENSION; k++)
+			for (int p = 0; p < KERNEL_NUM; p++)
 			{
-				out << resultSeg[i][j][k] << " ";
-				out1 << varianceSeg[i][j][k] << " ";
+				for (int k = 0; k < DIMENSION; k++)
+				{
+					out << resultSeg[i][j][p][k] << " ";
+					out1 << varianceSeg[i][j][p][k] << " ";
+				}
+				out << endl;
+				out1 << endl;
 			}
 			out << endl;
 			out1 << endl;
@@ -906,10 +917,10 @@ void testTrainOther()
 
 int main()
 {
-//	trainAll();
+	trainAll();
 //	trainAllOther();
 //	testTrainOther();
-	testTrain();
+//	testTrain();
 //	writeSegForTain();
 	return 0;
 	vector<string> files;

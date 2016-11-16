@@ -654,6 +654,95 @@ vector<vector<vector<double>>> getTrainFrame(vector<vector<vector<vector<int>>>>
 	return temSeg;
 }
 
+vector<vector<vector<vector<double>>>> getTrainFrame_G(vector<vector<vector<vector<int>>>>& allState, vector<vector<vector<vector<double>>>>& input, vector<vector<int>> digits, vector<vector<vector<vector<double>>>>& varianceSeg, vector<vector<vector<int>>>& transferSeg, vector<vector<vector<vector<double>>>>& multi_kernel)
+{
+	vector<vector<vector<vector<double>>>> temSeg(DIGIT_TYPE, vector<vector<vector<double>>>(SEG_NUM, vector<vector<double>>(KERNEL_NUM, vector<double>(DIMENSION))));
+
+	vector<vector<vector<vector<double>>>> stateFrame(DIGIT_TYPE, vector<vector<vector<double>>>(SEG_NUM, vector<vector<double>>()));
+
+	vector<vector<vector<vector<vector<double>>>>> frameForG(DIGIT_TYPE, vector<vector<vector<vector<double>>>>(SEG_NUM, vector<vector<vector<double>>>(KERNEL_NUM, vector<vector<double>>())));
+
+	vector<vector<vector<vector<double>>>> multi_kernel_temp(DIGIT_TYPE, vector<vector<vector<double>>>(SEG_NUM, vector<vector<double>>()));
+
+	//extract frame
+	for (int i = 0; i < TRAIN_TYPE; i++)
+	{
+		for (int j = 0; j < digits[i].size(); j++)
+		{
+			for (int k = 0; k < TRAIN_NUM; k++)
+			{
+				for (int p = 0; p < SEG_NUM; p++)
+				{
+					int start = allState[i][k][j * SEG_NUM + p][0];
+					int end = allState[i][k][j * SEG_NUM + p][1];
+					for (int x = start; x <= end; x++)
+					{
+						stateFrame[digits[i][j]][p].push_back(input[i][k][x]);
+						multi_kernel_temp[digits[i][j]][p].push_back(multi_kernel[i][k][p]);
+					}
+				}
+			}
+		}
+	}
+
+	//extract frame for gaussian
+	for (int i = 0; i < DIGIT_TYPE; i++)
+	{
+		for (int j = 0; j < SEG_NUM; j++)
+		{
+			int len = (int)stateFrame[i][j].size();
+
+			
+				vector<double> sum(KERNEL_NUM);
+				for (int p = 0; p < len; p++)
+				{
+					double minDis = E_dis(stateFrame[i][j][p], multi_kernel_temp[i][j][0]);
+					int minIndex = 0;
+					for(int k = 1; k < KERNEL_NUM; k++)
+					{
+						double distance = E_dis(stateFrame[i][j][p], multi_kernel_temp[i][j][k]);
+						if (distance < minDis)
+						{
+							minDis = distance;
+							minIndex = k;
+						}
+					}
+					frameForG[i][j][minIndex].push_back(stateFrame[i][j][p]);
+				}
+			
+		}
+	}
+
+	//average frame for gaussian
+	for (int i = 0; i < DIGIT_TYPE; i++)
+	{
+		for (int j = 0; j < SEG_NUM; j++)
+		{
+			for(int p = 0; p < KERNEL_NUM; p++)
+			{
+				int len = frameForG[i][j][p].size();
+				double sum = 0;
+				for(int k = 0; k < DIMENSION; k++)
+				{
+					for(int x = 0; x < len; x++)
+					{
+						sum += frameForG[i][j][p][x][k];
+					}
+					temSeg[i][j][p][k] = sum / len;
+				}
+			}
+		}
+	}
+
+	for (int i = 0; i < DIGIT_TYPE; i++)
+	{
+		varianceSeg[i] = getVariance(input[i], multi_kernel[i], allState[i]);
+		transferSeg[i] = getTransfer(input[i], multi_kernel[i], allState[i]);
+	}
+
+	return temSeg;
+}
+
 //return seg position
 stack<int> DigitRecognition(int digit_num, vector<vector<double>>& input, vector<vector<vector<double>>>& segTemGroup, vector<vector<vector<double>>>& varianceTerm, vector<vector<vector<int>>>& countTransfer)
 {
